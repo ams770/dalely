@@ -35,9 +35,7 @@ class CarCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: colors.surface,
             borderRadius: AppDimens.borderRadiusLarge,
-            border: Border.all(
-              color: colors.outlineVariant.withAlpha(100),
-            ),
+            border: Border.all(color: colors.outlineVariant.withAlpha(100)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withAlpha(10),
@@ -56,9 +54,7 @@ class CarCard extends StatelessWidget {
               crossFadeState: hasCar
                   ? CrossFadeState.showSecond
                   : CrossFadeState.showFirst,
-              firstChild: _EmptyCarContent(
-                onPark: () => _handlePark(context),
-              ),
+              firstChild: _EmptyCarContent(onPark: () => _handlePark(context)),
               secondChild: car != null
                   ? _ActiveCarContent(
                       car: car,
@@ -118,9 +114,8 @@ class CarCard extends StatelessWidget {
       );
       if (context.mounted) {
         ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.carSaved)),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(l10n.carSaved)));
       }
     } else {
       if (context.mounted) {
@@ -148,9 +143,8 @@ class CarCard extends StatelessWidget {
             ),
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.locationUnavailable)),
-          );
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(l10n.locationUnavailable)));
         }
       }
     }
@@ -297,24 +291,28 @@ class _EmptyCarContent extends StatelessWidget {
                       height: 1.35,
                     ),
                   ),
-                  const SizedBox(height: AppDimens.space16),
-                  _PillButton(
-                    label: l10n.parkHere,
-                    icon: Icons.add_location_alt_rounded,
-                    backgroundColor: colors.primary,
-                    foregroundColor: colors.onPrimary,
-                    onPressed: onPark,
+                  Row(
+                    crossAxisAlignment: .end,
+                    mainAxisAlignment: .spaceBetween,
+                    children: [
+                      _PillButton(
+                        label: l10n.parkHere,
+                        icon: Icons.add_location_alt_rounded,
+                        backgroundColor: colors.primary,
+                        foregroundColor: colors.onPrimary,
+                        onPressed: onPark,
+                      ),
+
+                      const SizedBox(
+                        width: AppDimens.carImageSize,
+                        child: Image(
+                          image: AssetProvider.carImage,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(width: AppDimens.space8),
-            const SizedBox(
-              width: AppDimens.carImageSize,
-              height: AppDimens.carImageSize,
-              child: Image(
-                image: AssetProvider.carImage,
-                fit: BoxFit.contain,
               ),
             ),
           ],
@@ -392,4 +390,3 @@ class _PillButton extends StatelessWidget {
     );
   }
 }
-

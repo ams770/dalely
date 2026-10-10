@@ -19,8 +19,8 @@ enum MarkerZoomTier {
 
   Offset get anchor {
     return switch (this) {
-      MarkerZoomTier.high => const Offset(0.5, 0.9),
-      MarkerZoomTier.medium => const Offset(0.5, 0.85),
+      MarkerZoomTier.high => const Offset(0.5, 0.83),
+      MarkerZoomTier.medium => const Offset(0.5, 0.81),
       MarkerZoomTier.low => const Offset(0.5, 0.5),
     };
   }
@@ -101,24 +101,24 @@ class MarkerIconCache {
     required Color color,
     required bool isSelected,
   }) async {
-    const size = 120.0;
+    const size = 72.0;
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
-    final center = const Offset(size / 2, size / 2 - 8);
-    final radius = isSelected ? 38.0 : 32.0;
+    final center = const Offset(size / 2, size / 2 - 6);
+    final radius = isSelected ? 23.0 : 19.0;
 
     // Drop shadow
     final shadowPaint = Paint()
-      ..color = const Color(0x44000000)
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 8);
-    canvas.drawCircle(center.translate(0, 6), radius, shadowPaint);
+      ..color = const Color(0x38000000)
+      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 5);
+    canvas.drawCircle(center.translate(0, 4), radius, shadowPaint);
 
     // Outer ring / border
     final ringPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius + 4, ringPaint);
+    canvas.drawCircle(center, radius + 2.5, ringPaint);
 
     // Colored body
     final bodyPaint = Paint()
@@ -128,16 +128,16 @@ class MarkerIconCache {
 
     // Pin bottom pointer triangle
     final pointerPath = Path()
-      ..moveTo(size / 2 - 10, center.dy + radius - 4)
-      ..lineTo(size / 2 + 10, center.dy + radius - 4)
-      ..lineTo(size / 2, center.dy + radius + 14)
+      ..moveTo(size / 2 - 6, center.dy + radius - 2.5)
+      ..lineTo(size / 2 + 6, center.dy + radius - 2.5)
+      ..lineTo(size / 2, center.dy + radius + 9)
       ..close();
     canvas.drawPath(pointerPath, ringPaint);
 
     final innerPointerPath = Path()
-      ..moveTo(size / 2 - 7, center.dy + radius - 4)
-      ..lineTo(size / 2 + 7, center.dy + radius - 4)
-      ..lineTo(size / 2, center.dy + radius + 10)
+      ..moveTo(size / 2 - 4.5, center.dy + radius - 2.5)
+      ..lineTo(size / 2 + 4.5, center.dy + radius - 2.5)
+      ..lineTo(size / 2, center.dy + radius + 6.5)
       ..close();
     canvas.drawPath(innerPointerPath, bodyPaint);
 
@@ -146,7 +146,7 @@ class MarkerIconCache {
     textPainter.text = TextSpan(
       text: String.fromCharCode(icon.codePoint),
       style: TextStyle(
-        fontSize: isSelected ? 38.0 : 32.0,
+        fontSize: isSelected ? 23.0 : 19.0,
         fontFamily: icon.fontFamily,
         package: icon.fontPackage,
         color: Colors.white,
@@ -172,24 +172,24 @@ class MarkerIconCache {
     required Color color,
     required bool isSelected,
   }) async {
-    const size = 84.0;
+    const size = 48.0;
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
-    final center = const Offset(size / 2, size / 2 - 6);
-    final radius = isSelected ? 26.0 : 22.0;
+    final center = const Offset(size / 2, size / 2 - 4);
+    final radius = isSelected ? 16.0 : 13.0;
 
     // Drop shadow
     final shadowPaint = Paint()
-      ..color = const Color(0x38000000)
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 5);
-    canvas.drawCircle(center.translate(0, 4), radius, shadowPaint);
+      ..color = const Color(0x30000000)
+      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3.5);
+    canvas.drawCircle(center.translate(0, 2.5), radius, shadowPaint);
 
     // Outer ring / border
     final ringPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius + 3, ringPaint);
+    canvas.drawCircle(center, radius + 2.0, ringPaint);
 
     // Colored body
     final bodyPaint = Paint()
@@ -199,16 +199,16 @@ class MarkerIconCache {
 
     // Pin bottom pointer triangle
     final pointerPath = Path()
-      ..moveTo(size / 2 - 7, center.dy + radius - 3)
-      ..lineTo(size / 2 + 7, center.dy + radius - 3)
-      ..lineTo(size / 2, center.dy + radius + 9)
+      ..moveTo(size / 2 - 4, center.dy + radius - 2)
+      ..lineTo(size / 2 + 4, center.dy + radius - 2)
+      ..lineTo(size / 2, center.dy + radius + 6)
       ..close();
     canvas.drawPath(pointerPath, ringPaint);
 
     final innerPointerPath = Path()
-      ..moveTo(size / 2 - 5, center.dy + radius - 3)
-      ..lineTo(size / 2 + 5, center.dy + radius - 3)
-      ..lineTo(size / 2, center.dy + radius + 6)
+      ..moveTo(size / 2 - 3, center.dy + radius - 2)
+      ..lineTo(size / 2 + 3, center.dy + radius - 2)
+      ..lineTo(size / 2, center.dy + radius + 4.5)
       ..close();
     canvas.drawPath(innerPointerPath, bodyPaint);
 
@@ -217,7 +217,7 @@ class MarkerIconCache {
     textPainter.text = TextSpan(
       text: String.fromCharCode(icon.codePoint),
       style: TextStyle(
-        fontSize: isSelected ? 24.0 : 20.0,
+        fontSize: isSelected ? 16.0 : 13.0,
         fontFamily: icon.fontFamily,
         package: icon.fontPackage,
         color: Colors.white,
@@ -243,24 +243,24 @@ class MarkerIconCache {
     required Color color,
     required bool isSelected,
   }) async {
-    const size = 48.0;
+    const size = 32.0;
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
     const center = Offset(size / 2, size / 2);
-    final radius = isSelected ? 18.0 : 14.0;
+    final radius = isSelected ? 11.0 : 9.0;
 
     // Drop shadow
     final shadowPaint = Paint()
-      ..color = const Color(0x33000000)
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4);
-    canvas.drawCircle(center.translate(0, 2), radius, shadowPaint);
+      ..color = const Color(0x28000000)
+      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 2.5);
+    canvas.drawCircle(center.translate(0, 1.5), radius, shadowPaint);
 
     // Outer ring
     final ringPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius + 2.5, ringPaint);
+    canvas.drawCircle(center, radius + 1.5, ringPaint);
 
     // Colored body
     final bodyPaint = Paint()
@@ -268,12 +268,12 @@ class MarkerIconCache {
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, radius, bodyPaint);
 
-    // Center icon or dot
+    // Center icon
     final textPainter = TextPainter(textDirection: TextDirection.ltr);
     textPainter.text = TextSpan(
       text: String.fromCharCode(icon.codePoint),
       style: TextStyle(
-        fontSize: 13.0,
+        fontSize: isSelected ? 10.5 : 8.5,
         fontFamily: icon.fontFamily,
         package: icon.fontPackage,
         color: Colors.white,
@@ -295,7 +295,7 @@ class MarkerIconCache {
   }
 
   Future<Uint8List> _renderUserLocation({required double heading}) async {
-    const size = 160.0;
+    const size = 96.0;
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     const center = Offset(size / 2, size / 2);
@@ -308,7 +308,7 @@ class MarkerIconCache {
     // Direction cone
     final coneGradient = ui.Gradient.radial(
       center,
-      70.0,
+      42.0,
       [
         const Color(0x553B82F6),
         const Color(0x003B82F6),
@@ -322,7 +322,7 @@ class MarkerIconCache {
     final conePath = Path()
       ..moveTo(center.dx, center.dy)
       ..arcTo(
-        Rect.fromCircle(center: center, radius: 70),
+        Rect.fromCircle(center: center, radius: 42.0),
         -math.pi / 2 - (math.pi / 5),
         (2 * math.pi / 5),
         false,
@@ -336,19 +336,19 @@ class MarkerIconCache {
     final haloPaint = Paint()
       ..color = const Color(0x333B82F6)
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, 26, haloPaint);
+    canvas.drawCircle(center, 16.0, haloPaint);
 
     // White border ring
     final borderPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, 14, borderPaint);
+    canvas.drawCircle(center, 9.0, borderPaint);
 
     // Blue center dot
     final dotPaint = Paint()
       ..color = const Color(0xFF2563EB)
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, 10, dotPaint);
+    canvas.drawCircle(center, 6.5, dotPaint);
 
     final picture = recorder.endRecording();
     final image = await picture.toImage(size.toInt(), size.toInt());

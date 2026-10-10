@@ -19,14 +19,18 @@ abstract final class AppDimens {
   static const double radiusLarge = 24.0;
   static const double radiusFull = 999.0;
 
-  static const BorderRadius borderRadiusSmall =
-      BorderRadius.all(Radius.circular(radiusSmall));
-  static const BorderRadius borderRadiusMedium =
-      BorderRadius.all(Radius.circular(radiusMedium));
-  static const BorderRadius borderRadiusLarge =
-      BorderRadius.all(Radius.circular(radiusLarge));
-  static const BorderRadius borderRadiusFull =
-      BorderRadius.all(Radius.circular(radiusFull));
+  static const BorderRadius borderRadiusSmall = BorderRadius.all(
+    Radius.circular(radiusSmall),
+  );
+  static const BorderRadius borderRadiusMedium = BorderRadius.all(
+    Radius.circular(radiusMedium),
+  );
+  static const BorderRadius borderRadiusLarge = BorderRadius.all(
+    Radius.circular(radiusLarge),
+  );
+  static const BorderRadius borderRadiusFull = BorderRadius.all(
+    Radius.circular(radiusFull),
+  );
 
   // Minimum Touch Targets & Sizes
   static const double minTouchTarget = 48.0;
