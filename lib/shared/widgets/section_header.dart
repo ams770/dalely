@@ -1,0 +1,63 @@
+import 'package:flutter/material.dart';
+
+import '../theme/app_dimens.dart';
+import '../utils/context_ext.dart';
+
+/// Section title with an optional trailing action (e.g., "Share all").
+class SectionHeader extends StatelessWidget {
+  const SectionHeader({
+    super.key,
+    required this.title,
+    this.actionLabel,
+    this.actionIcon,
+    this.onAction,
+  });
+
+  final String title;
+  final String? actionLabel;
+  final Widget? actionIcon;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          title,
+          style: context.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        if (actionLabel != null && onAction != null)
+          TextButton(
+            onPressed: onAction,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: AppDimens.space8,
+                vertical: AppDimens.space4,
+              ),
+              minimumSize: const Size(0, 36),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (actionIcon != null) ...[
+                  actionIcon!,
+                  const SizedBox(width: AppDimens.space4),
+                ],
+                Text(
+                  actionLabel!,
+                  style: context.textTheme.labelLarge?.copyWith(
+                    color: context.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}

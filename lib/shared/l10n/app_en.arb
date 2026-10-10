@@ -1,0 +1,195 @@
+{
+  "@@locale": "en",
+  "appTitle": "Feen",
+  "homeGreeting": "Where to?",
+  "savedSpotsCount": "{count, plural, =0{No saved spots} =1{1 saved spot} other{{count} saved spots}}",
+  "@savedSpotsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "mapButton": "Map",
+  "settingsTooltip": "Settings",
+  "backTooltip": "Back",
+  "myCar": "My car",
+  "parkedAgo": "Parked {time}",
+  "@parkedAgo": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "noCarTitle": "Where did you park?",
+  "noCarMessage": "Tap Park here when you leave the car.",
+  "distanceAway": "{distance} away",
+  "@distanceAway": {
+    "placeholders": {
+      "distance": { "type": "String" }
+    }
+  },
+  "openInMaps": "Open in Maps",
+  "parkHere": "Park here",
+  "onMap": "On map",
+  "foundMyCar": "Found my car",
+  "carCleared": "Car location cleared",
+  "savedSpots": "Saved spots",
+  "shareAll": "Share all",
+  "showOnMap": "Show on map",
+  "share": "Share",
+  "saveThisSpot": "Save this spot",
+  "savedAgo": "Saved {time}",
+  "@savedAgo": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "timeJustNow": "just now",
+  "timeMinutesAgo": "{count, plural, =1{1 min ago} other{{count} min ago}}",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "timeHoursAgo": "{count, plural, =1{1 h ago} other{{count} h ago}}",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "timeYesterday": "yesterday",
+  "timeDaysAgo": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "timeWeeksAgo": "{count, plural, =1{1 week ago} other{{count} weeks ago}}",
+  "@timeWeeksAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "timeMonthsAgo": "{count, plural, =1{1 month ago} other{{count} months ago}}",
+  "@timeMonthsAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "timeYearsAgo": "{count, plural, =1{1 year ago} other{{count} years ago}}",
+  "@timeYearsAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "distanceMeters": "{value} m",
+  "@distanceMeters": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "distanceKilometers": "{value} km",
+  "@distanceKilometers": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "emptySpotsTitle": "No spots yet",
+  "emptySpotsMessage": "Save the places you want to find again — the market, home, the pharmacy…",
+  "seeAllOnMap": "See all spots on map",
+  "myLocation": "My location",
+  "searchPlaceHint": "Search for a place",
+  "clearSearch": "Clear search",
+  "movePinHint": "Move the map to place the pin",
+  "nameLabel": "Name",
+  "nameHint": "e.g. Pharmacy",
+  "nameRequired": "Give the spot a name",
+  "saveHere": "Save here",
+  "savedLocallyNote": "Saved only on this phone. No account needed.",
+  "noSearchResults": "No places found",
+  "searchFailed": "Search isn't available right now",
+  "categoryCar": "Car",
+  "categoryMarket": "Market",
+  "categoryHome": "Home",
+  "categoryPharmacy": "Pharmacy",
+  "categoryWork": "Work",
+  "categoryRestaurant": "Restaurant",
+  "categoryHospital": "Hospital",
+  "categorySchool": "School",
+  "categoryGym": "Gym",
+  "categoryMosque": "Mosque",
+  "categoryFuel": "Fuel",
+  "categoryOther": "Other",
+  "carSaved": "Car location saved",
+  "spotSaved": "{name} saved",
+  "@spotSaved": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "spotDeleted": "{name} deleted",
+  "@spotDeleted": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "undo": "Undo",
+  "delete": "Delete",
+  "rename": "Rename",
+  "cancel": "Cancel",
+  "save": "Save",
+  "renameSpotTitle": "Rename spot",
+  "showOnWidget": "Show on widget",
+  "removeFromWidget": "Remove from widget",
+  "favoriteSet": "{name} is now on your widget",
+  "@favoriteSet": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "favoriteRemoved": "Removed from your widget",
+  "locationUnavailable": "Can't get your location yet",
+  "couldNotOpenMaps": "Couldn't open a maps app",
+  "couldNotOpenLink": "Couldn't open the link",
+  "permissionDeniedTitle": "Location is off for Feen",
+  "permissionDeniedMessage": "Allow location to see distances and park your car.",
+  "serviceDisabledTitle": "Location services are off",
+  "serviceDisabledMessage": "Turn on location to see where you are.",
+  "allow": "Allow",
+  "openSettings": "Open settings",
+  "turnOn": "Turn on",
+  "settingsTitle": "Settings",
+  "appearance": "Appearance",
+  "theme": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "language": "Language",
+  "languageSystem": "Device language",
+  "languageEnglish": "English",
+  "languageArabic": "العربية",
+  "yourSpots": "Your spots",
+  "shareAllAsText": "Share all spots as text",
+  "about": "About",
+  "website": "Website",
+  "privacyPolicy": "Privacy policy",
+  "termsOfUse": "Terms of use",
+  "contactSupport": "Contact support",
+  "rateApp": "Rate the app",
+  "versionFooter": "Version {version}. Your spots stay on this phone.",
+  "@versionFooter": {
+    "placeholders": {
+      "version": { "type": "String" }
+    }
+  },
+  "nothingToShare": "No spots to share yet",
+  "shareSubject": "My spots",
+  "favoriteBadge": "On widget",
+  "widgetPark": "Park",
+  "widgetFindCar": "Find car",
+  "widgetNoCar": "No car saved",
+  "widgetNoFavorite": "Pick a spot",
+  "carArrivalTitle": "You're at your car!",
+  "carArrivalMessage": "You have returned to your parked car.",
+  "iFoundMyCar": "I found my car",
+  "cantSeeCar": "I can't see the car",
+  "carFoundCelebration": "Great! Have a safe drive."
+}
