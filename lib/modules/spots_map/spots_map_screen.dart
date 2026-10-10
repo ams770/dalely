@@ -4,10 +4,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../shared/cubits/location/location_cubit.dart';
 import '../../shared/cubits/spots/spots_cubit.dart';
-import '../../shared/cubits/spots/spots_state.dart';
 import '../../shared/models/spot.dart';
 import '../../shared/services/marker_icon_cache.dart';
-import '../../shared/services/share_service.dart';
 import '../../shared/theme/app_dimens.dart';
 import '../../shared/utils/context_ext.dart';
 import '../../shared/widgets/app_google_map.dart';
@@ -17,10 +15,7 @@ import 'cubit/spots_map_state.dart';
 import 'widgets/selected_spot_card.dart';
 
 class SpotsMapScreen extends StatelessWidget {
-  const SpotsMapScreen({
-    super.key,
-    this.initialSpotId,
-  });
+  const SpotsMapScreen({super.key, this.initialSpotId});
 
   final String? initialSpotId;
 
@@ -71,10 +66,7 @@ class _SpotsMapView extends StatelessWidget {
                 scrollGesturesEnabled: true,
                 rotateGesturesEnabled: true,
                 tiltGesturesEnabled: true,
-                padding: const EdgeInsets.only(
-                  top: 100,
-                  bottom: 120,
-                ),
+                padding: const EdgeInsets.only(top: 100, bottom: 120),
               );
             },
           ),
@@ -99,7 +91,6 @@ class _SpotsMapView extends StatelessWidget {
                       tooltip: context.l10n.backTooltip,
                       onPressed: () => Navigator.of(context).pop(),
                     ),
-                    const _ShareAllHeaderButton(),
                   ],
                 ),
               ),
@@ -163,60 +154,6 @@ class _SpotsMapView extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ShareAllHeaderButton extends StatelessWidget {
-  const _ShareAllHeaderButton();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SpotsCubit, SpotsState>(
-      builder: (context, spotsState) {
-        if (spotsState.allSpots.isEmpty) return const SizedBox.shrink();
-
-        return Material(
-          color: context.colorScheme.primary,
-          borderRadius: AppDimens.borderRadiusFull,
-          elevation: 3,
-          shadowColor: context.colorScheme.primary.withAlpha(90),
-          child: InkWell(
-            onTap: () {
-              const ShareService().shareAllSpots(
-                spotsState.allSpots,
-                l10n: context.l10n,
-              );
-            },
-            borderRadius: AppDimens.borderRadiusFull,
-            child: Container(
-              height: AppDimens.iconButtonSize,
-              padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: AppDimens.space16,
-              ),
-              alignment: Alignment.center,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.ios_share_rounded,
-                    size: AppDimens.iconSmall,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: AppDimens.space8),
-                  Text(
-                    context.l10n.shareAll,
-                    style: context.textTheme.labelLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }

@@ -40,9 +40,11 @@ abstract final class StorageKeys {
   static const String androidFindCarWidget = 'com.example.feen.widgets.FindCarWidgetReceiver';
   static const String androidFavoriteWidget = 'com.example.feen.widgets.FavoriteWidgetReceiver';
 
-  // Widget tap URIs (`feen://<host>`).
+  // Widget & notification tap URIs (`feen://<host>`).
   static const String uriScheme = 'feen';
   static const String uriPark = 'park';
   static const String uriCar = 'car';
   static const String uriSpot = 'spot';
+  static const String uriFoundCar = 'found_car';
+  static const String uriOnMap = 'on_map';
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../../constants/spot_categories.dart';
 import '../../constants/storage_keys.dart';
@@ -7,6 +8,9 @@ import '../../data/settings_repository.dart';
 import '../../data/spots_repository.dart';
 import '../../models/spot.dart';
 import '../../services/home_widget_service.dart';
+import '../../services/notification_service.dart';
+import '../../utils/distance_formatter.dart';
+import '../location/location_cubit.dart';
 import 'spots_state.dart';
 
 class SpotsCubit extends Cubit<SpotsState> {
@@ -14,6 +18,8 @@ class SpotsCubit extends Cubit<SpotsState> {
     required this.spotsRepository,
     required this.settingsRepository,
     required this.homeWidgetService,
+    required this.notificationService,
+    this.locationCubit,
   }) : super(const SpotsState()) {
     _init();
   }
@@ -21,8 +27,11 @@ class SpotsCubit extends Cubit<SpotsState> {
   final SpotsRepository spotsRepository;
   final SettingsRepository settingsRepository;
   final HomeWidgetService homeWidgetService;
+  final NotificationService notificationService;
+  final LocationCubit? locationCubit;
 
   StreamSubscription? _spotsSubscription;
+  StreamSubscription? _locationSubscription;
 
   void _init() {
     final settings = settingsRepository.load();
@@ -33,6 +42,14 @@ class SpotsCubit extends Cubit<SpotsState> {
         _loadFromRepository();
       }
     });
+
+    if (locationCubit != null) {
+      _locationSubscription = locationCubit!.stream.listen((locState) {
+        if (!isClosed && state.car != null) {
+          _syncParkingNotification(userPosition: locState.position);
+        }
+      });
+    }
   }
 
   void _loadFromRepository({String? favoriteSpotId}) {
@@ -64,6 +81,7 @@ class SpotsCubit extends Cubit<SpotsState> {
     );
 
     _syncWidgets();
+    _syncParkingNotification();
   }
 
   Future<void> parkCar({
@@ -77,6 +95,10 @@ class SpotsCubit extends Cubit<SpotsState> {
     if (isClosed) return;
     emit(state.copyWith(car: car));
     _syncWidgets();
+    await notificationService.requestPermission();
+    if (!isClosed) {
+      _syncParkingNotification();
+    }
   }
 
   Future<void> clearCar() async {
@@ -84,6 +106,7 @@ class SpotsCubit extends Cubit<SpotsState> {
     if (isClosed) return;
     emit(state.copyWith(clearCar: true));
     _syncWidgets();
+    unawaited(notificationService.cancelParkingNotification());
   }
 
   Future<Spot> saveSpot({
@@ -100,6 +123,10 @@ class SpotsCubit extends Cubit<SpotsState> {
       if (!isClosed) {
         emit(state.copyWith(car: car));
         _syncWidgets();
+        await notificationService.requestPermission();
+        if (!isClosed) {
+          _syncParkingNotification();
+        }
       }
       return car;
     }
@@ -137,6 +164,9 @@ class SpotsCubit extends Cubit<SpotsState> {
 
   Future<void> deleteSpot(String id) async {
     await spotsRepository.delete(id);
+    if (id == StorageKeys.carId) {
+      unawaited(notificationService.cancelParkingNotification());
+    }
     if (state.favoriteSpotId == id) {
       await setFavoriteSpot(null);
     }
@@ -144,6 +174,9 @@ class SpotsCubit extends Cubit<SpotsState> {
 
   Future<void> restoreSpot(Spot spot) async {
     await spotsRepository.save(spot);
+    if (spot.isCar) {
+      _syncParkingNotification();
+    }
   }
 
   Future<void> setFavoriteSpot(String? id) async {
@@ -160,9 +193,39 @@ class SpotsCubit extends Cubit<SpotsState> {
     );
   }
 
+  void _syncParkingNotification({Position? userPosition}) {
+    final car = state.car;
+    if (car == null) {
+      notificationService.cancelParkingNotification();
+      return;
+    }
+
+    final pos = userPosition ?? locationCubit?.state.position;
+    String title = '🚗 Parked Car';
+    String distanceText = 'Live tracking active • Tap to open on map';
+    if (pos != null) {
+      final meters = DistanceFormatter.calculateDistance(
+        startLatitude: pos.latitude,
+        startLongitude: pos.longitude,
+        endLatitude: car.latitude,
+        endLongitude: car.longitude,
+      );
+      final formatted = DistanceFormatter.formatShort(meters);
+      title = '🚗 $formatted away';
+      distanceText = 'Parked car • Tap to view on map or mark found';
+    }
+
+    notificationService.showParkingNotification(
+      savedAt: car.savedAt,
+      title: title,
+      distanceText: distanceText,
+    );
+  }
+
   @override
   Future<void> close() {
     _spotsSubscription?.cancel();
+    _locationSubscription?.cancel();
     return super.close();
   }
 }

@@ -24,8 +24,16 @@ class PrimaryBottomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = backgroundColor ?? context.colorScheme.primary;
-    final fg = foregroundColor ?? context.colorScheme.onPrimary;
+    final colors = context.colorScheme;
+    final isDark = context.isDarkMode;
+    final bg = backgroundColor ?? colors.primary;
+    final fg = foregroundColor ?? colors.onPrimary;
+    final isEnabled = onPressed != null && !isLoading;
+
+    // Friendly soft tinted disabled colors matching brand identity
+    final disabledBg = isDark ? bg.withAlpha(45) : bg.withAlpha(35);
+    final disabledFg = isDark ? Colors.white.withAlpha(90) : bg.withAlpha(120);
+    final currentFg = isEnabled ? fg : disabledFg;
 
     return SafeArea(
       top: false,
@@ -39,10 +47,12 @@ class PrimaryBottomButton extends StatelessWidget {
             style: FilledButton.styleFrom(
               backgroundColor: bg,
               foregroundColor: fg,
+              disabledBackgroundColor: disabledBg,
+              disabledForegroundColor: disabledFg,
               shape: const RoundedRectangleBorder(
                 borderRadius: AppDimens.borderRadiusLarge,
               ),
-              elevation: 4,
+              elevation: isEnabled ? 4 : 0,
               shadowColor: bg.withAlpha(90),
             ),
             child: isLoading
@@ -58,13 +68,19 @@ class PrimaryBottomButton extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (icon != null) ...[
-                        icon!,
+                        IconTheme(
+                          data: IconThemeData(
+                            color: currentFg,
+                            size: AppDimens.iconSmall,
+                          ),
+                          child: icon!,
+                        ),
                         const SizedBox(width: AppDimens.space8),
                       ],
                       Text(
                         label,
                         style: context.textTheme.titleMedium?.copyWith(
-                          color: fg,
+                          color: currentFg,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

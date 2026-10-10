@@ -71,10 +71,11 @@ abstract final class AppTheme {
   }) {
     final isDark = colorScheme.brightness == Brightness.dark;
 
-    final baseTextTheme = Typography.material2021(
-      platform: TargetPlatform.iOS,
-      colorScheme: colorScheme,
-    ).black.apply(
+    final baseTextTheme =
+        Typography.material2021(
+          platform: TargetPlatform.iOS,
+          colorScheme: colorScheme,
+        ).black.apply(
           fontFamily: fontFamily,
           bodyColor: colorScheme.onSurface,
           displayColor: colorScheme.onSurface,
@@ -156,7 +157,10 @@ abstract final class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          minimumSize: const Size(double.infinity, AppDimens.primaryButtonHeight),
+          minimumSize: const Size(
+            double.infinity,
+            AppDimens.primaryButtonHeight,
+          ),
           shape: const RoundedRectangleBorder(
             borderRadius: AppDimens.borderRadiusLarge,
           ),
@@ -175,10 +179,7 @@ abstract final class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: colorScheme.onSurface,
           minimumSize: const Size(0, 42),
-          side: BorderSide(
-            color: colorScheme.outline,
-            width: 1,
-          ),
+          side: BorderSide(color: colorScheme.outline, width: 1),
           shape: const RoundedRectangleBorder(
             borderRadius: AppDimens.borderRadiusMedium,
           ),
@@ -248,10 +249,7 @@ abstract final class AppTheme {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: AppDimens.borderRadiusFull,
-          side: BorderSide(
-            color: colorScheme.outline,
-            width: 1,
-          ),
+          side: BorderSide(color: colorScheme.outline, width: 1),
         ),
         showCheckmark: false,
       ),
@@ -275,9 +273,7 @@ abstract final class AppTheme {
             BorderSide(color: colorScheme.outline, width: 1),
           ),
           shape: const WidgetStatePropertyAll(
-            RoundedRectangleBorder(
-              borderRadius: AppDimens.borderRadiusLarge,
-            ),
+            RoundedRectangleBorder(borderRadius: AppDimens.borderRadiusLarge),
           ),
           textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
           padding: const WidgetStatePropertyAll(
@@ -338,8 +334,18 @@ abstract final class AppTheme {
 
       // BottomSheet
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: isDark
+            ? AppColors.darkBottomSheet
+            : AppColors.lightBottomSheet,
+        modalBackgroundColor: isDark
+            ? AppColors.darkBottomSheet
+            : AppColors.lightBottomSheet,
         surfaceTintColor: Colors.transparent,
+        showDragHandle: true,
+        dragHandleColor: colorScheme.outline.withAlpha(isDark ? 140 : 160),
+        dragHandleSize: const Size(36, 4),
+        elevation: 8,
+        shadowColor: Colors.black.withAlpha(isDark ? 80 : 30),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadiusDirectional.vertical(
             top: Radius.circular(AppDimens.radiusLarge),
@@ -364,11 +370,13 @@ abstract final class AppTheme {
 
       // SnackBar
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFF0F172A),
-        contentTextStyle: textTheme.bodyMedium?.copyWith(
-          color: Colors.white,
-        ),
-        actionTextColor: isDark ? AppColors.darkPrimary : AppColors.lightPrimaryContainer,
+        backgroundColor: isDark
+            ? const Color(0xFF1E293B)
+            : const Color(0xFF0F172A),
+        contentTextStyle: textTheme.bodyMedium?.copyWith(color: Colors.white),
+        actionTextColor: isDark
+            ? AppColors.darkPrimary
+            : AppColors.lightPrimaryContainer,
         behavior: SnackBarBehavior.floating,
         shape: const RoundedRectangleBorder(
           borderRadius: AppDimens.borderRadiusMedium,

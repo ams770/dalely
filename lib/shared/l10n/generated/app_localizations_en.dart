@@ -41,7 +41,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String parkedAgo(String time) {
-    return 'Parked $time';
+    return '$time    ';
   }
 
   @override
@@ -249,7 +249,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryFuel => 'Fuel';
 
   @override
-  String get categoryOther => 'Other';
+  String get categoryOther => 'None';
 
   @override
   String get carSaved => 'Car location saved';
@@ -358,6 +358,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageArabic => 'العربية';
 
   @override
+  String get languageArabicEg => 'Arabic (Egypt)';
+
+  @override
+  String get languageArabicSa => 'Arabic (Saudi Arabia)';
+
+  @override
   String get yourSpots => 'Your spots';
 
   @override
@@ -421,4 +427,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get carFoundCelebration => 'Great! Have a safe drive.';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboarding1Title => 'Never forget where you parked';
+
+  @override
+  String get onboarding1Body =>
+      'Save your car with one tap, then open it in Maps when you are ready to walk back. No more wandering around the car park.';
+
+  @override
+  String get onboarding2Title => 'All your places, one spot';
+
+  @override
+  String get onboarding2Body =>
+      'Your market, home, pharmacy and more live in one list and on one map. Share any spot, or all of them, with a map link anytime.';
+
+  @override
+  String get onboarding3Title => 'Your places stay on your phone';
+
+  @override
+  String get onboarding3Body =>
+      'Everything is saved only on this device and never sent anywhere. Allow location so you can save your car and see where you are.';
+
+  @override
+  String get onboardingAllowLocation => 'Allow location access';
+
+  @override
+  String get onboardingNotNow => 'Not now';
+
+  @override
+  String get notificationParkingTitle => 'Car parked';
+
+  @override
+  String notificationDistance(String distance) {
+    return 'Distance: $distance';
+  }
 }

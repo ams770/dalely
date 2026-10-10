@@ -18,6 +18,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         themeMode: settings.themeMode,
         localeCode: settings.localeCode,
         favoriteSpotId: settings.favoriteSpotId,
+        hasCompletedOnboarding: settings.hasCompletedOnboarding,
       ),
     );
   }
@@ -38,5 +39,11 @@ class SettingsCubit extends Cubit<SettingsState> {
     final updated = await _repository.setFavoriteSpotId(spotId);
     if (isClosed) return;
     emit(state.copyWith(favoriteSpotId: () => updated.favoriteSpotId));
+  }
+
+  Future<void> completeOnboarding() async {
+    final updated = await _repository.setHasCompletedOnboarding(true);
+    if (isClosed) return;
+    emit(state.copyWith(hasCompletedOnboarding: updated.hasCompletedOnboarding));
   }
 }

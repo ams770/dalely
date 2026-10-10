@@ -11,8 +11,10 @@ import '../../../shared/models/spot.dart';
 import '../../../shared/services/share_service.dart';
 import '../../../shared/theme/app_dimens.dart';
 import '../../../shared/utils/context_ext.dart';
-import '../../../shared/utils/time_ago_formatter.dart';
+import '../../../shared/widgets/circle_icon_button.dart';
 import '../../../shared/widgets/info_pill.dart';
+import '../cubit/parking_timer_cubit.dart';
+import '../cubit/parking_timer_state.dart';
 
 /// The car card shown at the top of the Home screen.
 ///
@@ -171,7 +173,7 @@ class _ActiveCarContent extends StatelessWidget {
     final primary = colors.primary;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: .center,
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
@@ -180,31 +182,26 @@ class _ActiveCarContent extends StatelessWidget {
             Expanded(
               flex: 5,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: .center,
                 children: [
-                  DistancePill(
-                    spot: car,
-                    backgroundColor: primary.withAlpha(15),
-                    foregroundColor: primary,
-                    showIcon: false,
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      horizontal: AppDimens.space12,
-                      vertical: AppDimens.space6,
-                    ),
-                    textStyle: context.textTheme.titleLarge?.copyWith(
-                      color: primary,
-                      fontWeight: FontWeight.w800,
+                  FittedBox(
+                    child: DistancePill(
+                      spot: car,
+                      backgroundColor: primary.withAlpha(15),
+                      foregroundColor: primary,
+                      showIcon: false,
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: AppDimens.space12,
+                        vertical: AppDimens.space6,
+                      ),
+                      textStyle: context.textTheme.headlineSmall?.copyWith(
+                        color: primary,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppDimens.space6),
-                  Text(
-                    l10n.parkedAgo(TimeAgoFormatter.format(car.savedAt, l10n)),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
+                  _ParkingTimer(savedAt: car.savedAt),
                 ],
               ),
             ),
@@ -220,13 +217,26 @@ class _ActiveCarContent extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(width: AppDimens.space8),
+            CircleIconButton(
+              icon: Icon(
+                Icons.share_outlined,
+                color: primary,
+                size: AppDimens.iconSmall,
+              ),
+              size: AppDimens.minTouchTarget,
+              backgroundColor: primary.withAlpha(14),
+              border: Border.all(color: primary.withAlpha(80)),
+              tooltip: l10n.share,
+              onPressed: onShare,
+            ),
           ],
         ),
         const SizedBox(height: AppDimens.space16),
         Row(
           children: [
             Expanded(
-              flex: 6,
+              flex: 5,
               child: _PillButton(
                 label: l10n.onMap,
                 icon: Icons.map_rounded,
@@ -243,12 +253,61 @@ class _ActiveCarContent extends StatelessWidget {
                 icon: Icons.check_circle_outline_rounded,
                 backgroundColor: primary.withAlpha(14),
                 foregroundColor: primary,
+                border: Border.all(color: primary.withAlpha(80)),
                 onPressed: onFoundCar,
               ),
             ),
           ],
         ),
       ],
+    );
+  }
+}
+
+class _ParkingTimer extends StatelessWidget {
+  const _ParkingTimer({required this.savedAt});
+
+  final DateTime savedAt;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colorScheme;
+    final l10n = context.l10n;
+
+    return BlocProvider<ParkingTimerCubit>(
+      key: ValueKey(savedAt.millisecondsSinceEpoch),
+      create: (_) => ParkingTimerCubit(savedAt: savedAt),
+      child: BlocBuilder<ParkingTimerCubit, ParkingTimerState>(
+        buildWhen: (prev, curr) =>
+            prev.elapsed.inSeconds != curr.elapsed.inSeconds,
+        builder: (context, state) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.schedule_rounded,
+                size: AppDimens.iconSmall,
+                color: colors.onSurfaceVariant,
+              ),
+              const SizedBox(width: AppDimens.space4),
+              Expanded(
+                child: FittedBox(
+                  child: Text(
+                    l10n.parkedAgo(state.formattedElapsed),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textTheme.bodyLarge?.copyWith(
+                      color: colors.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -329,6 +388,7 @@ class _PillButton extends StatelessWidget {
     required this.backgroundColor,
     required this.foregroundColor,
     this.icon,
+    this.border,
   });
 
   final String label;
@@ -336,6 +396,7 @@ class _PillButton extends StatelessWidget {
   final Color backgroundColor;
   final Color foregroundColor;
   final IconData? icon;
+  final Border? border;
 
   @override
   Widget build(BuildContext context) {
@@ -345,6 +406,7 @@ class _PillButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: AppDimens.borderRadiusFull,
+          border: border,
         ),
         child: Material(
           color: Colors.transparent,

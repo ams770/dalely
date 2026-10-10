@@ -17,7 +17,13 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     required this.markerIconCache,
     required this.themeExtension,
     this.initialSelectedSpotId,
-  }) : super(const SpotsMapState()) {
+  }) : super(
+          _computeInitialState(
+            spotsCubit: spotsCubit,
+            locationCubit: locationCubit,
+            initialSelectedSpotId: initialSelectedSpotId,
+          ),
+        ) {
     _init();
   }
 
@@ -30,6 +36,40 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   GoogleMapController? _mapController;
   StreamSubscription? _spotsSubscription;
   StreamSubscription? _locationSubscription;
+
+  static SpotsMapState _computeInitialState({
+    required SpotsCubit spotsCubit,
+    required LocationCubit locationCubit,
+    String? initialSelectedSpotId,
+  }) {
+    Spot? selectedSpot;
+    if (initialSelectedSpotId != null) {
+      for (final s in spotsCubit.state.allSpots) {
+        if (s.id == initialSelectedSpotId) {
+          selectedSpot = s;
+          break;
+        }
+      }
+    }
+
+    LatLng target = const LatLng(30.0444, 31.2357);
+    if (selectedSpot != null) {
+      target = selectedSpot.latLng;
+    } else if (spotsCubit.state.car != null) {
+      target = spotsCubit.state.car!.latLng;
+    } else if (spotsCubit.state.spots.isNotEmpty) {
+      target = spotsCubit.state.spots.first.latLng;
+    } else if (locationCubit.state.hasLocation) {
+      target = locationCubit.state.latLng!;
+    }
+
+    return SpotsMapState(
+      selectedSpot: selectedSpot,
+      initialTarget: target,
+      initialZoom: 16.5,
+      currentZoom: 16.5,
+    );
+  }
 
   void onMapCreated(GoogleMapController controller) {
     _mapController = controller;
@@ -133,7 +173,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     } else {
       emit(state.copyWith(selectedSpot: spot));
       _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(spot.latLng, 16.0),
+        CameraUpdate.newLatLngZoom(spot.latLng, 16.5),
       );
     }
     _rebuildMarkers();
@@ -153,7 +193,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     final userPos = locationCubit.state.latLng;
     if (userPos != null) {
       _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(userPos, 16.0),
+        CameraUpdate.newLatLngZoom(userPos, 16.5),
       );
     } else {
       locationCubit.requestPermission();
@@ -168,7 +208,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
     if (spots.length == 1 && userPos == null) {
       _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(spots.first.latLng, 15.0),
+        CameraUpdate.newLatLngZoom(spots.first.latLng, 16.5),
       );
       return;
     }
@@ -180,7 +220,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
     if (points.length == 1) {
       _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(points.first, 15.0),
+        CameraUpdate.newLatLngZoom(points.first, 16.5),
       );
       return;
     }

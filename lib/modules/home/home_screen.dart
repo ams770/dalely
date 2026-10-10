@@ -59,7 +59,7 @@ class HomeScreen extends StatelessWidget {
             ),
             PrimaryBottomButton(
               label: context.l10n.saveThisSpot,
-              icon: const Icon(Icons.add_rounded, color: Colors.white),
+              icon: const Icon(Icons.add_rounded),
               onPressed: () {
                 Navigator.of(context).pushNamed(AppRouter.saveSpot);
               },

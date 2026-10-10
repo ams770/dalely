@@ -57,7 +57,7 @@ lib/
 │  ├─ constants/                   # spot_categories.dart (icon lookup), app_links.dart, storage_keys.dart
 │  ├─ models/                      # spot.dart, app_settings.dart, adapters/
 │  ├─ data/                        # spots_repository.dart, settings_repository.dart
-│  ├─ services/                    # location, heading, maps_launcher, share, place_search, marker_icon_cache, home_widget
+│  ├─ services/                    # location, heading, maps_launcher, share, place_search, marker_icon_cache, home_widget, notification_service
 │  ├─ cubits/                      # app-wide cubits: settings/, location/, spots/
 │  ├─ utils/                       # formatters, link builder, context extensions
 │  └─ widgets/                     # shared UI components
@@ -259,7 +259,7 @@ Nullable fields in `copyWith` that must be clearable use a `ValueGetter<T?>?` pa
 
 ## 13. Packages
 
-Approved: `flutter_bloc`, `hive_ce`, `hive_ce_flutter`, `google_maps_flutter`, `geolocator`, `flutter_compass`, `url_launcher`, `share_plus`, `home_widget`, `package_info_plus`, `in_app_review`, `flutter_localizations`, `intl`, place-search package per decisions log.
+Approved: `flutter_bloc`, `hive_ce`, `hive_ce_flutter`, `google_maps_flutter`, `geolocator`, `flutter_compass`, `url_launcher`, `share_plus`, `home_widget`, `package_info_plus`, `in_app_review`, `flutter_localizations`, `intl`, `flutter_local_notifications`, `flutter_launcher_icons`, `flutter_native_splash`, place-search package per decisions log.
 
 Not allowed: `freezed`, `equatable`, `get_it`, `provider` (directly), `riverpod`, `getx`, `go_router` (plain `onGenerateRoute` is used), `flutter_map`, `google_fonts` (fonts are bundled), any backend/analytics SDK.
 
@@ -304,3 +304,5 @@ Adding anything else → ask first, then add it to this list.
 | 9 | Favorite spot for widget | _Pending: in-app star vs widget config_ |
 | 10 | Edit / delete spots | _Pending: swipe-to-delete + rename on long-press_ |
 | 11 | Font | _Pending: Readex Pro proposed_ |
+| 12 | Parking notification | `flutter_local_notifications`: pinned/ongoing notification with live chronometer and distance to parked car |
+| 13 | App name localization | Android `values/strings.xml` ("Feen") & `values-ar/strings.xml` ("فين"); iOS `en.lproj/InfoPlist.strings` & `ar.lproj/InfoPlist.strings` |

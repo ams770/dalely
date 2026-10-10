@@ -26,10 +26,15 @@ class CarProximityListener extends StatelessWidget {
           listenWhen: (prev, curr) => prev.position != curr.position,
           listener: (context, locationState) {
             final spotsState = context.read<SpotsCubit>().state;
+            final l10n = context.l10n;
             context.read<CarProximityCubit>().checkProximity(
                   car: spotsState.car,
                   userLatitude: locationState.position?.latitude,
                   userLongitude: locationState.position?.longitude,
+                  arrivalTitle: l10n.carArrivalTitle,
+                  arrivalBody: l10n.carArrivalMessage,
+                  onMapActionText: l10n.onMap,
+                  foundCarActionText: l10n.foundMyCar,
                 );
           },
         ),
@@ -37,10 +42,15 @@ class CarProximityListener extends StatelessWidget {
           listenWhen: (prev, curr) => prev.car != curr.car,
           listener: (context, spotsState) {
             final locationState = context.read<LocationCubit>().state;
+            final l10n = context.l10n;
             context.read<CarProximityCubit>().checkProximity(
                   car: spotsState.car,
                   userLatitude: locationState.position?.latitude,
                   userLongitude: locationState.position?.longitude,
+                  arrivalTitle: l10n.carArrivalTitle,
+                  arrivalBody: l10n.carArrivalMessage,
+                  onMapActionText: l10n.onMap,
+                  foundCarActionText: l10n.foundMyCar,
                 );
           },
         ),

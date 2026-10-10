@@ -37,18 +37,23 @@ class FeenApp extends StatelessWidget {
           ),
         ),
         BlocProvider<SpotsCubit>(
-          create: (_) => SpotsCubit(
+          create: (context) => SpotsCubit(
             spotsRepository: dependencies.spotsRepository,
             settingsRepository: dependencies.settingsRepository,
             homeWidgetService: dependencies.homeWidgetService,
+            notificationService: dependencies.notificationService,
+            locationCubit: context.read<LocationCubit>(),
           ),
         ),
         BlocProvider<CarProximityCubit>(
-          create: (_) => CarProximityCubit(),
+          create: (_) => CarProximityCubit(
+            notificationService: dependencies.notificationService,
+          ),
         ),
       ],
       child: _FeenMaterialApp(
         homeWidgetService: dependencies.homeWidgetService,
+        notificationService: dependencies.notificationService,
       ),
     );
   }
@@ -57,12 +62,14 @@ class FeenApp extends StatelessWidget {
 class _FeenMaterialApp extends StatelessWidget {
   _FeenMaterialApp({
     required this.homeWidgetService,
+    required this.notificationService,
   }) : _actionHandler = WidgetActionHandler(
           navigatorKey: appNavigatorKey,
           homeWidgetService: homeWidgetService,
         );
 
   final dynamic homeWidgetService;
+  final dynamic notificationService;
   final WidgetActionHandler _actionHandler;
 
   @override
@@ -70,12 +77,13 @@ class _FeenMaterialApp extends StatelessWidget {
     return BlocBuilder<SettingsCubit, SettingsState>(
       buildWhen: (prev, curr) =>
           prev.themeMode != curr.themeMode ||
-          prev.localeCode != curr.localeCode,
+          prev.localeCode != curr.localeCode ||
+          prev.hasCompletedOnboarding != curr.hasCompletedOnboarding,
       builder: (context, settings) {
         return MaterialApp(
           navigatorKey: appNavigatorKey,
           debugShowCheckedModeBanner: false,
-          title: 'Feen',
+          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
           theme: AppTheme.light(),
           darkTheme: AppTheme.dark(),
           themeMode: settings.themeMode,
@@ -92,6 +100,29 @@ class _FeenMaterialApp extends StatelessWidget {
               return settings.locale;
             }
             if (deviceLocale != null) {
+              // 1. Exact match with country code (e.g. ar_EG or ar_SA)
+              for (final supported in supportedLocales) {
+                if (supported.languageCode == deviceLocale.languageCode &&
+                    supported.countryCode != null &&
+                    supported.countryCode == deviceLocale.countryCode) {
+                  return supported;
+                }
+              }
+              // 2. Egyptian match
+              if (deviceLocale.countryCode == 'EG') {
+                return const Locale('ar', 'EG');
+              }
+              // 3. Saudi / Gulf Arabic
+              if (deviceLocale.languageCode == 'ar' &&
+                  const ['SA', 'AE', 'KW', 'QA', 'BH', 'OM']
+                      .contains(deviceLocale.countryCode)) {
+                return const Locale('ar', 'SA');
+              }
+              // 4. General Arabic fallback
+              if (deviceLocale.languageCode == 'ar') {
+                return const Locale('ar', 'EG');
+              }
+              // 5. English or other language
               for (final supported in supportedLocales) {
                 if (supported.languageCode == deviceLocale.languageCode) {
                   return supported;
@@ -100,10 +131,12 @@ class _FeenMaterialApp extends StatelessWidget {
             }
             return const Locale('en');
           },
-          initialRoute: AppRouter.home,
+          initialRoute: settings.hasCompletedOnboarding
+              ? AppRouter.home
+              : AppRouter.onboarding,
           onGenerateRoute: AppRouter.onGenerateRoute,
           builder: (context, child) {
-            _actionHandler.init();
+            _actionHandler.init(notificationService: notificationService);
             return child ?? const SizedBox.shrink();
           },
         );

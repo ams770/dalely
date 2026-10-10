@@ -115,6 +115,8 @@ class _AppearanceSection extends StatelessWidget {
               onTap: () {
                 showModalBottomSheet(
                   context: context,
+                  isScrollControlled: true,
+                  showDragHandle: true,
                   builder: (_) => LanguageSelectorSheet(
                     selectedLocaleCode: state.localeCode,
                     onLocaleSelected: (code) {
@@ -135,6 +137,10 @@ class _AppearanceSection extends StatelessWidget {
     switch (code) {
       case 'en':
         return l10n.languageEnglish;
+      case 'ar_EG':
+        return l10n.languageArabicEg;
+      case 'ar_SA':
+        return l10n.languageArabicSa;
       case 'ar':
         return l10n.languageArabic;
       default:

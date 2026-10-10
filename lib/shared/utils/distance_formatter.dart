@@ -30,4 +30,16 @@ abstract final class DistanceFormatter {
         : kilometers.round().toString();
     return l10n.distanceKilometers(value);
   }
+
+  /// Compact distance format for notifications and widgets (e.g. "450 m" or "1.2 km").
+  static String formatShort(double meters) {
+    if (meters < 1000) {
+      return '${meters.round()} m';
+    }
+    final kilometers = meters / 1000.0;
+    final value = kilometers < 10
+        ? kilometers.toStringAsFixed(1)
+        : kilometers.round().toString();
+    return '$value km';
+  }
 }

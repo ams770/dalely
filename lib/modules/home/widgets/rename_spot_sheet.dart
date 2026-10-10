@@ -98,9 +98,7 @@ class RenameSpotSheet extends StatelessWidget {
                   ? context.tokens.categoryColor(spot.category)
                   : null,
             ),
-            label: Text(
-              isFavorite ? l10n.removeFromWidget : l10n.showOnWidget,
-            ),
+            label: Text(isFavorite ? l10n.removeFromWidget : l10n.showOnWidget),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 46),
               shape: const RoundedRectangleBorder(
@@ -114,8 +112,10 @@ class RenameSpotSheet extends StatelessWidget {
           FilledButton(
             onPressed: () => _handleSave(context),
             style: FilledButton.styleFrom(
-              minimumSize:
-                  const Size(double.infinity, AppDimens.primaryButtonHeight),
+              minimumSize: const Size(
+                double.infinity,
+                AppDimens.primaryButtonHeight,
+              ),
               shape: const RoundedRectangleBorder(
                 borderRadius: AppDimens.borderRadiusMedium,
               ),
@@ -128,6 +128,8 @@ class RenameSpotSheet extends StatelessWidget {
               ),
             ),
           ),
+
+          SafeArea(child: SizedBox()),
         ],
       ),
     );

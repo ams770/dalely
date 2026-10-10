@@ -43,6 +43,9 @@ class _SaveSpotView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<SaveSpotCubit>();
+    final mediaQuery = MediaQuery.of(context);
+    final topPadding = mediaQuery.padding.top + 64.0;
+    final bottomPadding = 240.0 + mediaQuery.padding.bottom;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -62,15 +65,19 @@ class _SaveSpotView extends StatelessWidget {
               FocusScope.of(context).unfocus();
               cubit.hideSearchResults();
             },
-            padding: const EdgeInsets.only(top: 100, bottom: 280),
+            padding: EdgeInsets.only(
+              top: topPadding,
+              bottom: bottomPadding,
+            ),
           ),
 
-          // Center Pin
-          const Positioned.fill(
-            child: Align(
-              alignment: Alignment.center,
-              child: CenterPin(),
-            ),
+          // Center Pin (positioned at the exact center of the visible map area)
+          PositionedDirectional(
+            top: topPadding,
+            bottom: bottomPadding,
+            start: 0,
+            end: 0,
+            child: const Center(child: CenterPin()),
           ),
 
           // Top Search Bar
@@ -78,25 +85,20 @@ class _SaveSpotView extends StatelessWidget {
             top: 0,
             start: 0,
             end: 0,
-            child: SafeArea(
-              bottom: false,
-              child: PlaceSearchField(),
-            ),
+            child: SafeArea(bottom: false, child: PlaceSearchField()),
           ),
 
           // Search Dropdown Overlay
-          const PositionedDirectional(
-            top: 100,
+          PositionedDirectional(
+            top: topPadding,
             start: 0,
             end: 0,
-            child: SafeArea(
-              child: PlaceResultsOverlay(),
-            ),
+            child: const PlaceResultsOverlay(),
           ),
 
           // Snap to Current Location Button
           PositionedDirectional(
-            bottom: 300,
+            bottom: bottomPadding + AppDimens.space16,
             end: AppDimens.space16,
             child: CircleIconButton(
               icon: Icon(
@@ -131,7 +133,8 @@ class _SaveDetailsBottomPanel extends StatelessWidget {
     final l10n = context.l10n;
 
     return Material(
-      color: theme.colorScheme.surface,
+      color:
+          theme.bottomSheetTheme.backgroundColor ?? theme.colorScheme.surface,
       borderRadius: const BorderRadiusDirectional.vertical(
         top: Radius.circular(AppDimens.radiusLarge),
       ),
@@ -150,21 +153,6 @@ class _SaveDetailsBottomPanel extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: const EdgeInsetsDirectional.symmetric(
-                  horizontal: AppDimens.space16,
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      l10n.saveThisSpot,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(height: AppDimens.space12),
 
               // Spot Name Input
@@ -194,7 +182,10 @@ class _SaveDetailsBottomPanel extends StatelessWidget {
                       // If name is empty or default, suggest category name
                       if (cubit.nameController.text.trim().isEmpty &&
                           cat != SpotCategory.other) {
-                        cubit.nameController.text = _categoryDefaultName(context, cat);
+                        cubit.nameController.text = _categoryDefaultName(
+                          context,
+                          cat,
+                        );
                       }
                     },
                   );
@@ -218,7 +209,9 @@ class _SaveDetailsBottomPanel extends StatelessWidget {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    l10n.spotSaved(cubit.nameController.text.trim()),
+                                    l10n.spotSaved(
+                                      cubit.nameController.text.trim(),
+                                    ),
                                   ),
                                 ),
                               );

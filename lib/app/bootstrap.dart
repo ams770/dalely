@@ -11,6 +11,7 @@ import '../shared/models/spot.dart';
 import '../shared/services/heading_service.dart';
 import '../shared/services/home_widget_service.dart';
 import '../shared/services/location_service.dart';
+import '../shared/services/notification_service.dart';
 
 class BootstrapDependencies {
   const BootstrapDependencies({
@@ -19,6 +20,7 @@ class BootstrapDependencies {
     required this.locationService,
     required this.headingService,
     required this.homeWidgetService,
+    required this.notificationService,
   });
 
   final SpotsRepository spotsRepository;
@@ -26,6 +28,7 @@ class BootstrapDependencies {
   final LocationService locationService;
   final HeadingService headingService;
   final HomeWidgetService homeWidgetService;
+  final NotificationService notificationService;
 }
 
 Future<BootstrapDependencies> bootstrap() async {
@@ -44,11 +47,21 @@ Future<BootstrapDependencies> bootstrap() async {
 
   // Open Boxes
   final spotsBox = await Hive.openBox<Spot>(StorageKeys.spotsBox);
-  final settingsBox = await Hive.openBox<AppSettings>(StorageKeys.settingsBox);
+  Box<AppSettings> settingsBox;
+  try {
+    settingsBox = await Hive.openBox<AppSettings>(StorageKeys.settingsBox);
+  } catch (_) {
+    await Hive.deleteBoxFromDisk(StorageKeys.settingsBox);
+    settingsBox = await Hive.openBox<AppSettings>(StorageKeys.settingsBox);
+  }
 
   // Initialize HomeWidget
   const homeWidgetService = HomeWidgetService();
   await homeWidgetService.init();
+
+  // Initialize Notifications
+  const notificationService = NotificationService();
+  await notificationService.init();
 
   const locationService = LocationService();
   final headingService = HeadingService();
@@ -59,5 +72,6 @@ Future<BootstrapDependencies> bootstrap() async {
     locationService: locationService,
     headingService: headingService,
     homeWidgetService: homeWidgetService,
+    notificationService: notificationService,
   );
 }

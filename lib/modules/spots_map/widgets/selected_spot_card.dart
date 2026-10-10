@@ -26,7 +26,7 @@ class SelectedSpotCard extends StatelessWidget {
 
     return Card(
       elevation: 6,
-      shadowColor: Colors.black.withAlpha(80),
+      color: context.isDarkMode ? theme.scaffoldBackgroundColor : null,
       child: Padding(
         padding: const EdgeInsetsDirectional.all(AppDimens.space16),
         child: Column(

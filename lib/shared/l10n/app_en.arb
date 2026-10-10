@@ -12,7 +12,7 @@
   "settingsTooltip": "Settings",
   "backTooltip": "Back",
   "myCar": "My car",
-  "parkedAgo": "Parked {time}",
+  "parkedAgo": "{time}    ",
   "@parkedAgo": {
     "placeholders": {
       "time": { "type": "String" }
@@ -117,7 +117,7 @@
   "categoryGym": "Gym",
   "categoryMosque": "Mosque",
   "categoryFuel": "Fuel",
-  "categoryOther": "Other",
+  "categoryOther": "None",
   "carSaved": "Car location saved",
   "spotSaved": "{name} saved",
   "@spotSaved": {
@@ -166,6 +166,8 @@
   "languageSystem": "Device language",
   "languageEnglish": "English",
   "languageArabic": "العربية",
+  "languageArabicEg": "Arabic (Egypt)",
+  "languageArabicSa": "Arabic (Saudi Arabia)",
   "yourSpots": "Your spots",
   "shareAllAsText": "Share all spots as text",
   "about": "About",
@@ -191,5 +193,22 @@
   "carArrivalMessage": "You have returned to your parked car.",
   "iFoundMyCar": "I found my car",
   "cantSeeCar": "I can't see the car",
-  "carFoundCelebration": "Great! Have a safe drive."
+  "carFoundCelebration": "Great! Have a safe drive.",
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboarding1Title": "Never forget where you parked",
+  "onboarding1Body": "Save your car with one tap, then open it in Maps when you are ready to walk back. No more wandering around the car park.",
+  "onboarding2Title": "All your places, one spot",
+  "onboarding2Body": "Your market, home, pharmacy and more live in one list and on one map. Share any spot, or all of them, with a map link anytime.",
+  "onboarding3Title": "Your places stay on your phone",
+  "onboarding3Body": "Everything is saved only on this device and never sent anywhere. Allow location so you can save your car and see where you are.",
+  "onboardingAllowLocation": "Allow location access",
+  "onboardingNotNow": "Not now",
+  "notificationParkingTitle": "Car parked",
+  "notificationDistance": "Distance: {distance}",
+  "@notificationDistance": {
+    "placeholders": {
+      "distance": { "type": "String" }
+    }
+  }
 }

@@ -10,7 +10,7 @@ class CategoryChips extends StatelessWidget {
     super.key,
     required this.selectedCategory,
     required this.onCategorySelected,
-    this.categories = SpotCategory.values,
+    this.categories = SpotCategory.selectable,
   });
 
   final SpotCategory selectedCategory;

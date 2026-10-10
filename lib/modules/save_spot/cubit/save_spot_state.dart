@@ -10,7 +10,7 @@ class SaveSpotState {
     this.status = SaveSpotStatus.idle,
     this.target = const LatLng(30.0444, 31.2357),
     this.name = '',
-    this.category = SpotCategory.market,
+    this.category = SpotCategory.other,
     this.isCameraMoving = false,
     this.isSearching = false,
     this.searchQuery = '',

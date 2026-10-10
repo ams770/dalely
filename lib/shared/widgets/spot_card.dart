@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../models/spot.dart';
-import '../services/maps_launcher.dart';
 import '../theme/app_dimens.dart';
 import '../utils/context_ext.dart';
-import '../utils/time_ago_formatter.dart';
 import 'category_badge.dart';
 import 'info_pill.dart';
 import 'spot_actions_row.dart';
@@ -73,44 +71,17 @@ class SpotCard extends StatelessWidget {
                               Icon(
                                 Icons.star_rounded,
                                 size: AppDimens.iconSmall,
-                                color: context.tokens.categoryColor(spot.category),
-                              ),
-                            ],
-                          ],
-                        ),
-                        const SizedBox(height: AppDimens.space4),
-                        Row(
-                          children: [
-                            DistancePill(
-                              spot: spot,
-                              showSuffix: false,
-                            ),
-                            const SizedBox(width: AppDimens.space8),
-                            Text(
-                              context.l10n.savedAgo(
-                                TimeAgoFormatter.format(
-                                  spot.savedAt,
-                                  context.l10n,
+                                color: context.tokens.categoryColor(
+                                  spot.category,
                                 ),
                               ),
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
+                            ],
                           ],
                         ),
                       ],
                     ),
                   ),
-                  _QuickDirectionsButton(
-                    onPressed: () {
-                      const MapsLauncher().openDirections(
-                        latitude: spot.latitude,
-                        longitude: spot.longitude,
-                        label: spot.name,
-                      );
-                    },
-                  ),
+                  DistancePill(spot: spot, showSuffix: false),
                 ],
               ),
               const SizedBox(height: AppDimens.space12),
@@ -120,38 +91,6 @@ class SpotCard extends StatelessWidget {
                 onShare: onShare,
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickDirectionsButton extends StatelessWidget {
-  const _QuickDirectionsButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = context.colorScheme;
-
-    return Material(
-      color: colorScheme.primaryContainer,
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onPressed,
-        splashColor: colorScheme.primary.withAlpha(40),
-        highlightColor: colorScheme.primary.withAlpha(20),
-        child: Container(
-          width: 38,
-          height: 38,
-          alignment: Alignment.center,
-          child: Icon(
-            Icons.arrow_outward_rounded,
-            size: AppDimens.iconSmall + 2,
-            color: colorScheme.primary,
           ),
         ),
       ),

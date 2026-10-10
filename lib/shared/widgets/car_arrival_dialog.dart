@@ -98,7 +98,7 @@ class CarArrivalDialog extends StatelessWidget {
               ),
               const Spacer(),
 
-              // Primary Action: "I found my car"
+              // Primary Action: "Found my car"
               SizedBox(
                 width: double.infinity,
                 height: AppDimens.primaryButtonHeight,
@@ -107,9 +107,9 @@ class CarArrivalDialog extends StatelessWidget {
                     Navigator.of(context).pop();
                     onFoundCar();
                   },
-                  icon: const Icon(Icons.check_circle_rounded),
+                  icon: const Icon(Icons.check_circle_outline_rounded),
                   label: Text(
-                    l10n.iFoundMyCar,
+                    l10n.foundMyCar,
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
@@ -126,7 +126,7 @@ class CarArrivalDialog extends StatelessWidget {
               ),
               const SizedBox(height: AppDimens.space12),
 
-              // Secondary Action: "I can't see the car"
+              // Secondary Action: "On map"
               SizedBox(
                 width: double.infinity,
                 height: AppDimens.primaryButtonHeight,
@@ -137,7 +137,7 @@ class CarArrivalDialog extends StatelessWidget {
                   },
                   icon: const Icon(Icons.map_rounded),
                   label: Text(
-                    l10n.cantSeeCar,
+                    l10n.onMap,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),

@@ -6,6 +6,7 @@ class CarProximityState {
     this.targetThresholdMeters = 5.0,
     this.isDialogVisible = false,
     this.shouldShowDialog = false,
+    this.hasShownArrivalNotification = false,
     this.lastCarSavedAt,
     this.distanceToCar,
   });
@@ -23,6 +24,9 @@ class CarProximityState {
   /// Trigger flag instructing the UI to open the arrival dialog.
   final bool shouldShowDialog;
 
+  /// True when the arrival push notification has been sent while outside the app.
+  final bool hasShownArrivalNotification;
+
   /// Timestamp of the car parking session.
   final DateTime? lastCarSavedAt;
 
@@ -34,6 +38,7 @@ class CarProximityState {
     double? targetThresholdMeters,
     bool? isDialogVisible,
     bool? shouldShowDialog,
+    bool? hasShownArrivalNotification,
     DateTime? lastCarSavedAt,
     ValueGetter<double?>? distanceToCar,
   }) {
@@ -43,6 +48,8 @@ class CarProximityState {
           targetThresholdMeters ?? this.targetThresholdMeters,
       isDialogVisible: isDialogVisible ?? this.isDialogVisible,
       shouldShowDialog: shouldShowDialog ?? this.shouldShowDialog,
+      hasShownArrivalNotification:
+          hasShownArrivalNotification ?? this.hasShownArrivalNotification,
       lastCarSavedAt: lastCarSavedAt ?? this.lastCarSavedAt,
       distanceToCar:
           distanceToCar != null ? distanceToCar() : this.distanceToCar,
@@ -57,6 +64,7 @@ class CarProximityState {
           other.targetThresholdMeters == targetThresholdMeters &&
           other.isDialogVisible == isDialogVisible &&
           other.shouldShowDialog == shouldShowDialog &&
+          other.hasShownArrivalNotification == hasShownArrivalNotification &&
           other.lastCarSavedAt == lastCarSavedAt &&
           other.distanceToCar == distanceToCar;
 
@@ -66,6 +74,7 @@ class CarProximityState {
         targetThresholdMeters,
         isDialogVisible,
         shouldShowDialog,
+        hasShownArrivalNotification,
         lastCarSavedAt,
         distanceToCar,
       );

@@ -95,6 +95,8 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('ar'),
+    Locale('ar', 'EG'),
+    Locale('ar', 'SA'),
     Locale('en'),
   ];
 
@@ -143,7 +145,7 @@ abstract class AppLocalizations {
   /// No description provided for @parkedAgo.
   ///
   /// In en, this message translates to:
-  /// **'Parked {time}'**
+  /// **'{time}    '**
   String parkedAgo(String time);
 
   /// No description provided for @noCarTitle.
@@ -443,7 +445,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryOther.
   ///
   /// In en, this message translates to:
-  /// **'Other'**
+  /// **'None'**
   String get categoryOther;
 
   /// No description provided for @carSaved.
@@ -644,6 +646,18 @@ abstract class AppLocalizations {
   /// **'العربية'**
   String get languageArabic;
 
+  /// No description provided for @languageArabicEg.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic (Egypt)'**
+  String get languageArabicEg;
+
+  /// No description provided for @languageArabicSa.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic (Saudi Arabia)'**
+  String get languageArabicSa;
+
   /// No description provided for @yourSpots.
   ///
   /// In en, this message translates to:
@@ -769,6 +783,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Great! Have a safe drive.'**
   String get carFoundCelebration;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// No description provided for @onboarding1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Never forget where you parked'**
+  String get onboarding1Title;
+
+  /// No description provided for @onboarding1Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Save your car with one tap, then open it in Maps when you are ready to walk back. No more wandering around the car park.'**
+  String get onboarding1Body;
+
+  /// No description provided for @onboarding2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'All your places, one spot'**
+  String get onboarding2Title;
+
+  /// No description provided for @onboarding2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Your market, home, pharmacy and more live in one list and on one map. Share any spot, or all of them, with a map link anytime.'**
+  String get onboarding2Body;
+
+  /// No description provided for @onboarding3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your places stay on your phone'**
+  String get onboarding3Title;
+
+  /// No description provided for @onboarding3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is saved only on this device and never sent anywhere. Allow location so you can save your car and see where you are.'**
+  String get onboarding3Body;
+
+  /// No description provided for @onboardingAllowLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow location access'**
+  String get onboardingAllowLocation;
+
+  /// No description provided for @onboardingNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get onboardingNotNow;
+
+  /// No description provided for @notificationParkingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Car parked'**
+  String get notificationParkingTitle;
+
+  /// No description provided for @notificationDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance: {distance}'**
+  String notificationDistance(String distance);
 }
 
 class _AppLocalizationsDelegate
@@ -789,6 +875,20 @@ class _AppLocalizationsDelegate
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when language+country codes are specified.
+  switch (locale.languageCode) {
+    case 'ar':
+      {
+        switch (locale.countryCode) {
+          case 'EG':
+            return AppLocalizationsArEg();
+          case 'SA':
+            return AppLocalizationsArSa();
+        }
+        break;
+      }
+  }
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'ar':

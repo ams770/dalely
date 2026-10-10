@@ -7,7 +7,7 @@ import '../app_settings.dart';
 ///
 /// Layout: field count, then fields in this exact order (append-only).
 class AppSettingsAdapter extends TypeAdapter<AppSettings> {
-  static const int _fieldCount = 3;
+  static const int _fieldCount = 4;
 
   @override
   final int typeId = 1;
@@ -15,9 +15,11 @@ class AppSettingsAdapter extends TypeAdapter<AppSettings> {
   @override
   AppSettings read(BinaryReader reader) {
     final count = reader.readByte();
-    final themeName = reader.readString();
-    final localeCode = reader.read() as String?;
-    final favoriteSpotId = reader.read() as String?;
+    final themeName = count > 0 ? reader.readString() : 'system';
+    final localeCode = count > 1 ? reader.read() as String? : null;
+    final favoriteSpotId = count > 2 ? reader.read() as String? : null;
+    final hasCompletedOnboarding =
+        count > 3 ? (reader.read() as bool? ?? false) : false;
     for (var i = _fieldCount; i < count; i++) {
       reader.read();
     }
@@ -28,6 +30,7 @@ class AppSettingsAdapter extends TypeAdapter<AppSettings> {
       ),
       localeCode: localeCode,
       favoriteSpotId: favoriteSpotId,
+      hasCompletedOnboarding: hasCompletedOnboarding,
     );
   }
 
@@ -37,6 +40,7 @@ class AppSettingsAdapter extends TypeAdapter<AppSettings> {
       ..writeByte(_fieldCount)
       ..writeString(obj.themeMode.name)
       ..write(obj.localeCode)
-      ..write(obj.favoriteSpotId);
+      ..write(obj.favoriteSpotId)
+      ..write(obj.hasCompletedOnboarding);
   }
 }

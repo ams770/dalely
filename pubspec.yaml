@@ -47,6 +47,7 @@ dependencies:
   in_app_review: ^2.0.12
   intl: ^0.20.3
   geocoding: ^5.0.0
+  flutter_local_notifications: ^18.0.1
   flutter_localizations:
     sdk: flutter
 
@@ -60,6 +61,31 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.4
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/logo.png"
+
+flutter_native_splash:
+  color: "#4F46E5"
+  color_dark: "#4F46E5"
+  image: "assets/images/logo.png"
+  image_dark: "assets/images/logo.png"
+  android_12:
+    image: "assets/images/logo.png"
+    icon_background_color: "#4F46E5"
+    image_dark: "assets/images/logo.png"
+    icon_background_color_dark: "#4F46E5"
+    color: "#4F46E5"
+    color_dark: "#4F46E5"
+  web: false
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

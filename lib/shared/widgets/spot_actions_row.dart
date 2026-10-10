@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../models/spot.dart';
@@ -41,10 +42,11 @@ class SpotActionsRow extends StatelessWidget {
         ],
         Expanded(
           child: _ActionPillButton(
-            icon: Icons.open_in_new_rounded,
+            icon: CupertinoIcons.map,
             label: context.l10n.openInMaps,
             isPrimary: false,
-            onPressed: onOpenInMaps ??
+            onPressed:
+                onOpenInMaps ??
                 () {
                   const MapsLauncher().openDirections(
                     latitude: spot.latitude,
@@ -59,12 +61,10 @@ class SpotActionsRow extends StatelessWidget {
           child: _ActionPillButton(
             icon: Icons.share_outlined,
             label: context.l10n.share,
-            onPressed: onShare ??
+            onPressed:
+                onShare ??
                 () {
-                  const ShareService().shareSpot(
-                    spot,
-                    l10n: context.l10n,
-                  );
+                  const ShareService().shareSpot(spot, l10n: context.l10n);
                 },
           ),
         ),
@@ -89,12 +89,8 @@ class _ActionPillButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
-    final bg = isPrimary
-        ? colorScheme.primary
-        : context.tokens.pillBackground;
-    final fg = isPrimary
-        ? colorScheme.onPrimary
-        : colorScheme.onSurface;
+    final bg = isPrimary ? colorScheme.primary : context.tokens.pillBackground;
+    final fg = isPrimary ? colorScheme.onPrimary : colorScheme.onSurface;
 
     return Material(
       color: bg,
@@ -112,11 +108,7 @@ class _ActionPillButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: AppDimens.iconSmall,
-                color: fg,
-              ),
+              Icon(icon, size: AppDimens.iconSmall, color: fg),
               const SizedBox(width: AppDimens.space4),
               Flexible(
                 child: Text(

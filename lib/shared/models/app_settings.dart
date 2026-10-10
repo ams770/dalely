@@ -6,6 +6,7 @@ class AppSettings {
     this.themeMode = ThemeMode.system,
     this.localeCode,
     this.favoriteSpotId,
+    this.hasCompletedOnboarding = false,
   });
 
   final ThemeMode themeMode;
@@ -16,16 +17,22 @@ class AppSettings {
   /// Spot shown on the "favorite" native widget.
   final String? favoriteSpotId;
 
+  /// Whether the user has completed or skipped the onboarding flow.
+  final bool hasCompletedOnboarding;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     ValueGetter<String?>? localeCode,
     ValueGetter<String?>? favoriteSpotId,
+    bool? hasCompletedOnboarding,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
       localeCode: localeCode != null ? localeCode() : this.localeCode,
       favoriteSpotId:
           favoriteSpotId != null ? favoriteSpotId() : this.favoriteSpotId,
+      hasCompletedOnboarding:
+          hasCompletedOnboarding ?? this.hasCompletedOnboarding,
     );
   }
 
@@ -35,8 +42,14 @@ class AppSettings {
       other is AppSettings &&
           other.themeMode == themeMode &&
           other.localeCode == localeCode &&
-          other.favoriteSpotId == favoriteSpotId;
+          other.favoriteSpotId == favoriteSpotId &&
+          other.hasCompletedOnboarding == hasCompletedOnboarding;
 
   @override
-  int get hashCode => Object.hash(themeMode, localeCode, favoriteSpotId);
+  int get hashCode => Object.hash(
+        themeMode,
+        localeCode,
+        favoriteSpotId,
+        hasCompletedOnboarding,
+      );
 }

@@ -20,6 +20,7 @@ abstract final class AppColors {
   static const Color lightBackground = Color.fromARGB(255, 238, 240, 244);
   static const Color lightSurface = Colors.white;
   static const Color lightSurfaceSecondary = Color(0xFFF1F5F9);
+  static const Color lightBottomSheet = Colors.white;
   static const Color lightBorder = Color(0xFFE2E8F0);
 
   static const Color lightTextPrimary = Color(0xFF0F172A);
@@ -38,6 +39,7 @@ abstract final class AppColors {
   static const Color darkBackground = Color(0xFF0B0F19);
   static const Color darkSurface = Color(0xFF151C2C);
   static const Color darkSurfaceSecondary = Color(0xFF1E293B);
+  static const Color darkBottomSheet = Color(0xFF0B0F19);
   static const Color darkBorder = Color(0xFF2E3B52);
 
   static const Color darkTextPrimary = Color(0xFFF8FAFC);

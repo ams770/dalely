@@ -25,6 +25,9 @@ class SettingsRepository {
   Future<AppSettings> setFavoriteSpotId(String? id) =>
       _update(load().copyWith(favoriteSpotId: () => id));
 
+  Future<AppSettings> setHasCompletedOnboarding(bool completed) =>
+      _update(load().copyWith(hasCompletedOnboarding: completed));
+
   Future<AppSettings> _update(AppSettings settings) async {
     await _box.put(StorageKeys.settingsRecord, settings);
     return settings;
