@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "deploy": "tsc -b && vite build && firebase deploy --only hosting",
     "preview": "vite preview"
   },
   "dependencies": {
