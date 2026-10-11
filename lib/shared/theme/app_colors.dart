@@ -48,7 +48,7 @@ abstract final class AppColors {
   static const Color darkBackground = Color(0xFF0B131F); // Slate navy
   static const Color darkSurface = Color(0xFF12263F); // Deep Navy
   static const Color darkSurfaceSecondary = Color(0xFF1E293B);
-  static const Color darkBottomSheet = Color(0xFF12263F);
+  static const Color darkBottomSheet = Color(0xFF0B131F);
   static const Color darkBorder = Color(0xFF223D5F);
 
   static const Color darkTextPrimary = Color(0xFFF8FAFC);

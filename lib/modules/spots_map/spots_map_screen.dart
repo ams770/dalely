@@ -15,9 +15,14 @@ import 'cubit/spots_map_state.dart';
 import 'widgets/selected_spot_card.dart';
 
 class SpotsMapScreen extends StatelessWidget {
-  const SpotsMapScreen({super.key, this.initialSpotId});
+  const SpotsMapScreen({
+    super.key,
+    this.initialSpotId,
+    this.isEmbedded = false,
+  });
 
   final String? initialSpotId;
+  final bool isEmbedded;
 
   @override
   Widget build(BuildContext context) {
@@ -33,13 +38,15 @@ class SpotsMapScreen extends StatelessWidget {
         themeExtension: themeTokens,
         initialSelectedSpotId: initialSpotId,
       ),
-      child: const _SpotsMapView(),
+      child: _SpotsMapView(isEmbedded: isEmbedded),
     );
   }
 }
 
 class _SpotsMapView extends StatelessWidget {
-  const _SpotsMapView();
+  const _SpotsMapView({this.isEmbedded = false});
+
+  final bool isEmbedded;
 
   @override
   Widget build(BuildContext context) {
@@ -86,11 +93,12 @@ class _SpotsMapView extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CircleIconButton(
-                      icon: const BackButtonIcon(),
-                      tooltip: context.l10n.backTooltip,
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
+                    if (!isEmbedded)
+                      CircleIconButton(
+                        icon: const BackButtonIcon(),
+                        tooltip: context.l10n.backTooltip,
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
                   ],
                 ),
               ),

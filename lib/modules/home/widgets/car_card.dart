@@ -2,8 +2,8 @@ import 'package:feen/shared/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../app/app_router.dart';
 import '../../../shared/constants/app_assets.dart';
+import '../../../shared/utils/adaptive_navigation.dart';
 import '../../../shared/cubits/car_tracking/car_tracking_cubit.dart';
 import '../../../shared/cubits/location/location_cubit.dart';
 import '../../../shared/cubits/settings/settings_cubit.dart';
@@ -79,7 +79,7 @@ class CarCard extends StatelessWidget {
   }
 
   void _handleShowOnMap(BuildContext context, Spot car) {
-    Navigator.of(context).pushNamed(AppRouter.spotsMap, arguments: car.id);
+    AdaptiveNavigation.openMap(context, spotId: car.id);
   }
 
   void _handleOpenInMaps(BuildContext context, Spot car) async {
@@ -106,8 +106,7 @@ class CarCard extends StatelessWidget {
                 duration: const Duration(seconds: 3),
               ),
             );
-            Navigator.of(context)
-                .pushNamed(AppRouter.spotsMap, arguments: car.id);
+            AdaptiveNavigation.openMap(context, spotId: car.id);
           }
           return;
         }

@@ -11,12 +11,14 @@ class SectionHeader extends StatelessWidget {
     this.actionLabel,
     this.actionIcon,
     this.onAction,
+    this.trailing,
   });
 
   final String title;
   final String? actionLabel;
   final Widget? actionIcon;
   final VoidCallback? onAction;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,9 @@ class SectionHeader extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        if (actionLabel != null && onAction != null)
+        if (trailing != null)
+          trailing!
+        else if (actionLabel != null && onAction != null)
           TextButton(
             onPressed: onAction,
             style: TextButton.styleFrom(

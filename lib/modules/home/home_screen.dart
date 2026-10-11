@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../app/app_router.dart';
+import '../../shared/cubits/adaptive_nav/adaptive_nav_cubit.dart';
+import '../../shared/cubits/adaptive_nav/adaptive_nav_state.dart';
 import '../../shared/cubits/spots/spots_cubit.dart';
 import '../../shared/cubits/spots/spots_state.dart';
 import '../../shared/models/spot.dart';
-import '../../shared/services/share_service.dart';
 import '../../shared/theme/app_dimens.dart';
+import '../../shared/utils/adaptive_layout_ext.dart';
+import '../../shared/utils/adaptive_navigation.dart';
 import '../../shared/utils/context_ext.dart';
 import '../../shared/widgets/car_proximity_listener.dart';
+import '../../shared/widgets/circle_icon_button.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/location_permission_banner.dart';
 import '../../shared/widgets/primary_bottom_button.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/spot_card.dart';
+import '../save_spot/save_spot_screen.dart';
+import '../search/search_spots_screen.dart';
+import '../settings/settings_screen.dart';
+import '../spots_map/spots_map_screen.dart';
 import 'widgets/car_card.dart';
 import 'widgets/home_header.dart';
 import 'widgets/rename_spot_sheet.dart';
@@ -24,10 +31,89 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CarProximityListener(
-      child: Scaffold(
-        body: SafeArea(
-          bottom: false,
-          child: Column(
+      child: context.isWideScreen
+          ? const _AdaptiveTwoPaneHome()
+          : const _HomePane(),
+    );
+  }
+}
+
+class _AdaptiveTwoPaneHome extends StatelessWidget {
+  const _AdaptiveTwoPaneHome();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+
+    return Scaffold(
+      body: Row(
+        children: [
+          // Left Pane: Home (portrait column)
+          const SizedBox(
+            width: 390.0,
+            child: _HomePane(),
+          ),
+
+          // Pane Divider
+          VerticalDivider(
+            width: 1,
+            thickness: 1,
+            color: theme.colorScheme.outlineVariant.withAlpha(80),
+          ),
+
+          // Right Pane: Active Detail (Map by default, or Settings, SaveSpot, Search)
+          const Expanded(
+            child: _AdaptiveDetailPane(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AdaptiveDetailPane extends StatelessWidget {
+  const _AdaptiveDetailPane();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AdaptiveNavCubit, AdaptiveNavState>(
+      builder: (context, state) {
+        final cubit = context.read<AdaptiveNavCubit>();
+
+        return switch (state.detailPane) {
+          DetailPaneType.map => SpotsMapScreen(
+              key: ValueKey('map_${state.selectedSpotId}'),
+              initialSpotId: state.selectedSpotId,
+              isEmbedded: true,
+            ),
+          DetailPaneType.saveSpot => SaveSpotScreen(
+              key: const ValueKey('adaptive_save_spot'),
+              onClose: cubit.closeDetail,
+            ),
+          DetailPaneType.settings => SettingsScreen(
+              key: const ValueKey('adaptive_settings'),
+              onClose: cubit.closeDetail,
+            ),
+          DetailPaneType.search => SearchSpotsScreen(
+              key: const ValueKey('adaptive_search'),
+              onClose: cubit.closeDetail,
+              onSpotSelected: (id) => cubit.showMap(spotId: id),
+            ),
+        };
+      },
+    );
+  }
+}
+
+class _HomePane extends StatelessWidget {
+  const _HomePane();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        bottom: false,
+        child: Column(
           children: [
             const HomeHeader(),
             Expanded(
@@ -61,13 +147,12 @@ class HomeScreen extends StatelessWidget {
               label: context.l10n.saveThisSpot,
               icon: const Icon(Icons.add_rounded),
               onPressed: () {
-                Navigator.of(context).pushNamed(AppRouter.saveSpot);
+                AdaptiveNavigation.openSaveSpot(context);
               },
             ),
           ],
         ),
       ),
-    ),
     );
   }
 }
@@ -87,18 +172,13 @@ class _SavedSpotsSectionHeader extends StatelessWidget {
 
         return SectionHeader(
           title: context.l10n.savedSpots,
-          actionLabel: context.l10n.shareAll,
-          actionIcon: Icon(
-            Icons.ios_share_rounded,
-            size: AppDimens.iconSmall,
-            color: context.colorScheme.primary,
+          trailing: CircleIconButton(
+            icon: const Icon(Icons.search_rounded),
+            tooltip: context.l10n.searchSpots,
+            onPressed: () {
+              AdaptiveNavigation.openSearch(context);
+            },
           ),
-          onAction: () {
-            const ShareService().shareAllSpots(
-              state.allSpots,
-              l10n: context.l10n,
-            );
-          },
         );
       },
     );
@@ -195,8 +275,7 @@ class _DismissibleSpotItem extends StatelessWidget {
         spot: spot,
         isFavorite: isFavorite,
         onShowOnMap: () {
-          Navigator.of(context)
-              .pushNamed(AppRouter.spotsMap, arguments: spot.id);
+          AdaptiveNavigation.openMap(context, spotId: spot.id);
         },
         onLongPress: () {
           showModalBottomSheet<void>(

@@ -17,7 +17,9 @@ import '../../shared/widgets/settings_group.dart';
 import 'widgets/language_selector_sheet.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({super.key, this.onClose});
+
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +36,7 @@ class SettingsScreen extends StatelessWidget {
             child: CircleIconButton(
               icon: const BackButtonIcon(),
               tooltip: l10n.backTooltip,
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: onClose ?? () => Navigator.of(context).pop(),
             ),
           ),
         ),

@@ -9,7 +9,9 @@ import '../cubit/save_spot_state.dart';
 
 /// Search input bar shown at the top of the Save Spot picker.
 class PlaceSearchField extends StatelessWidget {
-  const PlaceSearchField({super.key});
+  const PlaceSearchField({super.key, this.onClose});
+
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class PlaceSearchField extends StatelessWidget {
           CircleIconButton(
             icon: const BackButtonIcon(),
             tooltip: context.l10n.backTooltip,
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: onClose ?? () => Navigator.of(context).pop(),
           ),
           const SizedBox(width: AppDimens.space12),
           Expanded(

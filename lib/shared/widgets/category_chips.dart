@@ -8,12 +8,12 @@ import '../utils/context_ext.dart';
 class CategoryChips extends StatelessWidget {
   const CategoryChips({
     super.key,
-    required this.selectedCategory,
+    this.selectedCategory,
     required this.onCategorySelected,
     this.categories = SpotCategory.selectable,
   });
 
-  final SpotCategory selectedCategory;
+  final SpotCategory? selectedCategory;
   final ValueChanged<SpotCategory> onCategorySelected;
   final List<SpotCategory> categories;
 

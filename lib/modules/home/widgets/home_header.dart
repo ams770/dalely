@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../app/app_router.dart';
+
 import '../../../shared/theme/app_dimens.dart';
+import '../../../shared/utils/adaptive_navigation.dart';
 import '../../../shared/utils/context_ext.dart';
 import '../../../shared/widgets/circle_icon_button.dart';
 
@@ -24,7 +25,7 @@ class HomeHeader extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              context.l10n.homeGreeting,
+              "",
               style: theme.textTheme.displayLarge?.copyWith(
                 fontWeight: FontWeight.w800,
               ),
@@ -32,7 +33,7 @@ class HomeHeader extends StatelessWidget {
           ),
           _MapHeaderButton(
             onPressed: () {
-              Navigator.of(context).pushNamed(AppRouter.spotsMap);
+              AdaptiveNavigation.openMap(context);
             },
           ),
           const SizedBox(width: AppDimens.space8),
@@ -40,7 +41,7 @@ class HomeHeader extends StatelessWidget {
             icon: const Icon(Icons.tune_rounded),
             tooltip: context.l10n.settingsTooltip,
             onPressed: () {
-              Navigator.of(context).pushNamed(AppRouter.settings);
+              AdaptiveNavigation.openSettings(context);
             },
           ),
         ],

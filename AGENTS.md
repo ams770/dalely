@@ -20,7 +20,7 @@ A simple, friendly, **local-only** Flutter app for saving places you need to fin
 - Theme: System / Light / Dark. Starts on **System**.
 - Design: primary light blue (#3C79F3), darker blue (#0B6FBF) for links/icons, pale blue (#F3F9FF) backgrounds, deep navy (#12263F) for text/dark elements, coral (#FF8A65) for the car, rounded type, large touch targets, primary actions in the thumb zone (bottom).
 
-Screens: **Home**, **All spots on map**, **Save a spot**, **Settings**.
+Screens: **Home**, **All spots on map**, **Save a spot**, **Search**, **Settings**.
 
 ---
 
@@ -71,6 +71,10 @@ lib/
    │  └─ widgets/
    ├─ save_spot/
    │  ├─ save_spot_screen.dart
+   │  ├─ cubit/
+   │  └─ widgets/
+   ├─ search/
+   │  ├─ search_spots_screen.dart
    │  ├─ cubit/
    │  └─ widgets/
    └─ settings/

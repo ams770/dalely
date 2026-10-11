@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../modules/home/home_screen.dart';
 import '../modules/onboarding/onboarding_screen.dart';
 import '../modules/save_spot/save_spot_screen.dart';
+import '../modules/search/search_spots_screen.dart';
 import '../modules/settings/settings_screen.dart';
 import '../modules/spots_map/spots_map_screen.dart';
 
@@ -12,6 +13,7 @@ abstract final class AppRouter {
   static const String spotsMap = '/spots-map';
   static const String map = '/map';
   static const String saveSpot = '/save-spot';
+  static const String search = '/search';
   static const String settings = '/settings';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
@@ -44,6 +46,12 @@ abstract final class AppRouter {
       case saveSpot:
         return MaterialPageRoute<void>(
           builder: (_) => const SaveSpotScreen(),
+          settings: settings,
+        );
+
+      case search:
+        return MaterialPageRoute<void>(
+          builder: (_) => const SearchSpotsScreen(),
           settings: settings,
         );
 

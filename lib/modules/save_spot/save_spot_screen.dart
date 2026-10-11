@@ -15,10 +15,11 @@ import '../../shared/widgets/primary_bottom_button.dart';
 import 'cubit/save_spot_cubit.dart';
 import 'cubit/save_spot_state.dart';
 import 'widgets/center_pin.dart';
-import 'widgets/place_results_overlay.dart';
 
 class SaveSpotScreen extends StatelessWidget {
-  const SaveSpotScreen({super.key});
+  const SaveSpotScreen({super.key, this.onClose});
+
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +32,15 @@ class SaveSpotScreen extends StatelessWidget {
         locationCubit: locationCubit,
         placeSearchService: PlaceSearchService(),
       ),
-      child: const _SaveSpotView(),
+      child: _SaveSpotView(onClose: onClose),
     );
   }
 }
 
 class _SaveSpotView extends StatelessWidget {
-  const _SaveSpotView();
+  const _SaveSpotView({this.onClose});
+
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -64,10 +67,7 @@ class _SaveSpotView extends StatelessWidget {
               FocusScope.of(context).unfocus();
               cubit.hideSearchResults();
             },
-            padding: EdgeInsets.only(
-              top: topPadding,
-              bottom: bottomPadding,
-            ),
+            padding: EdgeInsets.only(top: topPadding, bottom: bottomPadding),
           ),
 
           // Center Pin (positioned at the exact center of the visible map area)
@@ -79,12 +79,29 @@ class _SaveSpotView extends StatelessWidget {
             child: const Center(child: CenterPin()),
           ),
 
-          // Search Dropdown Overlay
           PositionedDirectional(
-            top: topPadding,
+            top: 0,
             start: 0,
             end: 0,
-            child: const PlaceResultsOverlay(),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: AppDimens.space16,
+                  vertical: AppDimens.space8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CircleIconButton(
+                      icon: const BackButtonIcon(),
+                      tooltip: context.l10n.backTooltip,
+                      onPressed: onClose,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
 
           // Snap to Current Location Button
@@ -102,11 +119,11 @@ class _SaveSpotView extends StatelessWidget {
           ),
 
           // Bottom Details & Save Panel
-          const PositionedDirectional(
+          PositionedDirectional(
             bottom: 0,
             start: 0,
             end: 0,
-            child: _SaveDetailsBottomPanel(),
+            child: _SaveDetailsBottomPanel(onClose: onClose),
           ),
         ],
       ),
@@ -115,7 +132,9 @@ class _SaveSpotView extends StatelessWidget {
 }
 
 class _SaveDetailsBottomPanel extends StatelessWidget {
-  const _SaveDetailsBottomPanel();
+  const _SaveDetailsBottomPanel({this.onClose});
+
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +215,11 @@ class _SaveDetailsBottomPanel extends StatelessWidget {
                         ? () async {
                             final success = await cubit.saveSpot();
                             if (success && context.mounted) {
-                              Navigator.of(context).pop();
+                              if (onClose != null) {
+                                onClose!();
+                              } else {
+                                Navigator.of(context).pop();
+                              }
                             }
                           }
                         : null,

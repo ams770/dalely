@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 
@@ -40,6 +41,17 @@ class BootstrapDependencies {
 
 Future<BootstrapDependencies> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final view = WidgetsBinding.instance.platformDispatcher.views.firstOrNull;
+  if (view != null && view.devicePixelRatio > 0) {
+    final widthDp = view.physicalSize.width / view.devicePixelRatio;
+    if (widthDp < 600) {
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    }
+  }
 
   // Initialize Hive
   await Hive.initFlutter();

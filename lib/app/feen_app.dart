@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import '../shared/cubits/adaptive_nav/adaptive_nav_cubit.dart';
 import '../shared/cubits/car_proximity/car_proximity_cubit.dart';
 import '../shared/cubits/car_tracking/car_tracking_cubit.dart';
 import '../shared/cubits/location/location_cubit.dart';
@@ -92,6 +93,9 @@ class FeenApp extends StatelessWidget {
           create: (_) => CarProximityCubit(
             notificationService: dependencies.notificationService,
           ),
+        ),
+        BlocProvider<AdaptiveNavCubit>(
+          create: (_) => AdaptiveNavCubit(),
         ),
       ],
       child: _FeenMaterialApp(
