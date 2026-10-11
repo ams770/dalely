@@ -1,4 +1,4 @@
-# Feen (فين) — Project Rules & Instructions
+# Dalely (دليلى) — Project Rules & Instructions
 
 > These rules are **mandatory** for every change in this repository.
 > If a request conflicts with a rule, **stop and ask** before breaking it.
@@ -45,7 +45,7 @@ Screens: **Home**, **All spots on map**, **Save a spot**, **Search**, **Settings
 
 ```
 lib/
-├─ main.dart                       # bootstrap() then runApp(const FeenApp())
+├─ main.dart                       # bootstrap() then runApp(const DalelyApp())
 ├─ app/                            # app wiring only (no UI components)
 │  ├─ bootstrap.dart               # Hive init, adapters, open boxes, home_widget group id
 │  ├─ feen_app.dart                # providers + MaterialApp (theme, locale, router)
@@ -305,10 +305,10 @@ Adding anything else → ask first, then add it to this list.
 | 5 | Maps API key | Provided; configured natively (Android manifest + iOS AppDelegate) |
 | 6 | Place search | _Pending: native geocoder vs Google Places_ |
 | 7 | Widget "Park" | _Pending: open app briefly vs background save_ |
-| 8 | Bundle ID / App Group | _Pending (currently `com.example.feen`)_ |
+| 8 | Bundle ID / App Group | _Pending (currently `com.dalely.app`)_ |
 | 9 | Favorite spot for widget | _Pending: in-app star vs widget config_ |
 | 10 | Edit / delete spots | _Pending: swipe-to-delete + rename on long-press_ |
 | 11 | Font | _Pending: Readex Pro proposed_ |
 | 12 | Parking notification | `flutter_local_notifications`: pinned/ongoing notification with live chronometer and distance to parked car |
-| 13 | App name localization | Android `values/strings.xml` ("Feen") & `values-ar/strings.xml` ("فين"); iOS `en.lproj/InfoPlist.strings` & `ar.lproj/InfoPlist.strings` |
+| 13 | App name localization | Android `values/strings.xml` ("Dalely") & `values-ar/strings.xml` ("دليلى"); iOS `en.lproj/InfoPlist.strings` & `ar.lproj/InfoPlist.strings` |
 | 14 | Car distance notification | Live Activity (ActivityKit / SwiftUI) on iOS; ongoing foreground service (`CarTrackingService`) on Android. Bridge via MethodChannel `feen/car_tracking` & EventChannel `feen/car_tracking/events`. |

@@ -22,7 +22,7 @@ import Foundation
   private var isArrived: Bool = false
   private var arrivalTimer: Timer?
 
-  private var currentActivity: Any? // Activity<FeenTrackingAttributes>
+  private var currentActivity: Any? // Activity<DalelyTrackingAttributes>
   private var isTracking = false
 
   private var lastUpdateTime: Date = .distantPast
@@ -199,12 +199,12 @@ import Foundation
 
     endLiveActivity()
 
-    let appName = isArabic ? "فين" : "Feen"
+    let appName = isArabic ? "دليلى" : "Dalely"
     let onMapLabel = isArabic ? "اعرض على الخريطة" : "Show on map"
     let foundLabel = isArabic ? "وجدتُ سيارتي" : "Found my car"
     let parkedText = formatParkedAgo(carSavedAt, isArabic: isArabic)
 
-    var initialState = FeenTrackingAttributes.ContentState(
+    var initialState = DalelyTrackingAttributes.ContentState(
       state: "waitingForGps",
       distanceText: isArabic ? "جارٍ التحديد..." : "Locating...",
       detailText: isArabic ? "في انتظار GPS" : "Looking for location",
@@ -225,7 +225,7 @@ import Foundation
       self.isArrived = arrived
       self.startDistanceMeters = distance
 
-      initialState = FeenTrackingAttributes.ContentState(
+      initialState = DalelyTrackingAttributes.ContentState(
         state: arrived ? "arrived" : "walking",
         distanceText: formatDistance(distance, isArabic: isArabic),
         detailText: arrived ? (isArabic ? "أنت على بعد أقل من 15 م" : "You are within 15 m") : formatWalkTime(walkMins, isArabic: isArabic),
@@ -238,10 +238,10 @@ import Foundation
       )
     }
 
-    let attributes = FeenTrackingAttributes(carName: carName)
+    let attributes = DalelyTrackingAttributes(carName: carName)
 
     do {
-      let activity = try Activity<FeenTrackingAttributes>.request(
+      let activity = try Activity<DalelyTrackingAttributes>.request(
         attributes: attributes,
         content: .init(state: initialState, staleDate: nil)
       )
@@ -258,9 +258,9 @@ import Foundation
     progress: Double
   ) {
     guard #available(iOS 16.2, *) else { return }
-    guard let activity = currentActivity as? Activity<FeenTrackingAttributes> else { return }
+    guard let activity = currentActivity as? Activity<DalelyTrackingAttributes> else { return }
 
-    let appName = isArabic ? "فين" : "Feen"
+    let appName = isArabic ? "دليلى" : "Dalely"
     let onMapLabel = isArabic ? "اعرض على الخريطة" : "Show on map"
     let foundLabel = isArrived ? (isArabic ? "تم" : "Done") : (isArabic ? "وجدتُ سيارتي" : "Found it")
     let parkedText = formatParkedAgo(carSavedAt, isArabic: isArabic)
@@ -273,7 +273,7 @@ import Foundation
       detailText = formatWalkTime(walkMinutes, isArabic: isArabic)
     }
 
-    let updatedContentState = FeenTrackingAttributes.ContentState(
+    let updatedContentState = DalelyTrackingAttributes.ContentState(
       state: state,
       distanceText: distanceText,
       detailText: detailText,
@@ -292,7 +292,7 @@ import Foundation
 
   private func endLiveActivity() {
     guard #available(iOS 16.2, *) else { return }
-    for activity in Activity<FeenTrackingAttributes>.activities {
+    for activity in Activity<DalelyTrackingAttributes>.activities {
       Task {
         await activity.end(nil, dismissalPolicy: .immediate)
       }

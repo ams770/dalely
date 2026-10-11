@@ -1,12 +1,12 @@
-# Feen (فين) — Notification & Live Activity Architecture
+# Dalely (دليلى) — Notification & Live Activity Architecture
 
-This document provides a comprehensive technical reference for the notification and live tracking subsystems in the Feen mobile application across Flutter, native Android, and native iOS.
+This document provides a comprehensive technical reference for the notification and live tracking subsystems in the Dalely mobile application across Flutter, native Android, and native iOS.
 
 ---
 
 ## 1. Architectural Overview
 
-Feen uses a **two-tier notification architecture**:
+Dalely uses a **two-tier notification architecture**:
 
 1. **Local Notification Engine (`NotificationService`)**:
    - Backed by `flutter_local_notifications`.
@@ -17,7 +17,7 @@ Feen uses a **two-tier notification architecture**:
 2. **Real-Time Car Distance Tracking & Live Activity Engine (`CarTrackingService`)**:
    - Backed by custom platform channels (`feen/car_tracking` & `feen/car_tracking/events`).
    - **Android**: An ongoing, pinned Foreground Service (`CarTrackingService.kt`) with `FOREGROUND_SERVICE_LOCATION` and Fused Location updates.
-   - **iOS**: An ActivityKit **Live Activity** and Dynamic Island widget (`FeenLiveActivityWidget.swift`) powered by CoreLocation background updates (`CarTrackingManager.swift`).
+   - **iOS**: An ActivityKit **Live Activity** and Dynamic Island widget (`DalelyLiveActivityWidget.swift`) powered by CoreLocation background updates (`CarTrackingManager.swift`).
    - Displays real-time geodesic distance, walking time (at 1.4 m/s), parking elapsed time, and quick actions ("Show on map" and "Found my car" / "Done").
 
 ```mermaid
@@ -43,7 +43,7 @@ graph TD
     subgraph Native iOS
         PlatformCarTrackingService -.->|feen/car_tracking| CarTrackingManager[CarTrackingManager.swift]
         CarTrackingManager -->|CLLocationManager| GPS_iOS[CoreLocation Background Updates]
-        CarTrackingManager -->|ActivityKit.request| LiveActivity[FeenLiveActivityWidget.swift]
+        CarTrackingManager -->|ActivityKit.request| LiveActivity[DalelyLiveActivityWidget.swift]
         LiveActivity -->|Link feen://map?spot=car| WidgetActionHandler
         LiveActivity -->|Link feen://found_car| WidgetActionHandler
     end
@@ -79,12 +79,12 @@ Located in [`lib/shared/services/notification_service.dart`](file:///Users/salem
 ### 2.4 Car Arrival Proximity Notification
 - **Trigger**: [CarProximityCubit](file:///Users/salem/Mobile/feen/lib/shared/cubits/car_proximity/car_proximity_cubit.dart) tracks distance to the parked car. When the user walks $\ge 15\text{ m}$ away and later returns to $\le 5\text{ m}$, `showCarArrivalNotification(...)` is triggered.
 - **Android Payload**:
-  - `styleInformation`: `BigTextStyleInformation` with title, body, and summary text `Feen • Car Arrival`.
+  - `styleInformation`: `BigTextStyleInformation` with title, body, and summary text `Dalely • Car Arrival`.
   - `actions`:
     - `actionFoundCar`: `✅ Found my car` (dispatches to `feen://found_car`).
     - `actionOnMap`: `🗺️ On map` (dispatches to `feen://map?spot=car`).
   - `category`: `AndroidNotificationCategory.recommendation`.
-  - `subText`: `Feen Live`.
+  - `subText`: `Dalely Live`.
   - `color`: `#FFFF6B4A`.
 - **iOS Payload**:
   - `interruptionLevel`: `InterruptionLevel.timeSensitive`.
@@ -183,12 +183,12 @@ Located in [`lib/shared/utils/car_tracking_calculator.dart`](file:///Users/salem
 ### 4.2 Notification Construction (`CarTrackingNotificationBuilder.kt`)
 - **Channel**:
   - `ID`: `car_tracking`
-  - `Name`: Feen Car Tracking
+  - `Name`: Dalely Car Tracking
   - `Importance`: `NotificationManager.IMPORTANCE_LOW` (silent, persistent).
 - **Custom RemoteViews Layouts (iOS Live Activity Equivalent)**:
   - **Collapsed View** (`R.layout.notification_car_tracking_collapsed`):
     - Deep navy card background (`#12263F`, 16dp rounded corners).
-    - Top row: App icon in primary light blue circle badge (`#3C79F3`), app name ("Feen" / "فين"), relative parking time badge.
+    - Top row: App icon in primary light blue circle badge (`#3C79F3`), app name ("Dalely" / "دليلى"), relative parking time badge.
     - Content row: 28sp bold distance digits, walking time detail, and compact "Show on map" pill button.
   - **Expanded View** (`R.layout.notification_car_tracking_expanded`):
     - Full hero view matching the iOS Lock Screen card.
@@ -213,7 +213,7 @@ Located in [`lib/shared/utils/car_tracking_calculator.dart`](file:///Users/salem
      - `MainActivity` immediately terminates `CarTrackingService` (dismissing the notification in 0ms), and delivers `feen://found_car` to `WidgetActionHandler` which clears the car in Hive.
 
 ### 4.3 Broadcast Receiver (`CarTrackingReceiver.kt`)
-- Handles `com.example.feen.ACTION_FOUND_CAR`.
+- Handles `com.dalely.app.ACTION_FOUND_CAR`.
 - Calls `CarTrackingService.stopService(context)`.
 - Dispatches event `{"state": "foundCar"}` through `CarTrackingPlugin`.
 - Starts `MainActivity` with `feen://found_car` to clear the car in Hive.
@@ -264,9 +264,9 @@ In [`android/app/src/main/AndroidManifest.xml`](file:///Users/salem/Mobile/feen/
   - Accepts `userLat` and `userLng` in method call `start`.
   - Calculates initial distance and begins the Live Activity on frame 0 using `seedLocation`.
 
-### 5.2 Attributes & ContentState (`FeenTrackingAttributes.swift`)
+### 5.2 Attributes & ContentState (`DalelyTrackingAttributes.swift`)
 ```swift
-public struct FeenTrackingAttributes: ActivityAttributes {
+public struct DalelyTrackingAttributes: ActivityAttributes {
   public struct ContentState: Codable, Hashable {
     public var state: String            // "waitingForGps", "walking", "arrived"
     public var distanceText: String     // e.g. "120 m" / "120 م"
@@ -276,19 +276,19 @@ public struct FeenTrackingAttributes: ActivityAttributes {
     public var isArrived: Bool
     public var onMapLabel: String       // "Show on map" / "اعرض على الخريطة"
     public var foundLabel: String       // "Found my car" / "وجدتُ سيارتي" / "Done"
-    public var appName: String          // "Feen" / "فين"
+    public var appName: String          // "Dalely" / "دليلى"
   }
   public var carName: String
 }
 ```
 
-### 5.3 Live Activity Widget (`FeenLiveActivityWidget.swift`)
-- **File**: [`ios/FeenLiveActivity/FeenLiveActivityWidget.swift`](file:///Users/salem/Mobile/feen/ios/FeenLiveActivity/FeenLiveActivityWidget.swift)
+### 5.3 Live Activity Widget (`DalelyLiveActivityWidget.swift`)
+- **File**: [`ios/DalelyLiveActivity/DalelyLiveActivityWidget.swift`](file:///Users/salem/Mobile/feen/ios/DalelyLiveActivity/DalelyLiveActivityWidget.swift)
 
 #### Lock Screen Presentation
-- Uses `ActivityConfiguration(for: FeenTrackingAttributes.self)`.
+- Uses `ActivityConfiguration(for: DalelyTrackingAttributes.self)`.
 - **Background**: Deep Navy (`#12263F`) with `activityBackgroundTint`.
-- **Header**: Feen pin icon, app name, and relative parked time.
+- **Header**: Dalely pin icon, app name, and relative parked time.
 - **Body**: Heavy rounded typography for distance (34pt) and detail status.
 - **Deep Links**:
   - Entire card has `.widgetURL(URL(string: "feen://map?spot=car"))`.
@@ -297,7 +297,7 @@ public struct FeenTrackingAttributes: ActivityAttributes {
 
 #### Dynamic Island Presentations
 - **Expanded**:
-  - Leading: Pin icon and App Name (`Feen` / `فين`).
+  - Leading: Pin icon and App Name (`Dalely` / `دليلى`).
   - Trailing: Walk time or arrival status.
   - Bottom: Large distance text and compact action buttons (`Show on map` & `Found my car`).
 - **Compact Leading**: Map pin icon (Coral `#FF8A65` while walking, Green `#0E9F75` when arrived).

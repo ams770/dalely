@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Feen';
+  String get appTitle => 'Dalely';
 
   @override
   String get homeGreeting => 'Where to?';
@@ -65,7 +65,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onMap => 'On map';
 
   @override
-  String get foundMyCar => 'Found my car';
+  String get foundMyCar => 'found it';
 
   @override
   String get carCleared => 'Car location cleared';
@@ -80,7 +80,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showOnMap => 'Show on map';
 
   @override
-  String get whereMyCarTitle => 'Where’s my car?';
+  String get whereMyCarTitle => 'find my car';
 
   @override
   String get share => 'Share';
@@ -309,7 +309,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get couldNotOpenLink => 'Couldn\'t open the link';
 
   @override
-  String get permissionDeniedTitle => 'Location is off for Feen';
+  String get permissionDeniedTitle => 'Location is off for Dalely';
 
   @override
   String get permissionDeniedMessage =>

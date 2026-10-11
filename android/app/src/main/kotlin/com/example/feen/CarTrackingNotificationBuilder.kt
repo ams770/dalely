@@ -1,4 +1,4 @@
-package com.example.feen
+package com.dalely.app
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -19,8 +19,8 @@ object CarTrackingNotificationBuilder {
     const val REQUEST_CODE_SHOW_ON_MAP = 2001
     const val REQUEST_CODE_FOUND_CAR = 2002
 
-    const val ACTION_SHOW_ON_MAP = "com.example.feen.ACTION_SHOW_ON_MAP"
-    const val ACTION_FOUND_CAR = "com.example.feen.ACTION_FOUND_CAR"
+    const val ACTION_SHOW_ON_MAP = "com.dalely.app.ACTION_SHOW_ON_MAP"
+    const val ACTION_FOUND_CAR = "com.dalely.app.ACTION_FOUND_CAR"
 
     const val URI_MAP_CAR = "feen://map?spot=car"
     const val URI_FOUND_CAR = "feen://found_car"
@@ -116,7 +116,7 @@ object CarTrackingNotificationBuilder {
             context.getString(R.string.car_tracking_action_found_car)
         }
 
-        val appName = if (isArabic) "فين" else "Feen"
+        val appName = if (isArabic) "دليلى" else "Dalely"
         val parkedAgoText = formatParkedAgo(carSavedAt, isArabic)
 
         val displayDistance = if (isWaiting) {

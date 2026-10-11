@@ -5,5 +5,5 @@ import 'app/feen_app.dart';
 
 void main() async {
   final dependencies = await bootstrap();
-  runApp(FeenApp(dependencies: dependencies));
+  runApp(DalelyApp(dependencies: dependencies));
 }

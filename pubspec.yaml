@@ -1,5 +1,5 @@
 name: feen
-description: "Feen — save the places you need to find again."
+description: "Dalely — save the places you need to find again."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -64,6 +64,8 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.3
   flutter_native_splash: ^2.4.4
 
+
+# dart run flutter_launcher_icons -f flutter_launcher_icons.yaml
 flutter_launcher_icons:
   android: true
   ios: true
@@ -71,19 +73,19 @@ flutter_launcher_icons:
   min_sdk_android: 21
   adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: "assets/images/logo.png"
-
+# dart run flutter_native_splash:create
 flutter_native_splash:
-  color: "#FFFFFF"
-  color_dark: "#12263F"
-  image: "assets/images/logo.png"
-  image_dark: "assets/images/logo.png"
+  color: "#3C79F3"
+  color_dark: "#0B131F"
+  image: "assets/images/logo-d.png"
+  image_dark: "assets/images/logo-d.png"
   android_12:
-    image: "assets/images/logo.png"
-    icon_background_color: "#FFFFFF"
-    image_dark: "assets/images/logo.png"
-    icon_background_color_dark: "#12263F"
-    color: "#FFFFFF"
-    color_dark: "#12263F"
+    image: "assets/images/logo-d.png"
+    icon_background_color: "#3C79F3"
+    image_dark: "assets/images/logo-d.png"
+    icon_background_color_dark: "#0B131F"
+    color: "#3C79F3"
+    color_dark: "#0B131F"
   web: false
 
 

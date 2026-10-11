@@ -1,4 +1,4 @@
-package com.example.feen
+package com.dalely.app
 
 import android.content.Intent
 import android.os.Bundle

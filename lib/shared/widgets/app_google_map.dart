@@ -5,7 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../theme/map_styles.dart';
 
-/// A wrapper around [GoogleMap] applying Feen's custom map styling,
+/// A wrapper around [GoogleMap] applying Dalely's custom map styling,
 /// gesture defaults, and theme integration.
 class AppGoogleMap extends StatelessWidget {
   const AppGoogleMap({

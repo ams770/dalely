@@ -10,10 +10,10 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'فين';
+  String get appTitle => 'دليلى';
 
   @override
-  String get homeGreeting => 'على فين؟';
+  String get homeGreeting => 'على دليلى؟';
 
   @override
   String savedSpotsCount(int count) {
@@ -330,7 +330,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get couldNotOpenLink => 'تعذّر فتح الرابط';
 
   @override
-  String get permissionDeniedTitle => 'الموقع غير مفعّل لتطبيق فين';
+  String get permissionDeniedTitle => 'الموقع غير مفعّل لتطبيق دليلى';
 
   @override
   String get permissionDeniedMessage =>
@@ -564,7 +564,7 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
   AppLocalizationsArEg() : super('ar_EG');
 
   @override
-  String get appTitle => 'فين';
+  String get appTitle => 'دليلى';
 
   @override
   String get homeGreeting => 'على فين؟';
@@ -1065,7 +1065,7 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
   AppLocalizationsArSa() : super('ar_SA');
 
   @override
-  String get appTitle => 'فين';
+  String get appTitle => 'دليلى';
 
   @override
   String get homeGreeting => 'وين رايح؟';
@@ -1385,7 +1385,7 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
   String get couldNotOpenLink => 'تعذّر فتح الرابط';
 
   @override
-  String get permissionDeniedTitle => 'الموقع غير مفعّل لتطبيق فين';
+  String get permissionDeniedTitle => 'الموقع غير مفعّل لتطبيق دليلى';
 
   @override
   String get permissionDeniedMessage =>

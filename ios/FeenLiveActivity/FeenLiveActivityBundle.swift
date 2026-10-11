@@ -2,8 +2,8 @@ import SwiftUI
 import WidgetKit
 
 @main
-struct FeenLiveActivityBundle: WidgetBundle {
+struct DalelyLiveActivityBundle: WidgetBundle {
   var body: some Widget {
-    FeenLiveActivityWidget()
+    DalelyLiveActivityWidget()
   }
 }

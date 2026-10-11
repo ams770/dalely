@@ -1,6 +1,6 @@
 {
   "@@locale": "ar_EG",
-  "appTitle": "فين",
+  "appTitle": "دليلى",
   "homeGreeting": "على فين؟",
   "savedSpotsCount": "{count, plural, =0{مفيش أماكن محفوظة} =1{مكان واحد محفوظ} =2{مكانين محفوظين} few{{count} أماكن محفوظة} many{{count} مكان محفوظ} other{{count} مكان محفوظ}}",
   "mapButton": "الخريطة",

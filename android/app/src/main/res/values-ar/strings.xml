@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">فين</string>
+    <string name="app_name">دليلى</string>
     <string name="car_tracking_channel_name">تتبع السيارة</string>
     <string name="car_tracking_channel_description">عرض المسافة والتقدم المباشر أثناء المشي إلى سيارتك.</string>
     <string name="car_tracking_looking_for_location">جارٍ تحديد موقعك...</string>

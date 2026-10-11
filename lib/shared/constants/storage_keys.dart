@@ -1,6 +1,6 @@
 /// Hive box names, record keys and native-widget shared keys.
 ///
-/// Widget keys are mirrored exactly in Swift (FeenWidgets) and Kotlin (widgets).
+/// Widget keys are mirrored exactly in Swift (DalelyWidgets) and Kotlin (widgets).
 abstract final class StorageKeys {
   static const String spotsBox = 'spots';
   static const String settingsBox = 'settings';
@@ -10,7 +10,7 @@ abstract final class StorageKeys {
   static const String carId = 'car';
 
   // Native widget bridge.
-  static const String appGroupId = 'group.com.example.feen';
+  static const String appGroupId = 'group.com.dalely.app';
   static const String widgetCarLat = 'car_lat';
   static const String widgetCarLng = 'car_lng';
   static const String widgetCarSavedAt = 'car_saved_at';
@@ -35,10 +35,14 @@ abstract final class StorageKeys {
   static const String iosParkWidget = 'ParkWidget';
   static const String iosFindCarWidget = 'FindCarWidget';
   static const String iosFavoriteWidget = 'FavoriteSpotWidget';
-  static const String androidCarWidget = 'com.example.feen.widgets.CarWidgetReceiver';
-  static const String androidParkWidget = 'com.example.feen.widgets.ParkWidgetReceiver';
-  static const String androidFindCarWidget = 'com.example.feen.widgets.FindCarWidgetReceiver';
-  static const String androidFavoriteWidget = 'com.example.feen.widgets.FavoriteWidgetReceiver';
+  static const String androidCarWidget =
+      'com.dalely.app.widgets.CarWidgetReceiver';
+  static const String androidParkWidget =
+      'com.dalely.app.widgets.ParkWidgetReceiver';
+  static const String androidFindCarWidget =
+      'com.dalely.app.widgets.FindCarWidgetReceiver';
+  static const String androidFavoriteWidget =
+      'com.dalely.app.widgets.FavoriteWidgetReceiver';
 
   // Widget & notification tap URIs (`feen://<host>`).
   static const String uriScheme = 'feen';

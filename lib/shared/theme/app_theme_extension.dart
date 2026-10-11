@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../constants/spot_categories.dart';
 import 'app_colors.dart';
 
-/// Extended theme tokens for Feen-specific styling.
+/// Extended theme tokens for Dalely-specific styling.
 ///
-/// Extended theme tokens for Feen-specific styling.
+/// Extended theme tokens for Dalely-specific styling.
 ///
 /// Accessed via `context.tokens` or `Theme.of(context).extension<AppThemeExtension>()!`.
 class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
@@ -165,38 +165,62 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
   }
 
   @override
-  AppThemeExtension lerp(
-    ThemeExtension<AppThemeExtension>? other,
-    double t,
-  ) {
+  AppThemeExtension lerp(ThemeExtension<AppThemeExtension>? other, double t) {
     if (other is! AppThemeExtension) return this;
     return AppThemeExtension(
-      carCardBackground:
-          Color.lerp(carCardBackground, other.carCardBackground, t)!,
-      carCardForeground:
-          Color.lerp(carCardForeground, other.carCardForeground, t)!,
+      carCardBackground: Color.lerp(
+        carCardBackground,
+        other.carCardBackground,
+        t,
+      )!,
+      carCardForeground: Color.lerp(
+        carCardForeground,
+        other.carCardForeground,
+        t,
+      )!,
       carCardArcColor: Color.lerp(carCardArcColor, other.carCardArcColor, t)!,
-      carCardButtonDarkBg:
-          Color.lerp(carCardButtonDarkBg, other.carCardButtonDarkBg, t)!,
-      carCardButtonDarkFg:
-          Color.lerp(carCardButtonDarkFg, other.carCardButtonDarkFg, t)!,
-      carCardButtonLightBg:
-          Color.lerp(carCardButtonLightBg, other.carCardButtonLightBg, t)!,
-      carCardButtonLightFg:
-          Color.lerp(carCardButtonLightFg, other.carCardButtonLightFg, t)!,
+      carCardButtonDarkBg: Color.lerp(
+        carCardButtonDarkBg,
+        other.carCardButtonDarkBg,
+        t,
+      )!,
+      carCardButtonDarkFg: Color.lerp(
+        carCardButtonDarkFg,
+        other.carCardButtonDarkFg,
+        t,
+      )!,
+      carCardButtonLightBg: Color.lerp(
+        carCardButtonLightBg,
+        other.carCardButtonLightBg,
+        t,
+      )!,
+      carCardButtonLightFg: Color.lerp(
+        carCardButtonLightFg,
+        other.carCardButtonLightFg,
+        t,
+      )!,
       carCardPillBg: Color.lerp(carCardPillBg, other.carCardPillBg, t)!,
       carCardPillFg: Color.lerp(carCardPillFg, other.carCardPillFg, t)!,
       carCardShadow: Color.lerp(carCardShadow, other.carCardShadow, t)!,
-      carGradientStart:
-          Color.lerp(carGradientStart, other.carGradientStart, t)!,
+      carGradientStart: Color.lerp(
+        carGradientStart,
+        other.carGradientStart,
+        t,
+      )!,
       carGradientEnd: Color.lerp(carGradientEnd, other.carGradientEnd, t)!,
       carOnGradient: Color.lerp(carOnGradient, other.carOnGradient, t)!,
       pillBackground: Color.lerp(pillBackground, other.pillBackground, t)!,
       pillForeground: Color.lerp(pillForeground, other.pillForeground, t)!,
-      mapOverlaySurface:
-          Color.lerp(mapOverlaySurface, other.mapOverlaySurface, t)!,
-      mapOverlayBorder:
-          Color.lerp(mapOverlayBorder, other.mapOverlayBorder, t)!,
+      mapOverlaySurface: Color.lerp(
+        mapOverlaySurface,
+        other.mapOverlaySurface,
+        t,
+      )!,
+      mapOverlayBorder: Color.lerp(
+        mapOverlayBorder,
+        other.mapOverlayBorder,
+        t,
+      )!,
       categoryColors: categoryColors.map(
         (key, value) => MapEntry(
           key,

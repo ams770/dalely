@@ -1,4 +1,4 @@
-package com.example.feen
+package com.dalely.app
 
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
@@ -10,7 +10,7 @@ class CarTrackingReceiver : BroadcastReceiver() {
         const val PREFS_NAME = "feen_pending_actions"
         const val KEY_PENDING_ACTION = "pending_action"
         const val KEY_PENDING_TIME = "pending_action_time"
-        const val ACTION_FOUND_CAR = "com.example.feen.ACTION_FOUND_CAR"
+        const val ACTION_FOUND_CAR = "com.dalely.app.ACTION_FOUND_CAR"
     }
 
     override fun onReceive(context: Context, intent: Intent) {

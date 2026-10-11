@@ -209,11 +209,11 @@ class NotificationService {
         styleInformation: BigTextStyleInformation(
           body,
           contentTitle: title,
-          summaryText: 'Feen • Car Arrival',
+          summaryText: 'Dalely • Car Arrival',
         ),
         category: AndroidNotificationCategory.recommendation,
         visibility: NotificationVisibility.public,
-        subText: 'Feen Live',
+        subText: 'Dalely Live',
         actions: <AndroidNotificationAction>[
           AndroidNotificationAction(
             actionFoundCar,

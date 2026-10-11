@@ -7,9 +7,9 @@ private let coral = Color(red: 1.0, green: 0.541, blue: 0.396)      // #FF8A65
 private let deepNavy = Color(red: 0.071, green: 0.149, blue: 0.247)  // #12263F
 private let arrivedGreen = Color(red: 0.05, green: 0.62, blue: 0.46) // #0E9F75
 
-struct FeenLiveActivityWidget: Widget {
+struct DalelyLiveActivityWidget: Widget {
   var body: some WidgetConfiguration {
-    ActivityConfiguration(for: FeenTrackingAttributes.self) { context in
+    ActivityConfiguration(for: DalelyTrackingAttributes.self) { context in
       LockScreenCard(state: context.state)
         .widgetURL(URL(string: "feen://map?spot=car"))
         .activityBackgroundTint(deepNavy.opacity(0.85))
@@ -69,7 +69,7 @@ struct FeenLiveActivityWidget: Widget {
 }
 
 private struct LockScreenCard: View {
-  let state: FeenTrackingAttributes.ContentState
+  let state: DalelyTrackingAttributes.ContentState
 
   var body: some View {
     VStack(alignment: .leading, spacing: 10) {

@@ -1,6 +1,6 @@
 {
   "@@locale": "ar_SA",
-  "appTitle": "فين",
+  "appTitle": "دليلى",
   "homeGreeting": "وين رايح؟",
   "savedSpotsCount": "{count, plural, =0{لا توجد أماكن محفوظة} =1{مكان واحد محفوظ} =2{مكانان محفوظان} few{{count} أماكن محفوظة} many{{count} مكانًا محفوظًا} other{{count} مكان محفوظ}}",
   "mapButton": "الخريطة",
@@ -75,7 +75,7 @@
   "locationUnavailable": "تعذّر تحديد موقعك بعد",
   "couldNotOpenMaps": "تعذّر فتح تطبيق الخرائط",
   "couldNotOpenLink": "تعذّر فتح الرابط",
-  "permissionDeniedTitle": "الموقع غير مفعّل لتطبيق فين",
+  "permissionDeniedTitle": "الموقع غير مفعّل لتطبيق دليلى",
   "permissionDeniedMessage": "اسمح بالوصول إلى الموقع لرؤية المسافات وموقع سيارتك.",
   "serviceDisabledTitle": "خدمات الموقع متوقفة",
   "serviceDisabledMessage": "فعّل خدمات الموقع لمعرفة مكانك.",

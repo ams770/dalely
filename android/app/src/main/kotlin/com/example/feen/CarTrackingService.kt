@@ -1,4 +1,4 @@
-package com.example.feen
+package com.dalely.app
 
 import android.annotation.SuppressLint
 import android.app.NotificationManager
@@ -24,8 +24,8 @@ import kotlin.math.ceil
 class CarTrackingService : Service() {
 
     companion object {
-        const val ACTION_START = "com.example.feen.START_TRACKING"
-        const val ACTION_STOP = "com.example.feen.STOP_TRACKING"
+        const val ACTION_START = "com.dalely.app.START_TRACKING"
+        const val ACTION_STOP = "com.dalely.app.STOP_TRACKING"
 
         const val EXTRA_CAR_LAT = "extra_car_lat"
         const val EXTRA_CAR_LNG = "extra_car_lng"

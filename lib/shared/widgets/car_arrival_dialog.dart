@@ -29,7 +29,6 @@ class CarArrivalDialog extends StatelessWidget {
           ),
           child: Column(
             children: [
-              const _TopBar(),
               const Spacer(),
               const _CarHeroIllustration(),
               const SizedBox(height: AppDimens.space24),
@@ -48,81 +47,27 @@ class CarArrivalDialog extends StatelessWidget {
   }
 }
 
-class _TopBar extends StatelessWidget {
-  const _TopBar();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final tokens = context.tokens;
-    final theme = context.theme;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppDimens.space12,
-            vertical: AppDimens.space6,
-          ),
-          decoration: BoxDecoration(
-            color: tokens.carCardBackground.withAlpha(25),
-            borderRadius: AppDimens.borderRadiusFull,
-            border: Border.all(
-              color: tokens.carCardBackground.withAlpha(60),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.near_me_rounded,
-                size: AppDimens.iconSmall,
-                color: tokens.carCardBackground,
-              ),
-              const SizedBox(width: AppDimens.space6),
-              Text(
-                l10n.carArrivalTitle,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: tokens.carCardForeground,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ),
-        IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.close_rounded),
-          tooltip: l10n.cancel,
-          visualDensity: VisualDensity.compact,
-        ),
-      ],
-    );
-  }
-}
-
 class _CarHeroIllustration extends StatelessWidget {
   const _CarHeroIllustration();
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
+    final colorScheme = context.colorScheme;
 
     return Container(
       width: double.infinity,
       constraints: const BoxConstraints(maxWidth: 340, maxHeight: 220),
       padding: const EdgeInsetsDirectional.all(AppDimens.space20),
       decoration: BoxDecoration(
-        color: tokens.carCardBackground.withAlpha(20),
+        color: colorScheme.primary.withAlpha(15),
         borderRadius: AppDimens.borderRadiusLarge,
         border: Border.all(
-          color: tokens.carCardBackground.withAlpha(55),
+          color: colorScheme.primary.withAlpha(45),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: tokens.carCardShadow.withAlpha(25),
+            color: colorScheme.primary.withAlpha(15),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),
@@ -154,8 +99,9 @@ class _ArrivalTextSection extends StatelessWidget {
           l10n.carArrivalTitle,
           textAlign: TextAlign.center,
           style: theme.textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w800,
             letterSpacing: -0.5,
+            color: theme.colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: AppDimens.space12),
@@ -189,13 +135,13 @@ class _ActionButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final tokens = context.tokens;
     final theme = context.theme;
+    final colorScheme = theme.colorScheme;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Primary Action: "Found my car"
+        // Primary Action: "Found my car" (Follows app primary theme color)
         SizedBox(
           width: double.infinity,
           height: AppDimens.primaryButtonHeight,
@@ -208,13 +154,14 @@ class _ActionButtons extends StatelessWidget {
             label: Text(
               l10n.foundMyCar,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
+                color: colorScheme.onPrimary,
+                fontWeight: FontWeight.w700,
               ),
             ),
             style: FilledButton.styleFrom(
-              backgroundColor: tokens.carCardBackground,
-              foregroundColor: Colors.white,
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              elevation: 0,
               shape: const RoundedRectangleBorder(
                 borderRadius: AppDimens.borderRadiusLarge,
               ),
@@ -232,17 +179,22 @@ class _ActionButtons extends StatelessWidget {
               Navigator.of(context).pop();
               onCantSeeCar();
             },
-            icon: const Icon(Icons.map_rounded),
+            icon: Icon(
+              Icons.map_rounded,
+              color: colorScheme.primary,
+            ),
             label: Text(
               l10n.cantSeeCar,
               style: theme.textTheme.titleMedium?.copyWith(
+                color: colorScheme.onSurface,
                 fontWeight: FontWeight.w700,
               ),
             ),
             style: OutlinedButton.styleFrom(
-              foregroundColor: theme.colorScheme.onSurface,
+              foregroundColor: colorScheme.onSurface,
               side: BorderSide(
-                color: tokens.carCardBackground.withAlpha(90),
+                color: colorScheme.outline,
+                width: 1.5,
               ),
               shape: const RoundedRectangleBorder(
                 borderRadius: AppDimens.borderRadiusLarge,

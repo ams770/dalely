@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Raw palette tokens for light and dark themes.
 ///
-/// Feen design language:
+/// Dalely design language:
 /// - Primary light blue (#3C79F3) for main brand actions & buttons
 /// - Darker blue (#0B6FBF) for small links and icons
 /// - Pale blue (#F3F9FF) for soft surfaces, chips, and tracks

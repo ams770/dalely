@@ -53,11 +53,8 @@ class AppRouteObserver extends RouteObserver<PageRoute<dynamic>> {
 
 final AppRouteObserver appRouteObserver = AppRouteObserver();
 
-class FeenApp extends StatelessWidget {
-  const FeenApp({
-    super.key,
-    required this.dependencies,
-  });
+class DalelyApp extends StatelessWidget {
+  const DalelyApp({super.key, required this.dependencies});
 
   final BootstrapDependencies dependencies;
 
@@ -94,11 +91,9 @@ class FeenApp extends StatelessWidget {
             notificationService: dependencies.notificationService,
           ),
         ),
-        BlocProvider<AdaptiveNavCubit>(
-          create: (_) => AdaptiveNavCubit(),
-        ),
+        BlocProvider<AdaptiveNavCubit>(create: (_) => AdaptiveNavCubit()),
       ],
-      child: _FeenMaterialApp(
+      child: _DalelyMaterialApp(
         actionRouter: dependencies.actionRouter,
         notificationService: dependencies.notificationService,
       ),
@@ -106,8 +101,8 @@ class FeenApp extends StatelessWidget {
   }
 }
 
-class _FeenMaterialApp extends StatelessWidget {
-  const _FeenMaterialApp({
+class _DalelyMaterialApp extends StatelessWidget {
+  const _DalelyMaterialApp({
     required this.actionRouter,
     required this.notificationService,
   });
@@ -175,8 +170,14 @@ class _FeenMaterialApp extends StatelessWidget {
                 }
                 // 3. Saudi / Gulf Arabic
                 if (deviceLocale.languageCode == 'ar' &&
-                    const ['SA', 'AE', 'KW', 'QA', 'BH', 'OM']
-                        .contains(deviceLocale.countryCode)) {
+                    const [
+                      'SA',
+                      'AE',
+                      'KW',
+                      'QA',
+                      'BH',
+                      'OM',
+                    ].contains(deviceLocale.countryCode)) {
                   return const Locale('ar', 'SA');
                 }
                 // 4. General Arabic fallback

@@ -1,7 +1,7 @@
 import ActivityKit
 import Foundation
 
-public struct FeenTrackingAttributes: ActivityAttributes {
+public struct DalelyTrackingAttributes: ActivityAttributes {
   public struct ContentState: Codable, Hashable {
     public var state: String
     public var distanceText: String

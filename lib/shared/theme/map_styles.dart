@@ -1,4 +1,4 @@
-/// Custom JSON styles for Google Maps that match Feen's soft light blue aesthetic.
+/// Custom JSON styles for Google Maps that match Dalely's soft light blue aesthetic.
 abstract final class MapStyles {
   static const String light = '''
 [

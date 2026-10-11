@@ -103,7 +103,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Feen'**
+  /// **'Dalely'**
   String get appTitle;
 
   /// No description provided for @homeGreeting.
@@ -187,7 +187,7 @@ abstract class AppLocalizations {
   /// No description provided for @foundMyCar.
   ///
   /// In en, this message translates to:
-  /// **'Found my car'**
+  /// **'found it'**
   String get foundMyCar;
 
   /// No description provided for @carCleared.
@@ -217,7 +217,7 @@ abstract class AppLocalizations {
   /// No description provided for @whereMyCarTitle.
   ///
   /// In en, this message translates to:
-  /// **'Where’s my car?'**
+  /// **'find my car'**
   String get whereMyCarTitle;
 
   /// No description provided for @share.
@@ -553,7 +553,7 @@ abstract class AppLocalizations {
   /// No description provided for @permissionDeniedTitle.
   ///
   /// In en, this message translates to:
-  /// **'Location is off for Feen'**
+  /// **'Location is off for Dalely'**
   String get permissionDeniedTitle;
 
   /// No description provided for @permissionDeniedMessage.
