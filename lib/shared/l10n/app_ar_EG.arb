@@ -20,7 +20,7 @@
   "shareAll": "مشاركة الكل",
   "showOnMap": "على الخريطة",
   "share": "مشاركة",
-  "saveThisSpot": "احفظ المكان ده",
+  "saveThisSpot": "ضيف مكان جديد",
   "savedAgo": "اتحفظ {time}",
   "timeJustNow": "دلوقتي",
   "timeMinutesAgo": "{count, plural, =1{من دقيقة} =2{من دقيقتين} few{من {count} دقائق} many{من {count} دقيقة} other{من {count} دقيقة}}",

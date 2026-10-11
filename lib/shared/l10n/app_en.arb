@@ -35,7 +35,7 @@
   "shareAll": "Share all",
   "showOnMap": "Show on map",
   "share": "Share",
-  "saveThisSpot": "Save this spot",
+  "saveThisSpot": "Save new spot",
   "savedAgo": "Saved {time}",
   "@savedAgo": {
     "placeholders": {
