@@ -775,7 +775,7 @@ abstract class AppLocalizations {
   /// No description provided for @cantSeeCar.
   ///
   /// In en, this message translates to:
-  /// **'I can\'t see the car'**
+  /// **'Haven\'t seen the car yet'**
   String get cantSeeCar;
 
   /// No description provided for @carFoundCelebration.

@@ -5,9 +5,13 @@ import 'package:feen/shared/constants/spot_categories.dart';
 import 'package:feen/shared/cubits/car_proximity/car_proximity_cubit.dart';
 import 'package:feen/shared/models/app_settings.dart';
 import 'package:feen/shared/models/spot.dart';
+import 'package:feen/shared/l10n/generated/app_localizations.dart';
+import 'package:feen/shared/theme/app_theme.dart';
 import 'package:feen/shared/utils/distance_formatter.dart';
 import 'package:feen/shared/utils/duration_formatter.dart';
 import 'package:feen/shared/utils/spot_link_builder.dart';
+import 'package:feen/shared/widgets/car_arrival_dialog.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -259,6 +263,38 @@ void main() {
     test('SaveSpotState defaults to SpotCategory.other', () {
       const state = SaveSpotState();
       expect(state.category, SpotCategory.other);
+    });
+  });
+
+  group('CarArrivalDialog', () {
+    testWidgets('renders full page with car image and Egyptian Arabic button',
+        (tester) async {
+      var foundCarPressed = false;
+      var cantSeeCarPressed = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ar', 'EG'),
+          home: Scaffold(
+            body: CarArrivalDialog(
+              onFoundCar: () => foundCarPressed = true,
+              onCantSeeCar: () => cantSeeCarPressed = true,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(Image), findsOneWidget);
+      expect(find.text('لسه مشوفتش العربيه'), findsOneWidget);
+      expect(foundCarPressed, isFalse);
+
+      await tester.tap(find.text('لسه مشوفتش العربيه'));
+      await tester.pumpAndSettle();
+      expect(cantSeeCarPressed, isTrue);
     });
   });
 }

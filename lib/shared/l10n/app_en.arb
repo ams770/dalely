@@ -192,7 +192,7 @@
   "carArrivalTitle": "You're at your car!",
   "carArrivalMessage": "You have returned to your parked car.",
   "iFoundMyCar": "I found my car",
-  "cantSeeCar": "I can't see the car",
+  "cantSeeCar": "Haven't seen the car yet",
   "carFoundCelebration": "Great! Have a safe drive.",
   "onboardingSkip": "Skip",
   "onboardingNext": "Next",

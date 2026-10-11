@@ -444,7 +444,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get iFoundMyCar => 'وجدت سيارتي';
 
   @override
-  String get cantSeeCar => 'لا أستطيع رؤية السيارة';
+  String get cantSeeCar => 'لم أرَ السيارة بعد';
 
   @override
   String get carFoundCelebration => 'تم! نتمنى لك قيادة آمنة.';
@@ -598,7 +598,7 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
   }
 
   @override
-  String get openInMaps => 'افتح في الخرائط';
+  String get openInMaps => 'افتح في الخريطة';
 
   @override
   String get parkHere => 'اركن هنا';
@@ -983,7 +983,7 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
   String get iFoundMyCar => 'لقيت عربيتي';
 
   @override
-  String get cantSeeCar => 'مش شايف العربية';
+  String get cantSeeCar => 'لسه مشوفتش العربيه';
 
   @override
   String get carFoundCelebration => 'تم! طريق السلامة.';
@@ -1469,7 +1469,7 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
   String get iFoundMyCar => 'لقيت سيارتي';
 
   @override
-  String get cantSeeCar => 'ما أشوف السيارة';
+  String get cantSeeCar => 'لسه ما شفت السيارة';
 
   @override
   String get carFoundCelebration => 'تم! درب السلامة.';

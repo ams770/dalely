@@ -423,7 +423,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iFoundMyCar => 'I found my car';
 
   @override
-  String get cantSeeCar => 'I can\'t see the car';
+  String get cantSeeCar => 'Haven\'t seen the car yet';
 
   @override
   String get carFoundCelebration => 'Great! Have a safe drive.';

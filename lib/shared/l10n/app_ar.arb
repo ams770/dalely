@@ -112,7 +112,7 @@
   "carArrivalTitle": "أنت أمام سيارتك!",
   "carArrivalMessage": "لقد وصلت إلى موقع سيارتك المركونة.",
   "iFoundMyCar": "وجدت سيارتي",
-  "cantSeeCar": "لا أستطيع رؤية السيارة",
+  "cantSeeCar": "لم أرَ السيارة بعد",
   "carFoundCelebration": "تم! نتمنى لك قيادة آمنة.",
   "onboardingSkip": "تخطي",
   "onboardingNext": "التالي",

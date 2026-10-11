@@ -56,6 +56,9 @@ abstract final class AppColors {
   static const Color catHomeLight = Color(0xFF10B981); // Emerald
   static const Color catHomeDark = Color(0xFF34D399);
 
+  static const Color greenLight = Color.fromARGB(255, 129, 238, 216);
+  static const Color greenDark = Color.fromARGB(255, 16, 106, 88);
+
   static const Color catPharmacyLight = Color(0xFFEC4899); // Pink
   static const Color catPharmacyDark = Color(0xFFF472B6);
 

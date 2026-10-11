@@ -27,29 +27,11 @@ class HomeHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  context.l10n.homeGreeting,
-                  style: theme.textTheme.displayLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: AppDimens.space4),
-                BlocSelector<SpotsCubit, SpotsState, int>(
-                  selector: (state) => state.totalSavedCount,
-                  builder: (context, count) {
-                    return Text(
-                      context.l10n.savedSpotsCount(count),
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    );
-                  },
-                ),
-              ],
+            child: Text(
+              context.l10n.homeGreeting,
+              style: theme.textTheme.displayLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
           _MapHeaderButton(

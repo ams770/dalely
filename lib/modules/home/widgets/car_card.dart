@@ -9,7 +9,6 @@ import '../../../shared/cubits/location/location_cubit.dart';
 import '../../../shared/cubits/settings/settings_cubit.dart';
 import '../../../shared/cubits/spots/spots_cubit.dart';
 import '../../../shared/cubits/spots/spots_state.dart';
-import '../../../shared/models/car_tracking_state.dart';
 import '../../../shared/models/location_access.dart';
 import '../../../shared/models/spot.dart';
 import '../../../shared/services/maps_launcher.dart';
@@ -319,9 +318,8 @@ class _ActiveCarContent extends StatelessWidget {
               child: _PillButton(
                 label: l10n.foundMyCar,
                 icon: Icons.check_circle_outline_rounded,
-                backgroundColor: AppColors.catHomeDark.withAlpha(14),
-                foregroundColor: AppColors.catHomeDark,
-                border: Border.all(color: AppColors.catHomeDark.withAlpha(80)),
+                backgroundColor: AppColors.greenLight,
+                foregroundColor: AppColors.greenDark,
                 onPressed: onFoundCar,
               ),
             ),
