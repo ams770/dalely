@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Feen</string>
+    <string name="car_tracking_channel_name">Car Tracking</string>
+    <string name="car_tracking_channel_description">Shows live distance and progress while walking to your parked car.</string>
+    <string name="car_tracking_looking_for_location">Looking for your location...</string>
+    <string name="car_tracking_waiting_for_gps">Waiting for GPS signal</string>
+    <string name="car_tracking_walking_title">Your car is %1$s away</string>
+    <string name="car_tracking_walking_body">%1$s</string>
+    <string name="car_tracking_arrived_title">Your car is right here</string>
+    <string name="car_tracking_arrived_body">You are within 15 m</string>
+    <string name="car_tracking_action_show_on_map">Show on map</string>
+    <string name="car_tracking_action_found_car">Found my car</string>
+    <string name="car_tracking_action_done">Done</string>
 </resources>

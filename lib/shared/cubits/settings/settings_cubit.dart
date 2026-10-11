@@ -19,6 +19,8 @@ class SettingsCubit extends Cubit<SettingsState> {
         localeCode: settings.localeCode,
         favoriteSpotId: settings.favoriteSpotId,
         hasCompletedOnboarding: settings.hasCompletedOnboarding,
+        carDistanceNotificationEnabled:
+            settings.carDistanceNotificationEnabled,
       ),
     );
   }
@@ -45,5 +47,16 @@ class SettingsCubit extends Cubit<SettingsState> {
     final updated = await _repository.setHasCompletedOnboarding(true);
     if (isClosed) return;
     emit(state.copyWith(hasCompletedOnboarding: updated.hasCompletedOnboarding));
+  }
+
+  Future<void> setCarDistanceNotificationEnabled(bool enabled) async {
+    final updated = await _repository.setCarDistanceNotificationEnabled(enabled);
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        carDistanceNotificationEnabled:
+            updated.carDistanceNotificationEnabled,
+      ),
+    );
   }
 }

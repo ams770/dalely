@@ -8,6 +8,7 @@ import '../shared/models/adapters/app_settings_adapter.dart';
 import '../shared/models/adapters/spot_adapter.dart';
 import '../shared/models/app_settings.dart';
 import '../shared/models/spot.dart';
+import '../shared/services/car_tracking_service.dart';
 import '../shared/services/heading_service.dart';
 import '../shared/services/home_widget_service.dart';
 import '../shared/services/location_service.dart';
@@ -21,6 +22,7 @@ class BootstrapDependencies {
     required this.headingService,
     required this.homeWidgetService,
     required this.notificationService,
+    required this.carTrackingService,
   });
 
   final SpotsRepository spotsRepository;
@@ -29,6 +31,7 @@ class BootstrapDependencies {
   final HeadingService headingService;
   final HomeWidgetService homeWidgetService;
   final NotificationService notificationService;
+  final CarTrackingService carTrackingService;
 }
 
 Future<BootstrapDependencies> bootstrap() async {
@@ -65,6 +68,7 @@ Future<BootstrapDependencies> bootstrap() async {
 
   const locationService = LocationService();
   final headingService = HeadingService();
+  final carTrackingService = PlatformCarTrackingService();
 
   return BootstrapDependencies(
     spotsRepository: SpotsRepository(spotsBox),
@@ -73,5 +77,6 @@ Future<BootstrapDependencies> bootstrap() async {
     headingService: headingService,
     homeWidgetService: homeWidgetService,
     notificationService: notificationService,
+    carTrackingService: carTrackingService,
   );
 }

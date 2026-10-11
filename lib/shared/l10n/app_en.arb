@@ -210,5 +210,28 @@
     "placeholders": {
       "distance": { "type": "String" }
     }
-  }
+  },
+  "carTrackingNotificationSettingTitle": "Car distance notification",
+  "carTrackingNotificationSettingSubtitle": "Pinned live notification while walking to your parked car",
+  "carTrackingWalkingTitle": "Your car is {distance} away",
+  "@carTrackingWalkingTitle": {
+    "placeholders": {
+      "distance": { "type": "String" }
+    }
+  },
+  "carTrackingAboutMinutes": "{count, plural, =1{About 1 min walk} other{About {count} min walk}}",
+  "@carTrackingAboutMinutes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "carTrackingLessThanMinute": "Less than a minute walk",
+  "carTrackingArrivedTitle": "Your car is right here",
+  "carTrackingArrivedBody": "You are within 15 m",
+  "carTrackingLookingForLocation": "Looking for your location...",
+  "carTrackingWaitingForGps": "Waiting for GPS signal",
+  "carTrackingDone": "Done",
+  "carTrackingStop": "Stop tracking",
+  "carTrackingTooFar": "Your car is too far for walking tracking",
+  "carTrackingActiveBanner": "Tracking walk to car"
 }

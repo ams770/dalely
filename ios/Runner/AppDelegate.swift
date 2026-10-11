@@ -13,10 +13,20 @@ import UserNotifications
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
     }
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    if !engineBridge.pluginRegistry.hasPlugin("CarTracking"),
+       let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "CarTracking") {
+      CarTrackingManager.shared.register(with: registrar.messenger())
+    }
+  }
+
+  override func applicationWillTerminate(_ application: UIApplication) {
+    CarTrackingManager.shared.stopTracking()
+    super.applicationWillTerminate(application)
   }
 }

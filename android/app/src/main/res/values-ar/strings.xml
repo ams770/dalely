@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">فين</string>
+    <string name="car_tracking_channel_name">تتبع السيارة</string>
+    <string name="car_tracking_channel_description">عرض المسافة والتقدم المباشر أثناء المشي إلى سيارتك.</string>
+    <string name="car_tracking_looking_for_location">جارٍ تحديد موقعك...</string>
+    <string name="car_tracking_waiting_for_gps">في انتظار إشارة GPS</string>
+    <string name="car_tracking_walking_title">سيارتك على بعد %1$s</string>
+    <string name="car_tracking_walking_body">%1$s</string>
+    <string name="car_tracking_arrived_title">سيارتك هنا</string>
+    <string name="car_tracking_arrived_body">أنت على بعد أقل من 15 م</string>
+    <string name="car_tracking_action_show_on_map">اعرض على الخريطة</string>
+    <string name="car_tracking_action_found_car">وجدتُ سيارتي</string>
+    <string name="car_tracking_action_done">تم</string>
 </resources>

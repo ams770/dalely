@@ -38,6 +38,8 @@ class SettingsScreen extends StatelessWidget {
         children: const [
           _AppearanceSection(),
           SizedBox(height: AppDimens.space24),
+          _CarTrackingSection(),
+          SizedBox(height: AppDimens.space24),
           _YourSpotsSection(),
           SizedBox(height: AppDimens.space24),
           _AboutSection(),
@@ -146,6 +148,43 @@ class _AppearanceSection extends StatelessWidget {
       default:
         return l10n.languageSystem;
     }
+  }
+}
+
+class _CarTrackingSection extends StatelessWidget {
+  const _CarTrackingSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cubit = context.read<SettingsCubit>();
+
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      buildWhen: (prev, curr) =>
+          prev.carDistanceNotificationEnabled !=
+          curr.carDistanceNotificationEnabled,
+      builder: (context, state) {
+        return SettingsGroup(
+          title: l10n.carTrackingNotificationSettingTitle,
+          children: [
+            SwitchListTile.adaptive(
+              secondary: const Icon(Icons.directions_walk_rounded),
+              title: Text(l10n.carTrackingNotificationSettingTitle),
+              subtitle: Text(
+                l10n.carTrackingNotificationSettingSubtitle,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              value: state.carDistanceNotificationEnabled,
+              onChanged: (enabled) {
+                cubit.setCarDistanceNotificationEnabled(enabled);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 

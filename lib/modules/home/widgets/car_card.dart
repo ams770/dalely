@@ -3,13 +3,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../app/app_router.dart';
 import '../../../shared/constants/app_assets.dart';
+import '../../../shared/cubits/car_tracking/car_tracking_cubit.dart';
 import '../../../shared/cubits/location/location_cubit.dart';
+import '../../../shared/cubits/settings/settings_cubit.dart';
 import '../../../shared/cubits/spots/spots_cubit.dart';
 import '../../../shared/cubits/spots/spots_state.dart';
+import '../../../shared/models/car_tracking_state.dart';
 import '../../../shared/models/location_access.dart';
 import '../../../shared/models/spot.dart';
+import '../../../shared/services/maps_launcher.dart';
 import '../../../shared/services/share_service.dart';
 import '../../../shared/theme/app_dimens.dart';
+import '../../../shared/utils/car_tracking_calculator.dart';
 import '../../../shared/utils/context_ext.dart';
 import '../../../shared/widgets/circle_icon_button.dart';
 import '../../../shared/widgets/info_pill.dart';
@@ -61,6 +66,7 @@ class CarCard extends StatelessWidget {
                   ? _ActiveCarContent(
                       car: car,
                       onShowOnMap: () => _handleShowOnMap(context, car),
+                      onOpenInMaps: () => _handleOpenInMaps(context, car),
                       onShare: () => _handleShare(context, car),
                       onFoundCar: () => _handleFoundCar(context, car),
                     )
@@ -76,14 +82,58 @@ class CarCard extends StatelessWidget {
     Navigator.of(context).pushNamed(AppRouter.spotsMap, arguments: car.id);
   }
 
+  void _handleOpenInMaps(BuildContext context, Spot car) async {
+    final l10n = context.l10n;
+    final settings = context.read<SettingsCubit>().state;
+    final trackingCubit = context.read<CarTrackingCubit>();
+    final locationCubit = context.read<LocationCubit>();
+    final pos = locationCubit.state.latLng;
+
+    if (settings.carDistanceNotificationEnabled) {
+      if (pos != null) {
+        final dist = CarTrackingCalculator.calculateDistance(
+          startLatitude: pos.latitude,
+          startLongitude: pos.longitude,
+          endLatitude: car.latitude,
+          endLongitude: car.longitude,
+        );
+        if (CarTrackingCalculator.isTooFar(dist)) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).clearSnackBars();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.carTrackingTooFar)),
+            );
+            Navigator.of(context).pushNamed(AppRouter.spotsMap, arguments: car.id);
+          }
+          return;
+        }
+      }
+
+      await trackingCubit.startCarTracking(
+        car: car,
+        currentLat: pos?.latitude,
+        currentLng: pos?.longitude,
+        isArabic: context.isArabic,
+      );
+    }
+
+    const MapsLauncher().openDirections(
+      latitude: car.latitude,
+      longitude: car.longitude,
+      label: car.name,
+    );
+  }
+
   void _handleShare(BuildContext context, Spot car) {
     const ShareService().shareSpot(car, l10n: context.l10n);
   }
 
   void _handleFoundCar(BuildContext context, Spot car) async {
     final spotsCubit = context.read<SpotsCubit>();
+    final trackingCubit = context.read<CarTrackingCubit>();
     final l10n = context.l10n;
 
+    await trackingCubit.stopCarTracking();
     await spotsCubit.clearCar();
     if (context.mounted) {
       ScaffoldMessenger.of(context).clearSnackBars();
@@ -104,8 +154,10 @@ class CarCard extends StatelessWidget {
   void _handlePark(BuildContext context) async {
     final locationCubit = context.read<LocationCubit>();
     final spotsCubit = context.read<SpotsCubit>();
+    final trackingCubit = context.read<CarTrackingCubit>();
     final l10n = context.l10n;
 
+    await trackingCubit.stopCarTracking();
     final pos = await locationCubit.getOrAcquirePosition();
     if (!context.mounted) return;
 
@@ -157,12 +209,14 @@ class _ActiveCarContent extends StatelessWidget {
   const _ActiveCarContent({
     required this.car,
     required this.onShowOnMap,
+    required this.onOpenInMaps,
     required this.onShare,
     required this.onFoundCar,
   });
 
   final Spot car;
   final VoidCallback onShowOnMap;
+  final VoidCallback onOpenInMaps;
   final VoidCallback onShare;
   final VoidCallback onFoundCar;
 
@@ -220,6 +274,19 @@ class _ActiveCarContent extends StatelessWidget {
             const SizedBox(width: AppDimens.space8),
             CircleIconButton(
               icon: Icon(
+                Icons.map_outlined,
+                color: primary,
+                size: AppDimens.iconSmall,
+              ),
+              size: AppDimens.minTouchTarget,
+              backgroundColor: primary.withAlpha(14),
+              border: Border.all(color: primary.withAlpha(80)),
+              tooltip: l10n.onMap,
+              onPressed: onShowOnMap,
+            ),
+            const SizedBox(width: AppDimens.space6),
+            CircleIconButton(
+              icon: Icon(
                 Icons.share_outlined,
                 color: primary,
                 size: AppDimens.iconSmall,
@@ -232,17 +299,30 @@ class _ActiveCarContent extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: AppDimens.space16),
+        const SizedBox(height: AppDimens.space12),
+        BlocBuilder<CarTrackingCubit, CarTrackingState>(
+          builder: (context, trackingState) {
+            if (!trackingState.isRunning) return const SizedBox.shrink();
+
+            return Padding(
+              padding: const EdgeInsetsDirectional.only(bottom: AppDimens.space12),
+              child: _TrackingStatusBanner(
+                state: trackingState,
+                onStop: () => context.read<CarTrackingCubit>().stopCarTracking(),
+              ),
+            );
+          },
+        ),
         Row(
           children: [
             Expanded(
               flex: 5,
               child: _PillButton(
-                label: l10n.onMap,
-                icon: Icons.map_rounded,
+                label: l10n.openInMaps,
+                icon: Icons.navigation_rounded,
                 backgroundColor: primary,
                 foregroundColor: colors.onPrimary,
-                onPressed: onShowOnMap,
+                onPressed: onOpenInMaps,
               ),
             ),
             const SizedBox(width: AppDimens.space8),
@@ -260,6 +340,106 @@ class _ActiveCarContent extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _TrackingStatusBanner extends StatelessWidget {
+  const _TrackingStatusBanner({
+    required this.state,
+    required this.onStop,
+  });
+
+  final CarTrackingState state;
+  final VoidCallback onStop;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colorScheme;
+    final l10n = context.l10n;
+    final isArrived = state.isArrived;
+    final accent = isArrived ? const Color(0xFF0E9F75) : colors.primary;
+
+    final titleText = isArrived
+        ? l10n.carTrackingArrivedTitle
+        : (state.formattedDistance.isNotEmpty
+            ? l10n.carTrackingWalkingTitle(state.formattedDistance)
+            : l10n.carTrackingLookingForLocation);
+
+    final subtitleText = isArrived
+        ? l10n.carTrackingArrivedBody
+        : (state.formattedWalkTime.isNotEmpty
+            ? state.formattedWalkTime
+            : l10n.carTrackingWaitingForGps);
+
+    return Container(
+      padding: const EdgeInsetsDirectional.all(AppDimens.space12),
+      decoration: BoxDecoration(
+        color: accent.withAlpha(18),
+        borderRadius: AppDimens.borderRadiusMedium,
+        border: Border.all(color: accent.withAlpha(60)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                isArrived
+                    ? Icons.check_circle_rounded
+                    : Icons.directions_walk_rounded,
+                color: accent,
+                size: AppDimens.iconMedium,
+              ),
+              const SizedBox(width: AppDimens.space8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      titleText,
+                      style: context.textTheme.labelLarge?.copyWith(
+                        color: colors.onSurface,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      subtitleText,
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              TextButton(
+                onPressed: onStop,
+                style: TextButton.styleFrom(
+                  foregroundColor: accent,
+                  visualDensity: VisualDensity.compact,
+                ),
+                child: Text(
+                  isArrived ? l10n.carTrackingDone : l10n.carTrackingStop,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimens.space8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: state.status == CarTrackingStatus.waitingForGps
+                  ? null
+                  : (isArrived ? 1.0 : state.progress),
+              backgroundColor: colors.surfaceContainerHighest,
+              valueColor: AlwaysStoppedAnimation<Color>(accent),
+              minHeight: 4,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -23,6 +23,9 @@ extension ContextExtensions on BuildContext {
   /// Check if the layout direction is right-to-left.
   bool get isRtl => Directionality.of(this) == TextDirection.rtl;
 
+  /// Check if active locale is Arabic.
+  bool get isArabic => Localizations.localeOf(this).languageCode == 'ar';
+
   /// Check if active theme brightness is dark.
   bool get isDarkMode => theme.brightness == Brightness.dark;
 }

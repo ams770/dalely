@@ -6,6 +6,7 @@ class SettingsState {
     this.localeCode,
     this.favoriteSpotId,
     this.hasCompletedOnboarding = false,
+    this.carDistanceNotificationEnabled = true,
   });
 
   final ThemeMode themeMode;
@@ -16,6 +17,8 @@ class SettingsState {
   final String? favoriteSpotId;
 
   final bool hasCompletedOnboarding;
+
+  final bool carDistanceNotificationEnabled;
 
   Locale? get locale {
     if (localeCode == null) return null;
@@ -31,6 +34,7 @@ class SettingsState {
     ValueGetter<String?>? localeCode,
     ValueGetter<String?>? favoriteSpotId,
     bool? hasCompletedOnboarding,
+    bool? carDistanceNotificationEnabled,
   }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
@@ -39,6 +43,8 @@ class SettingsState {
           favoriteSpotId != null ? favoriteSpotId() : this.favoriteSpotId,
       hasCompletedOnboarding:
           hasCompletedOnboarding ?? this.hasCompletedOnboarding,
+      carDistanceNotificationEnabled:
+          carDistanceNotificationEnabled ?? this.carDistanceNotificationEnabled,
     );
   }
 
@@ -49,7 +55,8 @@ class SettingsState {
           other.themeMode == themeMode &&
           other.localeCode == localeCode &&
           other.favoriteSpotId == favoriteSpotId &&
-          other.hasCompletedOnboarding == hasCompletedOnboarding;
+          other.hasCompletedOnboarding == hasCompletedOnboarding &&
+          other.carDistanceNotificationEnabled == carDistanceNotificationEnabled;
 
   @override
   int get hashCode => Object.hash(
@@ -57,5 +64,6 @@ class SettingsState {
         localeCode,
         favoriteSpotId,
         hasCompletedOnboarding,
+        carDistanceNotificationEnabled,
       );
 }

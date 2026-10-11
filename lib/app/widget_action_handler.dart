@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../shared/constants/storage_keys.dart';
 import '../shared/cubits/car_proximity/car_proximity_cubit.dart';
+import '../shared/cubits/car_tracking/car_tracking_cubit.dart';
 import '../shared/cubits/location/location_cubit.dart';
 import '../shared/cubits/spots/spots_cubit.dart';
 import '../shared/services/home_widget_service.dart';
@@ -23,7 +24,12 @@ class WidgetActionHandler {
 
   StreamSubscription? _subscription;
 
+  bool _initialized = false;
+
   void init({NotificationService? notificationService}) {
+    if (_initialized) return;
+    _initialized = true;
+
     // Check if launched from a widget
     homeWidgetService.initiallyLaunchedFromHomeWidget().then((uri) {
       if (uri != null) {
@@ -38,8 +44,8 @@ class WidgetActionHandler {
       }
     });
 
-    // Attach notification response listener
-    notificationService?.init(onNotificationResponse: handleNotificationResponse);
+    // Notification and action-button taps (also flushes a launch tap)
+    NotificationService.setResponseListener(handleNotificationResponse);
   }
 
   void handleNotificationResponse(NotificationResponse response) {
@@ -65,17 +71,24 @@ class WidgetActionHandler {
     }
   }
 
-  void handleUri(Uri uri) async {
+  void handleUri(Uri uri, {int attempt = 0}) async {
     if (uri.scheme != StorageKeys.uriScheme) return;
 
     final context = navigatorKey.currentContext;
-    if (context == null || !context.mounted) return;
+    if (context == null || !context.mounted) {
+      if (attempt < 10) {
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+        handleUri(uri, attempt: attempt + 1);
+      }
+      return;
+    }
 
     final host = uri.host;
     final spotsCubit = context.read<SpotsCubit>();
     final locationCubit = context.read<LocationCubit>();
 
     if (host == StorageKeys.uriPark) {
+      await context.read<CarTrackingCubit>().stopCarTracking();
       var pos = locationCubit.state.latLng;
       if (pos == null) {
         await locationCubit.requestPermission();
@@ -95,9 +108,29 @@ class WidgetActionHandler {
           arguments: car.id,
         );
       }
-    } else if (host == StorageKeys.uriFoundCar) {
+    } else if (host == 'map') {
+      final spotParam = uri.queryParameters['spot'];
+      if (spotParam == 'car' || spotParam == null) {
+        final car = spotsCubit.state.car;
+        if (car != null) {
+          navigatorKey.currentState?.pushNamed(
+            AppRouter.spotsMap,
+            arguments: car.id,
+          );
+        } else {
+          navigatorKey.currentState?.pushNamed(AppRouter.spotsMap);
+        }
+      } else {
+        navigatorKey.currentState?.pushNamed(
+          AppRouter.spotsMap,
+          arguments: spotParam,
+        );
+      }
+    } else if (host == StorageKeys.uriFoundCar || host == 'found_car' || host == 'done') {
       final proximityCubit = context.read<CarProximityCubit>();
+      final trackingCubit = context.read<CarTrackingCubit>();
       proximityCubit.onFoundCar();
+      await trackingCubit.stopCarTracking();
       await spotsCubit.clearCar();
     } else if (host == StorageKeys.uriSpot) {
       final spotId = uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;

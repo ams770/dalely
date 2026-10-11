@@ -125,5 +125,18 @@
   "onboardingAllowLocation": "السماح بالوصول للموقع",
   "onboardingNotNow": "ليس الآن",
   "notificationParkingTitle": "السيارة مركونة",
-  "notificationDistance": "المسافة: {distance}"
+  "notificationDistance": "المسافة: {distance}",
+  "carTrackingNotificationSettingTitle": "إشعار المسافة إلى السيارة",
+  "carTrackingNotificationSettingSubtitle": "إشعار مباشر مثبت أثناء المشي نحو سيارتك",
+  "carTrackingWalkingTitle": "سيارتك على بعد {distance}",
+  "carTrackingAboutMinutes": "{count, plural, =1{حوالي دقيقة سيرًا} =2{حوالي دقيقتين سيرًا} few{حوالي {count} دقائق سيرًا} many{حوالي {count} دقيقة سيرًا} other{حوالي {count} دقيقة سيرًا}}",
+  "carTrackingLessThanMinute": "أقل من دقيقة سيرًا",
+  "carTrackingArrivedTitle": "سيارتك هنا",
+  "carTrackingArrivedBody": "أنت على بعد أقل من 15 م",
+  "carTrackingLookingForLocation": "جارٍ تحديد موقعك...",
+  "carTrackingWaitingForGps": "في انتظار إشارة GPS",
+  "carTrackingDone": "تم",
+  "carTrackingStop": "إيقاف التتبع",
+  "carTrackingTooFar": "سيارتك بعيدة جدًا لتتبع المشي",
+  "carTrackingActiveBanner": "جارٍ تتبع المشي إلى السيارة"
 }

@@ -489,6 +489,59 @@ class AppLocalizationsAr extends AppLocalizations {
   String notificationDistance(String distance) {
     return 'المسافة: $distance';
   }
+
+  @override
+  String get carTrackingNotificationSettingTitle => 'إشعار المسافة إلى السيارة';
+
+  @override
+  String get carTrackingNotificationSettingSubtitle =>
+      'إشعار مباشر مثبت أثناء المشي نحو سيارتك';
+
+  @override
+  String carTrackingWalkingTitle(String distance) {
+    return 'سيارتك على بعد $distance';
+  }
+
+  @override
+  String carTrackingAboutMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'حوالي $count دقيقة سيرًا',
+      many: 'حوالي $count دقيقة سيرًا',
+      few: 'حوالي $count دقائق سيرًا',
+      two: 'حوالي دقيقتين سيرًا',
+      one: 'حوالي دقيقة سيرًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get carTrackingLessThanMinute => 'أقل من دقيقة سيرًا';
+
+  @override
+  String get carTrackingArrivedTitle => 'سيارتك هنا';
+
+  @override
+  String get carTrackingArrivedBody => 'أنت على بعد أقل من 15 م';
+
+  @override
+  String get carTrackingLookingForLocation => 'جارٍ تحديد موقعك...';
+
+  @override
+  String get carTrackingWaitingForGps => 'في انتظار إشارة GPS';
+
+  @override
+  String get carTrackingDone => 'تم';
+
+  @override
+  String get carTrackingStop => 'إيقاف التتبع';
+
+  @override
+  String get carTrackingTooFar => 'سيارتك بعيدة جدًا لتتبع المشي';
+
+  @override
+  String get carTrackingActiveBanner => 'جارٍ تتبع المشي إلى السيارة';
 }
 
 /// The translations for Arabic, as used in Egypt (`ar_EG`).

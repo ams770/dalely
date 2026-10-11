@@ -7,6 +7,7 @@ class AppSettings {
     this.localeCode,
     this.favoriteSpotId,
     this.hasCompletedOnboarding = false,
+    this.carDistanceNotificationEnabled = true,
   });
 
   final ThemeMode themeMode;
@@ -20,11 +21,15 @@ class AppSettings {
   /// Whether the user has completed or skipped the onboarding flow.
   final bool hasCompletedOnboarding;
 
+  /// Whether to show the pinned car distance notification / Live Activity when heading to car.
+  final bool carDistanceNotificationEnabled;
+
   AppSettings copyWith({
     ThemeMode? themeMode,
     ValueGetter<String?>? localeCode,
     ValueGetter<String?>? favoriteSpotId,
     bool? hasCompletedOnboarding,
+    bool? carDistanceNotificationEnabled,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -33,6 +38,8 @@ class AppSettings {
           favoriteSpotId != null ? favoriteSpotId() : this.favoriteSpotId,
       hasCompletedOnboarding:
           hasCompletedOnboarding ?? this.hasCompletedOnboarding,
+      carDistanceNotificationEnabled:
+          carDistanceNotificationEnabled ?? this.carDistanceNotificationEnabled,
     );
   }
 
@@ -43,7 +50,8 @@ class AppSettings {
           other.themeMode == themeMode &&
           other.localeCode == localeCode &&
           other.favoriteSpotId == favoriteSpotId &&
-          other.hasCompletedOnboarding == hasCompletedOnboarding;
+          other.hasCompletedOnboarding == hasCompletedOnboarding &&
+          other.carDistanceNotificationEnabled == carDistanceNotificationEnabled;
 
   @override
   int get hashCode => Object.hash(
@@ -51,5 +59,6 @@ class AppSettings {
         localeCode,
         favoriteSpotId,
         hasCompletedOnboarding,
+        carDistanceNotificationEnabled,
       );
 }

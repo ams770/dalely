@@ -468,4 +468,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String notificationDistance(String distance) {
     return 'Distance: $distance';
   }
+
+  @override
+  String get carTrackingNotificationSettingTitle => 'Car distance notification';
+
+  @override
+  String get carTrackingNotificationSettingSubtitle =>
+      'Pinned live notification while walking to your parked car';
+
+  @override
+  String carTrackingWalkingTitle(String distance) {
+    return 'Your car is $distance away';
+  }
+
+  @override
+  String carTrackingAboutMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'About $count min walk',
+      one: 'About 1 min walk',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get carTrackingLessThanMinute => 'Less than a minute walk';
+
+  @override
+  String get carTrackingArrivedTitle => 'Your car is right here';
+
+  @override
+  String get carTrackingArrivedBody => 'You are within 15 m';
+
+  @override
+  String get carTrackingLookingForLocation => 'Looking for your location...';
+
+  @override
+  String get carTrackingWaitingForGps => 'Waiting for GPS signal';
+
+  @override
+  String get carTrackingDone => 'Done';
+
+  @override
+  String get carTrackingStop => 'Stop tracking';
+
+  @override
+  String get carTrackingTooFar => 'Your car is too far for walking tracking';
+
+  @override
+  String get carTrackingActiveBanner => 'Tracking walk to car';
 }

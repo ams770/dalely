@@ -306,3 +306,4 @@ Adding anything else → ask first, then add it to this list.
 | 11 | Font | _Pending: Readex Pro proposed_ |
 | 12 | Parking notification | `flutter_local_notifications`: pinned/ongoing notification with live chronometer and distance to parked car |
 | 13 | App name localization | Android `values/strings.xml` ("Feen") & `values-ar/strings.xml` ("فين"); iOS `en.lproj/InfoPlist.strings` & `ar.lproj/InfoPlist.strings` |
+| 14 | Car distance notification | Live Activity (ActivityKit / SwiftUI) on iOS; ongoing foreground service (`CarTrackingService`) on Android. Bridge via MethodChannel `feen/car_tracking` & EventChannel `feen/car_tracking/events`. |

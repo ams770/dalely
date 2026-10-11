@@ -855,6 +855,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Distance: {distance}'**
   String notificationDistance(String distance);
+
+  /// No description provided for @carTrackingNotificationSettingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Car distance notification'**
+  String get carTrackingNotificationSettingTitle;
+
+  /// No description provided for @carTrackingNotificationSettingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned live notification while walking to your parked car'**
+  String get carTrackingNotificationSettingSubtitle;
+
+  /// No description provided for @carTrackingWalkingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your car is {distance} away'**
+  String carTrackingWalkingTitle(String distance);
+
+  /// No description provided for @carTrackingAboutMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{About 1 min walk} other{About {count} min walk}}'**
+  String carTrackingAboutMinutes(int count);
+
+  /// No description provided for @carTrackingLessThanMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than a minute walk'**
+  String get carTrackingLessThanMinute;
+
+  /// No description provided for @carTrackingArrivedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your car is right here'**
+  String get carTrackingArrivedTitle;
+
+  /// No description provided for @carTrackingArrivedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You are within 15 m'**
+  String get carTrackingArrivedBody;
+
+  /// No description provided for @carTrackingLookingForLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for your location...'**
+  String get carTrackingLookingForLocation;
+
+  /// No description provided for @carTrackingWaitingForGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for GPS signal'**
+  String get carTrackingWaitingForGps;
+
+  /// No description provided for @carTrackingDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get carTrackingDone;
+
+  /// No description provided for @carTrackingStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop tracking'**
+  String get carTrackingStop;
+
+  /// No description provided for @carTrackingTooFar.
+  ///
+  /// In en, this message translates to:
+  /// **'Your car is too far for walking tracking'**
+  String get carTrackingTooFar;
+
+  /// No description provided for @carTrackingActiveBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking walk to car'**
+  String get carTrackingActiveBanner;
 }
 
 class _AppLocalizationsDelegate

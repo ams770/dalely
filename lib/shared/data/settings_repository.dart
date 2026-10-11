@@ -28,6 +28,9 @@ class SettingsRepository {
   Future<AppSettings> setHasCompletedOnboarding(bool completed) =>
       _update(load().copyWith(hasCompletedOnboarding: completed));
 
+  Future<AppSettings> setCarDistanceNotificationEnabled(bool enabled) =>
+      _update(load().copyWith(carDistanceNotificationEnabled: enabled));
+
   Future<AppSettings> _update(AppSettings settings) async {
     await _box.put(StorageKeys.settingsRecord, settings);
     return settings;

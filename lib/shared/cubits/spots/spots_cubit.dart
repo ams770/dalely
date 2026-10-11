@@ -10,6 +10,7 @@ import '../../models/spot.dart';
 import '../../services/home_widget_service.dart';
 import '../../services/notification_service.dart';
 import '../../utils/distance_formatter.dart';
+import '../car_tracking/car_tracking_cubit.dart';
 import '../location/location_cubit.dart';
 import 'spots_state.dart';
 
@@ -20,6 +21,7 @@ class SpotsCubit extends Cubit<SpotsState> {
     required this.homeWidgetService,
     required this.notificationService,
     this.locationCubit,
+    this.carTrackingCubit,
   }) : super(const SpotsState()) {
     _init();
   }
@@ -29,9 +31,11 @@ class SpotsCubit extends Cubit<SpotsState> {
   final HomeWidgetService homeWidgetService;
   final NotificationService notificationService;
   final LocationCubit? locationCubit;
+  final CarTrackingCubit? carTrackingCubit;
 
   StreamSubscription? _spotsSubscription;
   StreamSubscription? _locationSubscription;
+  double? _lastNotifiedDistance;
 
   void _init() {
     final settings = settingsRepository.load();
@@ -46,7 +50,24 @@ class SpotsCubit extends Cubit<SpotsState> {
     if (locationCubit != null) {
       _locationSubscription = locationCubit!.stream.listen((locState) {
         if (!isClosed && state.car != null) {
-          _syncParkingNotification(userPosition: locState.position);
+          final pos = locState.position;
+          if (pos != null) {
+            final car = state.car!;
+            final currentDist = DistanceFormatter.calculateDistance(
+              startLatitude: pos.latitude,
+              startLongitude: pos.longitude,
+              endLatitude: car.latitude,
+              endLongitude: car.longitude,
+            );
+            if (_lastNotifiedDistance == null ||
+                (currentDist - _lastNotifiedDistance!).abs() >= 15.0) {
+              _lastNotifiedDistance = currentDist;
+              _syncParkingNotification(
+                userPosition: pos,
+                showBannerOnIos: false,
+              );
+            }
+          }
         }
       });
     }
@@ -81,7 +102,7 @@ class SpotsCubit extends Cubit<SpotsState> {
     );
 
     _syncWidgets();
-    _syncParkingNotification();
+    _syncParkingNotification(showBannerOnIos: false);
   }
 
   Future<void> parkCar({
@@ -93,19 +114,22 @@ class SpotsCubit extends Cubit<SpotsState> {
       longitude: longitude,
     );
     if (isClosed) return;
+    _lastNotifiedDistance = null;
     emit(state.copyWith(car: car));
     _syncWidgets();
     await notificationService.requestPermission();
     if (!isClosed) {
-      _syncParkingNotification();
+      _syncParkingNotification(showBannerOnIos: true);
     }
   }
 
   Future<void> clearCar() async {
+    _lastNotifiedDistance = null;
     await spotsRepository.delete(StorageKeys.carId);
     if (isClosed) return;
     emit(state.copyWith(clearCar: true));
     _syncWidgets();
+    await carTrackingCubit?.stopCarTracking();
     unawaited(notificationService.cancelParkingNotification());
   }
 
@@ -121,11 +145,12 @@ class SpotsCubit extends Cubit<SpotsState> {
         longitude: longitude,
       );
       if (!isClosed) {
+        _lastNotifiedDistance = null;
         emit(state.copyWith(car: car));
         _syncWidgets();
         await notificationService.requestPermission();
         if (!isClosed) {
-          _syncParkingNotification();
+          _syncParkingNotification(showBannerOnIos: true);
         }
       }
       return car;
@@ -165,6 +190,7 @@ class SpotsCubit extends Cubit<SpotsState> {
   Future<void> deleteSpot(String id) async {
     await spotsRepository.delete(id);
     if (id == StorageKeys.carId) {
+      _lastNotifiedDistance = null;
       unawaited(notificationService.cancelParkingNotification());
     }
     if (state.favoriteSpotId == id) {
@@ -175,7 +201,8 @@ class SpotsCubit extends Cubit<SpotsState> {
   Future<void> restoreSpot(Spot spot) async {
     await spotsRepository.save(spot);
     if (spot.isCar) {
-      _syncParkingNotification();
+      _lastNotifiedDistance = null;
+      _syncParkingNotification(showBannerOnIos: true);
     }
   }
 
@@ -193,32 +220,33 @@ class SpotsCubit extends Cubit<SpotsState> {
     );
   }
 
-  void _syncParkingNotification({Position? userPosition}) {
+  void _syncParkingNotification({
+    Position? userPosition,
+    bool showBannerOnIos = false,
+  }) {
     final car = state.car;
     if (car == null) {
       notificationService.cancelParkingNotification();
+      carTrackingCubit?.stopCarTracking();
       return;
     }
 
-    final pos = userPosition ?? locationCubit?.state.position;
-    String title = '🚗 Parked Car';
-    String distanceText = 'Live tracking active • Tap to open on map';
-    if (pos != null) {
-      final meters = DistanceFormatter.calculateDistance(
-        startLatitude: pos.latitude,
-        startLongitude: pos.longitude,
-        endLatitude: car.latitude,
-        endLongitude: car.longitude,
-      );
-      final formatted = DistanceFormatter.formatShort(meters);
-      title = '🚗 $formatted away';
-      distanceText = 'Parked car • Tap to view on map or mark found';
+    final settings = settingsRepository.load();
+    if (!settings.carDistanceNotificationEnabled) {
+      notificationService.cancelParkingNotification();
+      carTrackingCubit?.stopCarTracking();
+      return;
     }
 
-    notificationService.showParkingNotification(
-      savedAt: car.savedAt,
-      title: title,
-      distanceText: distanceText,
+    // Cancel legacy flutter_local_notifications (ID 1001) so it never appears
+    notificationService.cancelParkingNotification();
+
+    final pos = userPosition ?? locationCubit?.state.position;
+    carTrackingCubit?.startCarTracking(
+      car: car,
+      currentLat: pos?.latitude,
+      currentLng: pos?.longitude,
+      isArabic: settings.localeCode == 'ar',
     );
   }
 

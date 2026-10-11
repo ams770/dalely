@@ -3,10 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../shared/cubits/car_proximity/car_proximity_cubit.dart';
+import '../shared/cubits/car_tracking/car_tracking_cubit.dart';
 import '../shared/cubits/location/location_cubit.dart';
 import '../shared/cubits/settings/settings_cubit.dart';
 import '../shared/cubits/settings/settings_state.dart';
 import '../shared/cubits/spots/spots_cubit.dart';
+import '../shared/cubits/spots/spots_state.dart';
 import '../shared/l10n/generated/app_localizations.dart';
 import '../shared/theme/app_theme.dart';
 import 'app_router.dart';
@@ -36,6 +38,11 @@ class FeenApp extends StatelessWidget {
             headingService: dependencies.headingService,
           ),
         ),
+        BlocProvider<CarTrackingCubit>(
+          create: (_) => CarTrackingCubit(
+            carTrackingService: dependencies.carTrackingService,
+          ),
+        ),
         BlocProvider<SpotsCubit>(
           create: (context) => SpotsCubit(
             spotsRepository: dependencies.spotsRepository,
@@ -43,6 +50,7 @@ class FeenApp extends StatelessWidget {
             homeWidgetService: dependencies.homeWidgetService,
             notificationService: dependencies.notificationService,
             locationCubit: context.read<LocationCubit>(),
+            carTrackingCubit: context.read<CarTrackingCubit>(),
           ),
         ),
         BlocProvider<CarProximityCubit>(
@@ -74,13 +82,30 @@ class _FeenMaterialApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingsCubit, SettingsState>(
-      buildWhen: (prev, curr) =>
-          prev.themeMode != curr.themeMode ||
-          prev.localeCode != curr.localeCode ||
-          prev.hasCompletedOnboarding != curr.hasCompletedOnboarding,
-      builder: (context, settings) {
-        return MaterialApp(
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<SettingsCubit, SettingsState>(
+          listenWhen: (prev, curr) =>
+              prev.carDistanceNotificationEnabled &&
+              !curr.carDistanceNotificationEnabled,
+          listener: (context, _) {
+            context.read<CarTrackingCubit>().stopCarTracking();
+          },
+        ),
+        BlocListener<SpotsCubit, SpotsState>(
+          listenWhen: (prev, curr) => prev.car != curr.car && curr.car == null,
+          listener: (context, _) {
+            context.read<CarTrackingCubit>().stopCarTracking();
+          },
+        ),
+      ],
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        buildWhen: (prev, curr) =>
+            prev.themeMode != curr.themeMode ||
+            prev.localeCode != curr.localeCode ||
+            prev.hasCompletedOnboarding != curr.hasCompletedOnboarding,
+        builder: (context, settings) {
+          return MaterialApp(
           navigatorKey: appNavigatorKey,
           debugShowCheckedModeBanner: false,
           onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
@@ -141,6 +166,7 @@ class _FeenMaterialApp extends StatelessWidget {
           },
         );
       },
+    ),
     );
   }
 }

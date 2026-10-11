@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../shared/cubits/car_tracking/car_tracking_cubit.dart';
+import '../../../shared/cubits/location/location_cubit.dart';
+import '../../../shared/cubits/settings/settings_cubit.dart';
 import '../../../shared/models/spot.dart';
 import '../../../shared/services/maps_launcher.dart';
 import '../../../shared/services/share_service.dart';
 import '../../../shared/theme/app_dimens.dart';
+import '../../../shared/utils/car_tracking_calculator.dart';
 import '../../../shared/utils/context_ext.dart';
 import '../../../shared/widgets/category_badge.dart';
 import '../../../shared/widgets/info_pill.dart';
@@ -69,6 +74,34 @@ class SelectedSpotCard extends StatelessWidget {
               spot: spot,
               showOnMapAction: false,
               onOpenInMaps: () {
+                if (spot.isCar) {
+                  final settings = context.read<SettingsCubit>().state;
+                  if (settings.carDistanceNotificationEnabled) {
+                    final pos = context.read<LocationCubit>().state.latLng;
+                    if (pos != null) {
+                      final dist = CarTrackingCalculator.calculateDistance(
+                        startLatitude: pos.latitude,
+                        startLongitude: pos.longitude,
+                        endLatitude: spot.latitude,
+                        endLongitude: spot.longitude,
+                      );
+                      if (CarTrackingCalculator.isTooFar(dist)) {
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(context.l10n.carTrackingTooFar)),
+                        );
+                        return;
+                      }
+                    }
+                    context.read<CarTrackingCubit>().startCarTracking(
+                          car: spot,
+                          currentLat: pos?.latitude,
+                          currentLng: pos?.longitude,
+                          isArabic: context.isArabic,
+                        );
+                  }
+                }
+
                 const MapsLauncher().openDirections(
                   latitude: spot.latitude,
                   longitude: spot.longitude,

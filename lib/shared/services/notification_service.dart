@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -22,13 +23,36 @@ class NotificationService {
   static bool _isInitialized = false;
   static Uint8List? _cachedCarIconBytes;
 
+  static DidReceiveNotificationResponseCallback? _responseListener;
+  static NotificationResponse? _pendingResponse;
+
+  /// Registers the handler for notification and action-button taps.
+  /// A tap that launched the app before the handler existed is delivered now.
+  static void setResponseListener(DidReceiveNotificationResponseCallback? l) {
+    _responseListener = l;
+    final pending = _pendingResponse;
+    if (l != null && pending != null) {
+      _pendingResponse = null;
+      l(pending);
+    }
+  }
+
+  static void _dispatchResponse(NotificationResponse response) {
+    final listener = _responseListener;
+    if (listener == null) {
+      _pendingResponse = response;
+    } else {
+      listener(response);
+    }
+  }
+
   /// Initializes the local notifications plugin and preloads the car icon.
-  Future<void> init({
-    DidReceiveNotificationResponseCallback? onNotificationResponse,
-  }) async {
+  Future<void> init() async {
     if (_isInitialized) return;
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     final iosSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -53,7 +77,7 @@ class NotificationService {
               actionFoundCar,
               'Found my car',
               options: <DarwinNotificationActionOption>{
-                DarwinNotificationActionOption.destructive,
+                DarwinNotificationActionOption.foreground,
               },
             ),
           ],
@@ -72,7 +96,7 @@ class NotificationService {
               actionFoundCar,
               'Found my car',
               options: <DarwinNotificationActionOption>{
-                DarwinNotificationActionOption.destructive,
+                DarwinNotificationActionOption.foreground,
               },
             ),
           ],
@@ -87,7 +111,7 @@ class NotificationService {
 
     await _plugin.initialize(
       initSettings,
-      onDidReceiveNotificationResponse: onNotificationResponse,
+      onDidReceiveNotificationResponse: _dispatchResponse,
     );
 
     _isInitialized = true;
@@ -111,14 +135,16 @@ class NotificationService {
 
     final androidImplementation = _plugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (androidImplementation != null) {
       granted = await androidImplementation.requestNotificationsPermission();
     }
 
     final iosImplementation = _plugin
         .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>();
+          IOSFlutterLocalNotificationsPlugin
+        >();
     if (iosImplementation != null) {
       granted = await iosImplementation.requestPermissions(
         alert: true,
@@ -132,97 +158,15 @@ class NotificationService {
 
   /// Shows or updates the ongoing/pinned parking notification.
   ///
-  /// On Android, [usesChronometer] displays a live running stopwatch counting
-  /// up from [savedAt], while the body displays the current distance and the car icon.
+  /// Legacy local notification (ID 1001) is cancelled in favor of the new
+  /// [CarTrackingService] (Live Activity on iOS & ongoing foreground service on Android).
   Future<void> showParkingNotification({
     required DateTime savedAt,
     required String title,
     required String distanceText,
+    bool showBannerOnIos = false,
   }) async {
-    if (!_isInitialized) return;
-    try {
-      final carBytes = _cachedCarIconBytes ?? await _preloadCarIcon();
-      final androidBitmap =
-          carBytes != null ? ByteArrayAndroidBitmap(carBytes) : null;
-
-      final styleInfo = androidBitmap != null
-          ? BigPictureStyleInformation(
-              androidBitmap,
-              largeIcon: androidBitmap,
-              contentTitle: title,
-              summaryText: distanceText,
-              hideExpandedLargeIcon: false,
-            )
-          : BigTextStyleInformation(
-              distanceText,
-              contentTitle: title,
-              summaryText: 'Feen',
-            );
-
-      final androidDetails = AndroidNotificationDetails(
-        parkingChannelId,
-        parkingChannelName,
-        channelDescription: parkingChannelDescription,
-        importance: Importance.low,
-        priority: Priority.low,
-        ongoing: true,
-        autoCancel: false,
-        onlyAlertOnce: true,
-        colorized: true,
-        playSound: false,
-        enableVibration: false,
-        showWhen: true,
-        when: savedAt.millisecondsSinceEpoch,
-        usesChronometer: true,
-        chronometerCountDown: false,
-        color: const Color(0xFFFF6B4A), // Vibrant coral brand car color
-        icon: '@mipmap/launcher_icon',
-        largeIcon: androidBitmap,
-        styleInformation: styleInfo,
-        category: AndroidNotificationCategory.status,
-        visibility: NotificationVisibility.public,
-        subText: 'Feen Live',
-        actions: <AndroidNotificationAction>[
-          const AndroidNotificationAction(
-            actionOnMap,
-            '🗺️ On Map',
-            showsUserInterface: true,
-          ),
-          const AndroidNotificationAction(
-            actionFoundCar,
-            '✅ Found My Car',
-            showsUserInterface: true,
-          ),
-        ],
-      );
-
-      final iosDetails = DarwinNotificationDetails(
-        presentAlert: true,
-        presentBanner: true,
-        presentList: true,
-        presentBadge: false,
-        presentSound: false,
-        subtitle: title,
-        interruptionLevel: InterruptionLevel.timeSensitive,
-        threadIdentifier: 'feen_parking',
-        categoryIdentifier: 'parking_category',
-      );
-
-      final notificationDetails = NotificationDetails(
-        android: androidDetails,
-        iOS: iosDetails,
-      );
-
-      await _plugin.show(
-        parkingNotificationId,
-        title,
-        distanceText,
-        notificationDetails,
-        payload: 'feen://car',
-      );
-    } catch (e) {
-      debugPrint('NotificationService: Failed to show parking notification: $e');
-    }
+    await cancelParkingNotification();
   }
 
   /// ID and channel for arrival proximity notifications.
@@ -247,8 +191,9 @@ class NotificationService {
     if (!_isInitialized) return;
     try {
       final carBytes = _cachedCarIconBytes ?? await _preloadCarIcon();
-      final androidBitmap =
-          carBytes != null ? ByteArrayAndroidBitmap(carBytes) : null;
+      final androidBitmap = carBytes != null
+          ? ByteArrayAndroidBitmap(carBytes)
+          : null;
 
       final androidDetails = AndroidNotificationDetails(
         arrivalChannelId,
@@ -259,7 +204,7 @@ class NotificationService {
         ticker: title,
         colorized: true,
         color: const Color(0xFFFF6B4A),
-        icon: '@mipmap/launcher_icon',
+        icon: '@mipmap/ic_launcher',
         largeIcon: androidBitmap,
         styleInformation: BigTextStyleInformation(
           body,
@@ -308,7 +253,9 @@ class NotificationService {
         payload: 'feen://car',
       );
     } catch (e) {
-      debugPrint('NotificationService: Failed to show arrival notification: $e');
+      debugPrint(
+        'NotificationService: Failed to show arrival notification: $e',
+      );
     }
   }
 
@@ -318,7 +265,9 @@ class NotificationService {
     try {
       await _plugin.cancel(arrivalNotificationId);
     } catch (e) {
-      debugPrint('NotificationService: Failed to cancel arrival notification: $e');
+      debugPrint(
+        'NotificationService: Failed to cancel arrival notification: $e',
+      );
     }
   }
 
@@ -328,7 +277,9 @@ class NotificationService {
     try {
       await _plugin.cancel(parkingNotificationId);
     } catch (e) {
-      debugPrint('NotificationService: Failed to cancel parking notification: $e');
+      debugPrint(
+        'NotificationService: Failed to cancel parking notification: $e',
+      );
     }
   }
 }

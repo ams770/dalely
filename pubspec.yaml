@@ -65,7 +65,7 @@ dev_dependencies:
   flutter_native_splash: ^2.4.4
 
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
   image_path: "assets/images/logo.png"
   min_sdk_android: 21
@@ -73,14 +73,14 @@ flutter_launcher_icons:
   adaptive_icon_foreground: "assets/images/logo.png"
 
 flutter_native_splash:
-  color: "#4F46E5"
-  color_dark: "#4F46E5"
-  image: "assets/images/logo.png"
-  image_dark: "assets/images/logo.png"
+  color: "#FFFFFF"
+  color_dark: "#0B0F19"
+  image: "assets/images/splash-logo.png"
+  image_dark: "assets/images/splash-logo.png"
   android_12:
-    image: "assets/images/logo.png"
+    image: "assets/images/splash-logo.png"
     icon_background_color: "#4F46E5"
-    image_dark: "assets/images/logo.png"
+    image_dark: "assets/images/splash-logo.png"
     icon_background_color_dark: "#4F46E5"
     color: "#4F46E5"
     color_dark: "#4F46E5"

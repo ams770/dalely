@@ -31,8 +31,14 @@
 		</array>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
+		<key>NSSupportsLiveActivities</key>
+		<true/>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>Feen uses your location to calculate distances to your saved spots and save where your car is parked.</string>
+		<string>Feen uses your location to calculate distance to your parked car, guide you back, and show a live walking distance notification.</string>
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>location</string>
+		</array>
 		<key>LSApplicationQueriesSchemes</key>
 		<array>
 			<string>comgooglemaps</string>
