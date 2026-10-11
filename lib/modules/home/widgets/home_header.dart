@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../shared/theme/app_dimens.dart';
+import '../../../shared/utils/adaptive_layout_ext.dart';
 import '../../../shared/utils/adaptive_navigation.dart';
 import '../../../shared/utils/context_ext.dart';
 import '../../../shared/widgets/circle_icon_button.dart';
@@ -31,11 +32,12 @@ class HomeHeader extends StatelessWidget {
               ),
             ),
           ),
-          _MapHeaderButton(
-            onPressed: () {
-              AdaptiveNavigation.openMap(context);
-            },
-          ),
+          if (!context.isWideScreen)
+            _MapHeaderButton(
+              onPressed: () {
+                AdaptiveNavigation.openMap(context);
+              },
+            ),
           const SizedBox(width: AppDimens.space8),
           CircleIconButton(
             icon: const Icon(Icons.tune_rounded),

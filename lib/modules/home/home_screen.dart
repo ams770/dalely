@@ -48,10 +48,7 @@ class _AdaptiveTwoPaneHome extends StatelessWidget {
       body: Row(
         children: [
           // Left Pane: Home (portrait column)
-          const SizedBox(
-            width: 390.0,
-            child: _HomePane(),
-          ),
+          const SizedBox(width: 390.0, child: _HomePane()),
 
           // Pane Divider
           VerticalDivider(
@@ -61,9 +58,7 @@ class _AdaptiveTwoPaneHome extends StatelessWidget {
           ),
 
           // Right Pane: Active Detail (Map by default, or Settings, SaveSpot, Search)
-          const Expanded(
-            child: _AdaptiveDetailPane(),
-          ),
+          const Expanded(child: _AdaptiveDetailPane()),
         ],
       ),
     );
@@ -90,11 +85,7 @@ class _AdaptiveDetailPane extends StatelessWidget {
 
             // Settings overlay
             if (state.detailPane == DetailPaneType.settings)
-              Positioned.fill(
-                child: SettingsScreen(
-                  onClose: cubit.closeDetail,
-                ),
-              )
+              Positioned.fill(child: SettingsScreen(onClose: cubit.closeDetail))
             // Search overlay
             else if (state.detailPane == DetailPaneType.search)
               Positioned.fill(
@@ -148,13 +139,14 @@ class _HomePane extends StatelessWidget {
                 ],
               ),
             ),
-            PrimaryBottomButton(
-              label: context.l10n.saveThisSpot,
-              icon: const Icon(Icons.add_rounded),
-              onPressed: () {
-                AdaptiveNavigation.openSaveSpot(context);
-              },
-            ),
+            if (!context.isWideScreen)
+              PrimaryBottomButton(
+                label: context.l10n.saveThisSpot,
+                icon: const Icon(Icons.add_rounded),
+                onPressed: () {
+                  AdaptiveNavigation.openSaveSpot(context);
+                },
+              ),
           ],
         ),
       ),

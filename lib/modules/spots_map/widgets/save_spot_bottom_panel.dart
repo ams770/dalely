@@ -14,9 +14,11 @@ class SaveSpotBottomPanel extends StatelessWidget {
   const SaveSpotBottomPanel({
     super.key,
     required this.onSaved,
+    this.onClose,
   });
 
   final ValueChanged<Spot> onSaved;
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,7 @@ class SaveSpotBottomPanel extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsetsDirectional.fromSTEB(
             0,
-            AppDimens.space16,
+            AppDimens.space12,
             0,
             0,
           ),
@@ -45,7 +47,35 @@ class SaveSpotBottomPanel extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: AppDimens.space12),
+              // Header Row with Title & Cancel Button
+              Padding(
+                padding: const EdgeInsetsDirectional.only(
+                  start: AppDimens.space16,
+                  end: AppDimens.space8,
+                  bottom: AppDimens.space4,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      l10n.saveThisSpot,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      tooltip: l10n.cancel,
+                      onPressed: onClose ?? cubit.exitAddSpotMode,
+                      style: IconButton.styleFrom(
+                        minimumSize: const Size(36, 36),
+                        padding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppDimens.space8),
 
               // Spot Name Input
               Padding(

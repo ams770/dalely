@@ -1,3 +1,4 @@
+import '../../shared/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -131,7 +132,7 @@ class _MapLayer extends StatelessWidget {
     final cubit = context.read<SpotsMapCubit>();
     final mediaQuery = MediaQuery.of(context);
     final topPadding = mediaQuery.padding.top + 64.0;
-    final bottomAddPadding = 240.0 + mediaQuery.padding.bottom;
+    final bottomAddPadding = 280.0 + mediaQuery.padding.bottom;
 
     return BlocBuilder<SpotsMapCubit, SpotsMapState>(
       buildWhen: (prev, curr) =>
@@ -174,7 +175,7 @@ class _CenterPinLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final topPadding = mediaQuery.padding.top + 64.0;
-    final bottomAddPadding = 240.0 + mediaQuery.padding.bottom;
+    final bottomAddPadding = 280.0 + mediaQuery.padding.bottom;
 
     return BlocBuilder<SpotsMapCubit, SpotsMapState>(
       buildWhen: (prev, curr) =>
@@ -271,6 +272,7 @@ class _TopControlsLayer extends StatelessWidget {
                     icon: const Icon(Icons.add_rounded),
                     tooltip: l10n.saveThisSpot,
                     onPressed: cubit.enterAddSpotMode,
+                    backgroundColor: AppColors.lightPrimary,
                   ),
                 ],
               );
@@ -289,7 +291,7 @@ class _RecenterButtonLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<SpotsMapCubit>();
     final mediaQuery = MediaQuery.of(context);
-    final bottomAddPadding = 240.0 + mediaQuery.padding.bottom;
+    final bottomAddPadding = 280.0 + mediaQuery.padding.bottom;
 
     return BlocBuilder<SpotsMapCubit, SpotsMapState>(
       buildWhen: (prev, curr) =>
@@ -364,19 +366,24 @@ class _BottomOverlayLayer extends StatelessWidget {
             end: 0,
             child: SaveSpotBottomPanel(
               onSaved: (spot) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(context.l10n.spotSaved(spot.name)),
-                    duration: const Duration(seconds: 3),
-                  ),
-                );
-
                 if (onClose != null) {
                   onClose!();
                 } else if (wasOpenedToAdd &&
                     !isEmbedded &&
                     Navigator.canPop(context)) {
                   Navigator.of(context).pop();
+                }
+              },
+              onClose: () {
+                if (wasOpenedToAdd &&
+                    !isEmbedded &&
+                    Navigator.canPop(context)) {
+                  Navigator.of(context).pop();
+                } else {
+                  if (onClose != null) {
+                    onClose!();
+                  }
+                  cubit.exitAddSpotMode();
                 }
               },
             ),
