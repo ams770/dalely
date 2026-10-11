@@ -214,6 +214,12 @@ abstract class AppLocalizations {
   /// **'Show on map'**
   String get showOnMap;
 
+  /// No description provided for @whereMyCarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where’s my car?'**
+  String get whereMyCarTitle;
+
   /// No description provided for @share.
   ///
   /// In en, this message translates to:
@@ -933,6 +939,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tracking walk to car'**
   String get carTrackingActiveBanner;
+
+  /// No description provided for @searchSpots.
+  ///
+  /// In en, this message translates to:
+  /// **'Search spots'**
+  String get searchSpots;
+
+  /// No description provided for @searchSpotsPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or category...'**
+  String get searchSpotsPlaceholder;
+
+  /// No description provided for @noSpotsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching spots'**
+  String get noSpotsFound;
+
+  /// No description provided for @noSpotsFoundDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Try typing a different name or category'**
+  String get noSpotsFoundDesc;
 }
 
 class _AppLocalizationsDelegate

@@ -20,6 +20,7 @@
   "shareAll": "مشاركة الكل",
   "showOnMap": "على الخريطة",
   "share": "مشاركة",
+  "whereMyCarTitle": "وين سيارتى؟",
   "saveThisSpot": "أضف مكان جديد",
   "savedAgo": "حُفظ {time}",
   "timeJustNow": "الآن",
@@ -125,5 +126,9 @@
   "onboardingAllowLocation": "السماح بالوصول للموقع",
   "onboardingNotNow": "مو الحين",
   "notificationParkingTitle": "السيارة موقفة",
-  "notificationDistance": "المسافة: {distance}"
+  "notificationDistance": "المسافة: {distance}",
+  "searchSpots": "ابحث في الأماكن",
+  "searchSpotsPlaceholder": "ابحث باسم المكان أو الفئة...",
+  "noSpotsFound": "ما لقينا أماكن",
+  "noSpotsFoundDesc": "جرّب تبحث باسم أو تصنيف ثاني"
 }

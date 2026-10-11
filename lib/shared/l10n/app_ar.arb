@@ -19,6 +19,7 @@
   "savedSpots": "الأماكن المحفوظة",
   "shareAll": "مشاركة الكل",
   "showOnMap": "على الخريطة",
+  "whereMyCarTitle": "وين سيارتى؟",
   "share": "مشاركة",
    "saveThisSpot": "ضيف مكان جديد",
   "savedAgo": "حُفظ {time}",
@@ -138,5 +139,9 @@
   "carTrackingDone": "تم",
   "carTrackingStop": "إيقاف التتبع",
   "carTrackingTooFar": "سيارتك بعيدة جدًا لتتبع المشي",
-  "carTrackingActiveBanner": "جارٍ تتبع المشي إلى السيارة"
+  "carTrackingActiveBanner": "جارٍ تتبع المشي إلى السيارة",
+  "searchSpots": "البحث في الأماكن",
+  "searchSpotsPlaceholder": "ابحث بالاسم أو الفئة...",
+  "noSpotsFound": "لم يتم العثور على أماكن",
+  "noSpotsFoundDesc": "جرّب البحث باسم أو فئة أخرى"
 }

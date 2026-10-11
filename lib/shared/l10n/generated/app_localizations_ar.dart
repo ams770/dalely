@@ -83,6 +83,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get showOnMap => 'على الخريطة';
 
   @override
+  String get whereMyCarTitle => 'وين سيارتى؟';
+
+  @override
   String get share => 'مشاركة';
 
   @override
@@ -542,6 +545,18 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get carTrackingActiveBanner => 'جارٍ تتبع المشي إلى السيارة';
+
+  @override
+  String get searchSpots => 'البحث في الأماكن';
+
+  @override
+  String get searchSpotsPlaceholder => 'ابحث بالاسم أو الفئة...';
+
+  @override
+  String get noSpotsFound => 'لم يتم العثور على أماكن';
+
+  @override
+  String get noSpotsFoundDesc => 'جرّب البحث باسم أو فئة أخرى';
 }
 
 /// The translations for Arabic, as used in Egypt (`ar_EG`).
@@ -620,6 +635,9 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
 
   @override
   String get showOnMap => 'على الخريطة';
+
+  @override
+  String get whereMyCarTitle => 'عربيتي فين؟';
 
   @override
   String get share => 'مشاركة';
@@ -1028,6 +1046,18 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
   String notificationDistance(String distance) {
     return 'المسافة: $distance';
   }
+
+  @override
+  String get searchSpots => 'دور في الأماكن';
+
+  @override
+  String get searchSpotsPlaceholder => 'دور بالاسم أو الفئة...';
+
+  @override
+  String get noSpotsFound => 'ملقناش أماكن';
+
+  @override
+  String get noSpotsFoundDesc => 'جرب تدور باسم أو فئة تانية';
 }
 
 /// The translations for Arabic, as used in Saudi Arabia (`ar_SA`).
@@ -1106,6 +1136,9 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
 
   @override
   String get showOnMap => 'على الخريطة';
+
+  @override
+  String get whereMyCarTitle => 'وين سيارتى؟';
 
   @override
   String get share => 'مشاركة';
@@ -1514,4 +1547,16 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
   String notificationDistance(String distance) {
     return 'المسافة: $distance';
   }
+
+  @override
+  String get searchSpots => 'ابحث في الأماكن';
+
+  @override
+  String get searchSpotsPlaceholder => 'ابحث باسم المكان أو الفئة...';
+
+  @override
+  String get noSpotsFound => 'ما لقينا أماكن';
+
+  @override
+  String get noSpotsFoundDesc => 'جرّب تبحث باسم أو تصنيف ثاني';
 }

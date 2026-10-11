@@ -80,6 +80,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showOnMap => 'Show on map';
 
   @override
+  String get whereMyCarTitle => 'Where’s my car?';
+
+  @override
   String get share => 'Share';
 
   @override
@@ -518,4 +521,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get carTrackingActiveBanner => 'Tracking walk to car';
+
+  @override
+  String get searchSpots => 'Search spots';
+
+  @override
+  String get searchSpotsPlaceholder => 'Search by name or category...';
+
+  @override
+  String get noSpotsFound => 'No matching spots';
+
+  @override
+  String get noSpotsFoundDesc => 'Try typing a different name or category';
 }

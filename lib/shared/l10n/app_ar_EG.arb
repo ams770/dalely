@@ -20,6 +20,7 @@
   "shareAll": "مشاركة الكل",
   "showOnMap": "على الخريطة",
   "share": "مشاركة",
+  "whereMyCarTitle": "عربيتي فين؟",
   "saveThisSpot": "ضيف مكان جديد",
   "savedAgo": "اتحفظ {time}",
   "timeJustNow": "دلوقتي",
@@ -125,5 +126,9 @@
   "onboardingAllowLocation": "السماح بالوصول للموقع",
   "onboardingNotNow": "مش دلوقتي",
   "notificationParkingTitle": "العربية مركونة",
-  "notificationDistance": "المسافة: {distance}"
+  "notificationDistance": "المسافة: {distance}",
+  "searchSpots": "دور في الأماكن",
+  "searchSpotsPlaceholder": "دور بالاسم أو الفئة...",
+  "noSpotsFound": "ملقناش أماكن",
+  "noSpotsFoundDesc": "جرب تدور باسم أو فئة تانية"
 }

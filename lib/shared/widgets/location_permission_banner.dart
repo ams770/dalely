@@ -95,7 +95,7 @@ class LocationPermissionBanner extends StatelessWidget {
                     ),
                     child: Text(actionLabel),
                   ),
-                ],
+                ],  
               ),
             ),
           ),

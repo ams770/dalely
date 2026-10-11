@@ -34,6 +34,7 @@
   "savedSpots": "Saved spots",
   "shareAll": "Share all",
   "showOnMap": "Show on map",
+  "whereMyCarTitle": "Where’s my car?",
   "share": "Share",
   "saveThisSpot": "Save new spot",
   "savedAgo": "Saved {time}",
@@ -233,5 +234,9 @@
   "carTrackingDone": "Done",
   "carTrackingStop": "Stop tracking",
   "carTrackingTooFar": "Your car is too far for walking tracking",
-  "carTrackingActiveBanner": "Tracking walk to car"
+  "carTrackingActiveBanner": "Tracking walk to car",
+  "searchSpots": "Search spots",
+  "searchSpotsPlaceholder": "Search by name or category...",
+  "noSpotsFound": "No matching spots",
+  "noSpotsFoundDesc": "Try typing a different name or category"
 }

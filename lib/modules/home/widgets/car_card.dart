@@ -305,7 +305,7 @@ class _ActiveCarContent extends StatelessWidget {
             Expanded(
               flex: 5,
               child: _PillButton(
-                label: l10n.openInMaps,
+                label: l10n.whereMyCarTitle,
                 icon: Icons.navigation_rounded,
                 backgroundColor: primary,
                 foregroundColor: colors.onPrimary,

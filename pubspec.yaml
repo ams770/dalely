@@ -79,10 +79,10 @@ flutter_native_splash:
   image_dark: "assets/images/logo.png"
   android_12:
     image: "assets/images/logo.png"
-    icon_background_color: "#12263F"
+    icon_background_color: "#FFFFFF"
     image_dark: "assets/images/logo.png"
     icon_background_color_dark: "#12263F"
-    color: "#12263F"
+    color: "#FFFFFF"
     color_dark: "#12263F"
   web: false
 
