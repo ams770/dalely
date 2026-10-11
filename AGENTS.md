@@ -121,7 +121,7 @@ lib/
 
 ### Existing shared widgets (reuse, don't recreate)
 
-`AppGoogleMap`, `CategoryBadge`, `InfoPill` / `DistancePill`, `SpotCard`, `SpotActionsRow`, `CircleIconButton`, `PrimaryBottomButton`, `SectionHeader`, `SettingsGroup`, `SettingsTile`, `CategoryChips`, `LocationPermissionBanner`, `EmptyState`.
+`AppGoogleMap`, `CategoryBadge`, `InfoPill` / `DistancePill`, `SpotCard`, `SpotActionsRow`, `CircleIconButton`, `PrimaryBottomButton`, `SectionHeader`, `SettingsGroup`, `SettingsTile`, `CategoryChips`, `LocationPermissionBanner`, `EmptyState`, `CenterPin`.
 Keep this list updated when adding shared widgets.
 
 ---

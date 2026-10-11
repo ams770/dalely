@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../modules/home/home_screen.dart';
 import '../modules/onboarding/onboarding_screen.dart';
-import '../modules/save_spot/save_spot_screen.dart';
 import '../modules/search/search_spots_screen.dart';
 import '../modules/settings/settings_screen.dart';
+import '../modules/spots_map/cubit/spots_map_state.dart';
 import '../modules/spots_map/spots_map_screen.dart';
 
 abstract final class AppRouter {
@@ -45,7 +45,9 @@ abstract final class AppRouter {
 
       case saveSpot:
         return MaterialPageRoute<void>(
-          builder: (_) => const SaveSpotScreen(),
+          builder: (_) => const SpotsMapScreen(
+            initialMode: SpotsMapMode.addSpot,
+          ),
           settings: settings,
         );
 

@@ -6,7 +6,6 @@ import '../../shared/constants/app_assets.dart';
 import '../../shared/cubits/location/location_cubit.dart';
 import '../../shared/cubits/settings/settings_cubit.dart';
 import '../../shared/cubits/settings/settings_state.dart';
-import '../../shared/theme/app_dimens.dart';
 import '../../shared/utils/context_ext.dart';
 import 'cubit/onboarding_cubit.dart';
 import 'widgets/onboarding_bottom_bar.dart';

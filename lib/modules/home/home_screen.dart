@@ -17,7 +17,6 @@ import '../../shared/widgets/location_permission_banner.dart';
 import '../../shared/widgets/primary_bottom_button.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/spot_card.dart';
-import '../save_spot/save_spot_screen.dart';
 import '../search/search_spots_screen.dart';
 import '../settings/settings_screen.dart';
 import '../spots_map/spots_map_screen.dart';
@@ -76,30 +75,36 @@ class _AdaptiveDetailPane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<AdaptiveNavCubit>();
+
     return BlocBuilder<AdaptiveNavCubit, AdaptiveNavState>(
       builder: (context, state) {
-        final cubit = context.read<AdaptiveNavCubit>();
-
-        return switch (state.detailPane) {
-          DetailPaneType.map => SpotsMapScreen(
-              key: ValueKey('map_${state.selectedSpotId}'),
-              initialSpotId: state.selectedSpotId,
+        return Stack(
+          children: [
+            // The single persistent Map across the entire app
+            SpotsMapScreen(
+              key: const ValueKey('persistent_spots_map'),
               isEmbedded: true,
-            ),
-          DetailPaneType.saveSpot => SaveSpotScreen(
-              key: const ValueKey('adaptive_save_spot'),
               onClose: cubit.closeDetail,
             ),
-          DetailPaneType.settings => SettingsScreen(
-              key: const ValueKey('adaptive_settings'),
-              onClose: cubit.closeDetail,
-            ),
-          DetailPaneType.search => SearchSpotsScreen(
-              key: const ValueKey('adaptive_search'),
-              onClose: cubit.closeDetail,
-              onSpotSelected: (id) => cubit.showMap(spotId: id),
-            ),
-        };
+
+            // Settings overlay
+            if (state.detailPane == DetailPaneType.settings)
+              Positioned.fill(
+                child: SettingsScreen(
+                  onClose: cubit.closeDetail,
+                ),
+              )
+            // Search overlay
+            else if (state.detailPane == DetailPaneType.search)
+              Positioned.fill(
+                child: SearchSpotsScreen(
+                  onClose: cubit.closeDetail,
+                  onSpotSelected: (id) => cubit.showMap(spotId: id),
+                ),
+              ),
+          ],
+        );
       },
     );
   }

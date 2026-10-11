@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../../../shared/constants/spot_categories.dart';
 import '../../../shared/cubits/location/location_cubit.dart';
 import '../../../shared/cubits/spots/spots_cubit.dart';
+import '../../../shared/models/location_access.dart';
 import '../../../shared/models/spot.dart';
 import '../../../shared/services/marker_icon_cache.dart';
 import '../../../shared/theme/app_theme_extension.dart';
@@ -17,11 +19,14 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     required this.markerIconCache,
     required this.themeExtension,
     this.initialSelectedSpotId,
-  }) : super(
+    SpotsMapMode initialMode = SpotsMapMode.viewing,
+  })  : nameController = TextEditingController(),
+        super(
           _computeInitialState(
             spotsCubit: spotsCubit,
             locationCubit: locationCubit,
             initialSelectedSpotId: initialSelectedSpotId,
+            initialMode: initialMode,
           ),
         ) {
     _init();
@@ -32,6 +37,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   final MarkerIconCache markerIconCache;
   final AppThemeExtension themeExtension;
   final String? initialSelectedSpotId;
+  final TextEditingController nameController;
 
   GoogleMapController? _mapController;
   StreamSubscription? _spotsSubscription;
@@ -41,9 +47,10 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     required SpotsCubit spotsCubit,
     required LocationCubit locationCubit,
     String? initialSelectedSpotId,
+    SpotsMapMode initialMode = SpotsMapMode.viewing,
   }) {
     Spot? selectedSpot;
-    if (initialSelectedSpotId != null) {
+    if (initialSelectedSpotId != null && initialMode == SpotsMapMode.viewing) {
       for (final s in spotsCubit.state.allSpots) {
         if (s.id == initialSelectedSpotId) {
           selectedSpot = s;
@@ -53,34 +60,43 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     }
 
     LatLng target = const LatLng(30.0444, 31.2357);
-    if (selectedSpot != null) {
-      target = selectedSpot.latLng;
-    } else if (spotsCubit.state.car != null) {
-      target = spotsCubit.state.car!.latLng;
-    } else if (spotsCubit.state.spots.isNotEmpty) {
-      target = spotsCubit.state.spots.first.latLng;
-    } else if (locationCubit.state.hasLocation) {
-      target = locationCubit.state.latLng!;
+    if (initialMode == SpotsMapMode.addSpot) {
+      if (locationCubit.state.hasLocation) {
+        target = locationCubit.state.latLng!;
+      } else if (spotsCubit.state.car != null) {
+        target = spotsCubit.state.car!.latLng;
+      }
+    } else {
+      if (selectedSpot != null) {
+        target = selectedSpot.latLng;
+      } else if (spotsCubit.state.car != null) {
+        target = spotsCubit.state.car!.latLng;
+      } else if (spotsCubit.state.spots.isNotEmpty) {
+        target = spotsCubit.state.spots.first.latLng;
+      } else if (locationCubit.state.hasLocation) {
+        target = locationCubit.state.latLng!;
+      }
     }
 
     return SpotsMapState(
+      mode: initialMode,
       selectedSpot: selectedSpot,
       initialTarget: target,
       initialZoom: 16.5,
       currentZoom: 16.5,
+      pickedLocation: target,
+      category: SpotCategory.market,
     );
   }
 
-  void onMapCreated(GoogleMapController controller) {
-    _mapController = controller;
-    if (initialSelectedSpotId != null) {
-      selectSpotById(initialSelectedSpotId!);
-    } else {
-      _fitAllSpotsOrUser();
-    }
-  }
-
   void _init() {
+    nameController.addListener(() {
+      final text = nameController.text;
+      if (text != state.spotName && !isClosed) {
+        emit(state.copyWith(spotName: text));
+      }
+    });
+
     _rebuildMarkers();
 
     _spotsSubscription = spotsCubit.stream.listen((_) {
@@ -92,10 +108,42 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     });
   }
 
+  void onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
+    if (state.isAddingSpot) {
+      final userPos = locationCubit.state.latLng;
+      if (userPos != null) {
+        _mapController?.animateCamera(
+          CameraUpdate.newLatLngZoom(userPos, 16.5),
+        );
+      }
+    } else if (initialSelectedSpotId != null) {
+      selectSpotById(initialSelectedSpotId!);
+    } else {
+      _fitAllSpotsOrUser();
+    }
+  }
+
+  void onCameraMoveStarted() {
+    if (!state.isCameraMoving && !isClosed) {
+      emit(state.copyWith(isCameraMoving: true));
+    }
+  }
+
   void onCameraMove(CameraPosition position) {
     final newTier = MarkerZoomTier.fromZoom(position.zoom);
-    if (newTier != state.zoomTier) {
+    final tierChanged = newTier != state.zoomTier;
+
+    if (state.isAddingSpot) {
+      emit(state.copyWith(
+        currentZoom: position.zoom,
+        pickedLocation: position.target,
+      ));
+    } else if (tierChanged) {
       emit(state.copyWith(currentZoom: position.zoom));
+    }
+
+    if (tierChanged) {
       _rebuildMarkers();
     }
   }
@@ -105,11 +153,102 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     try {
       final zoom = await _mapController!.getZoomLevel();
       final newTier = MarkerZoomTier.fromZoom(zoom);
-      if (newTier != state.zoomTier) {
-        emit(state.copyWith(currentZoom: zoom));
+      final tierChanged = newTier != state.zoomTier;
+
+      if (!isClosed) {
+        emit(state.copyWith(
+          isCameraMoving: false,
+          currentZoom: zoom,
+        ));
+      }
+
+      if (tierChanged) {
         _rebuildMarkers();
       }
     } catch (_) {}
+  }
+
+  void enterAddSpotMode({LatLng? initialTarget}) {
+    final target = initialTarget ??
+        locationCubit.state.latLng ??
+        state.pickedLocation;
+    nameController.clear();
+    emit(state.copyWith(
+      mode: SpotsMapMode.addSpot,
+      clearSelected: true,
+      pickedLocation: target,
+      spotName: '',
+      category: SpotCategory.market,
+      isSaving: false,
+      isCameraMoving: false,
+    ));
+    _mapController?.animateCamera(
+      CameraUpdate.newLatLngZoom(target, 16.5),
+    );
+  }
+
+  void exitAddSpotMode() {
+    nameController.clear();
+    emit(state.copyWith(
+      mode: SpotsMapMode.viewing,
+      spotName: '',
+      isSaving: false,
+      isCameraMoving: false,
+    ));
+    _rebuildMarkers();
+  }
+
+  void setCategory(SpotCategory category) {
+    emit(state.copyWith(category: category));
+  }
+
+  Future<void> snapToCurrentLocation() async {
+    var pos = locationCubit.state.latLng;
+    if (pos == null) {
+      final access = await locationCubit.requestPermission();
+      if (access != LocationAccess.granted) return;
+      pos = locationCubit.state.latLng;
+    }
+
+    if (pos != null) {
+      emit(state.copyWith(pickedLocation: pos));
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(pos, 16.5),
+      );
+    }
+  }
+
+  Future<Spot?> saveCurrentSpot() async {
+    if (!state.canSave) return null;
+
+    emit(state.copyWith(isSaving: true));
+    try {
+      final spot = await spotsCubit.saveSpot(
+        name: state.spotName.trim(),
+        category: state.category,
+        latitude: state.pickedLocation.latitude,
+        longitude: state.pickedLocation.longitude,
+      );
+
+      if (!isClosed) {
+        nameController.clear();
+        emit(state.copyWith(
+          mode: SpotsMapMode.viewing,
+          isSaving: false,
+          selectedSpot: spot,
+        ));
+        _rebuildMarkers();
+        _mapController?.animateCamera(
+          CameraUpdate.newLatLngZoom(spot.latLng, 16.5),
+        );
+      }
+      return spot;
+    } catch (_) {
+      if (!isClosed) {
+        emit(state.copyWith(isSaving: false));
+      }
+      return null;
+    }
   }
 
   Future<void> _rebuildMarkers() async {
@@ -146,7 +285,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
           icon: icon,
           anchor: tier.anchor,
           zIndexInt: isSelected ? 10 : (spot.isCar ? 8 : 2),
-          onTap: () => selectSpot(spot),
+          onTap: state.isAddingSpot ? null : () => selectSpot(spot),
         ),
       );
     }
@@ -176,6 +315,8 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   }
 
   void selectSpot(Spot? spot) {
+    if (state.isAddingSpot) return;
+
     if (spot == null) {
       emit(state.copyWith(clearSelected: true));
     } else {
@@ -188,6 +329,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   }
 
   void selectSpotById(String id) {
+    if (state.isAddingSpot) {
+      exitAddSpotMode();
+    }
     final all = spotsCubit.state.allSpots;
     for (final spot in all) {
       if (spot.id == id) {
@@ -260,6 +404,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   Future<void> close() {
     _spotsSubscription?.cancel();
     _locationSubscription?.cancel();
+    nameController.dispose();
     _mapController?.dispose();
     return super.close();
   }
