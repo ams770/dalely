@@ -1,4 +1,4 @@
-/// Custom JSON styles for Google Maps that match Feen's soft indigo aesthetic.
+/// Custom JSON styles for Google Maps that match Feen's soft light blue aesthetic.
 abstract final class MapStyles {
   static const String light = '''
 [
@@ -77,14 +77,14 @@ abstract final class MapStyles {
     "featureType": "road.highway",
     "elementType": "geometry",
     "stylers": [
-      { "color": "#ebeeff" }
+      { "color": "#f0f6ff" }
     ]
   },
   {
     "featureType": "road.highway",
     "elementType": "geometry.stroke",
     "stylers": [
-      { "color": "#d6dbfa" }
+      { "color": "#dbeafe" }
     ]
   },
   {

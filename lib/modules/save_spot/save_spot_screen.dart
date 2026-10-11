@@ -16,7 +16,6 @@ import 'cubit/save_spot_cubit.dart';
 import 'cubit/save_spot_state.dart';
 import 'widgets/center_pin.dart';
 import 'widgets/place_results_overlay.dart';
-import 'widgets/place_search_field.dart';
 
 class SaveSpotScreen extends StatelessWidget {
   const SaveSpotScreen({super.key});
@@ -78,14 +77,6 @@ class _SaveSpotView extends StatelessWidget {
             start: 0,
             end: 0,
             child: const Center(child: CenterPin()),
-          ),
-
-          // Top Search Bar
-          const PositionedDirectional(
-            top: 0,
-            start: 0,
-            end: 0,
-            child: SafeArea(bottom: false, child: PlaceSearchField()),
           ),
 
           // Search Dropdown Overlay
@@ -206,15 +197,6 @@ class _SaveDetailsBottomPanel extends StatelessWidget {
                             final success = await cubit.saveSpot();
                             if (success && context.mounted) {
                               Navigator.of(context).pop();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    l10n.spotSaved(
-                                      cubit.nameController.text.trim(),
-                                    ),
-                                  ),
-                                ),
-                              );
                             }
                           }
                         : null,

@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../app/app_router.dart';
-import '../../../shared/cubits/spots/spots_cubit.dart';
-import '../../../shared/cubits/spots/spots_state.dart';
 import '../../../shared/theme/app_dimens.dart';
 import '../../../shared/utils/context_ext.dart';
 import '../../../shared/widgets/circle_icon_button.dart';

@@ -83,7 +83,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get share => 'Share';
 
   @override
-  String get saveThisSpot => 'Save this spot';
+  String get saveThisSpot => 'Save new spot';
 
   @override
   String savedAgo(String time) {

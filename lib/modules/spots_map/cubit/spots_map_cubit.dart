@@ -123,13 +123,21 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     // 1. Spot markers
     for (final spot in spots) {
       final isSelected = selected?.id == spot.id;
-      final color = themeExtension.categoryColor(spot.category);
-      final icon = await markerIconCache.getCategoryMarker(
-        category: spot.category,
-        color: color,
-        isSelected: isSelected,
-        tier: tier,
-      );
+      final BitmapDescriptor icon;
+      if (spot.isCar) {
+        icon = await markerIconCache.getCarMarker(
+          isSelected: isSelected,
+          tier: tier,
+        );
+      } else {
+        final color = themeExtension.categoryColor(spot.category);
+        icon = await markerIconCache.getCategoryMarker(
+          category: spot.category,
+          color: color,
+          isSelected: isSelected,
+          tier: tier,
+        );
+      }
 
       markers.add(
         Marker(
@@ -137,7 +145,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
           position: spot.latLng,
           icon: icon,
           anchor: tier.anchor,
-          zIndexInt: isSelected ? 10 : 2,
+          zIndexInt: isSelected ? 10 : (spot.isCar ? 8 : 2),
           onTap: () => selectSpot(spot),
         ),
       );

@@ -25,10 +25,18 @@ class SettingsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        leading: CircleIconButton(
-          icon: const BackButtonIcon(),
-          tooltip: l10n.backTooltip,
-          onPressed: () => Navigator.of(context).pop(),
+        leadingWidth:
+            AppDimens.space16 + AppDimens.iconButtonSize + AppDimens.space12,
+        leading: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(start: AppDimens.space16),
+            child: CircleIconButton(
+              icon: const BackButtonIcon(),
+              tooltip: l10n.backTooltip,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
         ),
         title: Text(l10n.settingsTitle),
       ),
@@ -71,10 +79,7 @@ class _AppearanceSection extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    l10n.theme,
-                    style: context.textTheme.titleMedium,
-                  ),
+                  Text(l10n.theme, style: context.textTheme.titleMedium),
                   const SizedBox(height: AppDimens.space12),
                   SizedBox(
                     width: double.infinity,
@@ -205,9 +210,6 @@ class _YourSpotsSection extends StatelessWidget {
               title: l10n.shareAllAsText,
               onTap: () {
                 if (spotsState.allSpots.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.nothingToShare)),
-                  );
                   return;
                 }
                 const ShareService().shareAllSpots(

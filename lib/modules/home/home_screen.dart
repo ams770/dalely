@@ -180,6 +180,7 @@ class _DismissibleSpotItem extends StatelessWidget {
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            duration: const Duration(seconds: 3),
             content: Text(l10n.spotDeleted(spot.name)),
             action: SnackBarAction(
               label: l10n.undo,
@@ -211,15 +212,6 @@ class _DismissibleSpotItem extends StatelessWidget {
               onToggleFavorite: () {
                 final newFav = isFavorite ? null : spot.id;
                 spotsCubit.setFavoriteSpot(newFav);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      isFavorite
-                          ? l10n.favoriteRemoved
-                          : l10n.favoriteSet(spot.name),
-                    ),
-                  ),
-                );
               },
             ),
           );

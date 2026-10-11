@@ -25,7 +25,7 @@ object CarTrackingNotificationBuilder {
     const val URI_MAP_CAR = "feen://map?spot=car"
     const val URI_FOUND_CAR = "feen://found_car"
 
-    private const val COLOR_INDIGO = 0xFF4F46E5.toInt()
+    private const val COLOR_LIGHT_BLUE = 0xFF3C79F3.toInt()
     private const val COLOR_GREEN = 0xFF0E9F75.toInt()
 
     fun createNotificationChannel(context: Context) {
@@ -56,7 +56,7 @@ object CarTrackingNotificationBuilder {
     ): Notification {
         val title: String
         val body: String
-        val accentColor = if (state == "arrived") COLOR_GREEN else COLOR_INDIGO
+        val accentColor = if (state == "arrived") COLOR_GREEN else COLOR_LIGHT_BLUE
         val isArrived = state == "arrived"
         val isWaiting = state == "waitingForGps"
 

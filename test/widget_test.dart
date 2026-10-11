@@ -5,17 +5,47 @@ import 'package:feen/shared/constants/spot_categories.dart';
 import 'package:feen/shared/cubits/car_proximity/car_proximity_cubit.dart';
 import 'package:feen/shared/models/app_settings.dart';
 import 'package:feen/shared/models/spot.dart';
+import 'package:feen/modules/settings/settings_screen.dart';
+import 'package:feen/shared/cubits/settings/settings_cubit.dart';
+import 'package:feen/shared/cubits/settings/settings_state.dart';
+import 'package:feen/shared/cubits/spots/spots_cubit.dart';
+import 'package:feen/shared/cubits/spots/spots_state.dart';
 import 'package:feen/shared/l10n/generated/app_localizations.dart';
+import 'package:feen/shared/services/marker_icon_cache.dart';
 import 'package:feen/shared/theme/app_theme.dart';
 import 'package:feen/shared/utils/distance_formatter.dart';
 import 'package:feen/shared/utils/duration_formatter.dart';
 import 'package:feen/shared/utils/spot_link_builder.dart';
 import 'package:feen/shared/widgets/car_arrival_dialog.dart';
+import 'package:feen/shared/widgets/circle_icon_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  group('MarkerIconCache', () {
+    test('computes carMarkerAnchor accurately for all zoom tiers', () {
+      final cache = MarkerIconCache();
+      final highAnchor = cache.carMarkerAnchor(MarkerZoomTier.high);
+      final mediumAnchor = cache.carMarkerAnchor(MarkerZoomTier.medium);
+      final lowAnchor = cache.carMarkerAnchor(MarkerZoomTier.low);
+
+      expect(highAnchor.dx, 0.5);
+      expect(highAnchor.dy, 0.83);
+      expect(mediumAnchor.dx, 0.5);
+      expect(mediumAnchor.dy, 0.81);
+      expect(lowAnchor.dx, 0.5);
+      expect(lowAnchor.dy, 0.5);
+    });
+
+    test('getCarMarker returns a BitmapDescriptor without throwing', () async {
+      final cache = MarkerIconCache();
+      final marker = await cache.getCarMarker();
+      expect(marker, isNotNull);
+    });
+  });
 
   group('DistanceFormatter', () {
     test('calculates distance accurately between two coordinates', () {
@@ -297,4 +327,42 @@ void main() {
       expect(cantSeeCarPressed, isTrue);
     });
   });
+
+  group('SettingsScreen Header', () {
+    testWidgets('renders CircleIconButton back button in AppBar',
+        (tester) async {
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<SettingsCubit>.value(value: _FakeSettingsCubit()),
+            BlocProvider<SpotsCubit>.value(value: _FakeSpotsCubit()),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const SettingsScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CircleIconButton), findsOneWidget);
+      expect(find.byType(BackButtonIcon), findsOneWidget);
+    });
+  });
+}
+
+class _FakeSettingsCubit extends Cubit<SettingsState> implements SettingsCubit {
+  _FakeSettingsCubit() : super(const SettingsState());
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FakeSpotsCubit extends Cubit<SpotsState> implements SpotsCubit {
+  _FakeSpotsCubit() : super(const SpotsState());
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

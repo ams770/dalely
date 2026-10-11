@@ -17,6 +17,7 @@
 		3DC59EEE4566C931858C9444 /* FeenLiveActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB0049E94D5F51279AF4973 /* FeenLiveActivityWidget.swift */; };
 		57A7E341E9CA510C3D06C6A0 /* FeenTrackingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CB74DB2214AD52F713FCC0 /* FeenTrackingAttributes.swift */; };
 		5AC24126ABB8DAC936A0B050 /* CarTrackingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0B2236DFC72AF6CA2B95B9 /* CarTrackingManager.swift */; };
+		FEEN00012EC3CC0700C636F2 /* NotificationActionPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEEN00022EC3CC0400C636F2 /* NotificationActionPlugin.swift */; };
 		5D9794CDE55EBF6E3CC83E86 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E322683DA461D07E8FEB9080 /* Pods_Runner.framework */; };
 		62DBCCA21A7A413AF9E49880 /* FeenTrackingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CB74DB2214AD52F713FCC0 /* FeenTrackingAttributes.swift */; };
 		6E8E9D15331AB4A4304E3062 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAAEAA4813F75D476D0E80B /* Foundation.framework */; };
@@ -99,6 +100,7 @@
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		7C6D5079159184715DD21263 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		7D0B2236DFC72AF6CA2B95B9 /* CarTrackingManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CarTrackingManager.swift; sourceTree = "<group>"; };
+		FEEN00022EC3CC0400C636F2 /* NotificationActionPlugin.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationActionPlugin.swift; sourceTree = "<group>"; };
 		7EAAEAA4813F75D476D0E80B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		84C7B3D1A11AB8BFE3EF88DD /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 		8A76B753EF84BFDF7C5E4BF9 /* FeenAppIntents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FeenAppIntents.swift; sourceTree = "<group>"; };
@@ -213,6 +215,7 @@
 				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 				7D0B2236DFC72AF6CA2B95B9 /* CarTrackingManager.swift */,
+				FEEN00022EC3CC0400C636F2 /* NotificationActionPlugin.swift */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -531,6 +534,7 @@
 				57A7E341E9CA510C3D06C6A0 /* FeenTrackingAttributes.swift in Sources */,
 				0C73E7BCA1967828437CAE33 /* FeenAppIntents.swift in Sources */,
 				5AC24126ABB8DAC936A0B050 /* CarTrackingManager.swift in Sources */,
+				FEEN00012EC3CC0700C636F2 /* NotificationActionPlugin.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

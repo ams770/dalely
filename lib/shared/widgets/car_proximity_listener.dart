@@ -78,6 +78,7 @@ class CarProximityListener extends StatelessWidget {
                     ScaffoldMessenger.of(context).clearSnackBars();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
+                        duration: const Duration(seconds: 3),
                         content: Text(context.l10n.carCleared),
                         action: SnackBarAction(
                           label: context.l10n.undo,

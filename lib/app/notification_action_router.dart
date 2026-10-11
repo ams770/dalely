@@ -114,9 +114,10 @@ class NotificationActionRouter {
       final pending = await methodChannel.invokeMapMethod<String, dynamic>('getPendingAction');
       if (pending != null) {
         final action = pending['action'] as String?;
+        final data = pending['data'] as String?;
         final timestamp = (pending['timestamp'] as num?)?.toInt();
         if (action != null) {
-          await handleAction(action: action, timestamp: timestamp);
+          await handleAction(action: action, data: data, timestamp: timestamp);
           await methodChannel.invokeMethod<void>('clearPendingAction');
         }
       }

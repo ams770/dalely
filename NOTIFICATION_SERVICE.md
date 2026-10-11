@@ -187,15 +187,15 @@ Located in [`lib/shared/utils/car_tracking_calculator.dart`](file:///Users/salem
   - `Importance`: `NotificationManager.IMPORTANCE_LOW` (silent, persistent).
 - **Custom RemoteViews Layouts (iOS Live Activity Equivalent)**:
   - **Collapsed View** (`R.layout.notification_car_tracking_collapsed`):
-    - Dark indigo card background (`#14143A`, 16dp rounded corners).
-    - Top row: App icon in indigo circle badge, app name ("Feen" / "فين"), relative parking time badge.
+    - Deep navy card background (`#12263F`, 16dp rounded corners).
+    - Top row: App icon in primary light blue circle badge (`#3C79F3`), app name ("Feen" / "فين"), relative parking time badge.
     - Content row: 28sp bold distance digits, walking time detail, and compact "Show on map" pill button.
   - **Expanded View** (`R.layout.notification_car_tracking_expanded`):
     - Full hero view matching the iOS Lock Screen card.
     - Large 34sp heavy rounded distance digits.
     - Walking time detail (turns emerald `#0E9F75` when within 15 meters).
     - Two large pill buttons:
-      - **"Show on map"**: High-contrast white capsule with map vector icon (`#1B1B3A` text).
+      - **"Show on map"**: High-contrast white capsule with map vector icon (`#12263F` text).
       - **"Found my car" / "Done"**: Translucent capsule with white border (`#FFFFFF` text).
 - **Notification Attributes**:
   - `setOngoing(true)` & `setAutoCancel(false)`: Prevents swipe-to-dismiss while walking.
@@ -287,7 +287,7 @@ public struct FeenTrackingAttributes: ActivityAttributes {
 
 #### Lock Screen Presentation
 - Uses `ActivityConfiguration(for: FeenTrackingAttributes.self)`.
-- **Background**: Deep Indigo/Night tint (`#14143A`) with `activityBackgroundTint`.
+- **Background**: Deep Navy (`#12263F`) with `activityBackgroundTint`.
 - **Header**: Feen pin icon, app name, and relative parked time.
 - **Body**: Heavy rounded typography for distance (34pt) and detail status.
 - **Deep Links**:

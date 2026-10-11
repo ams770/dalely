@@ -84,7 +84,7 @@ class SpotCard extends StatelessWidget {
                   DistancePill(spot: spot, showSuffix: false),
                 ],
               ),
-              const SizedBox(height: AppDimens.space12),
+              Divider(height: AppDimens.space24),
               SpotActionsRow(
                 spot: spot,
                 onOpenInMaps: onOpenInMaps,

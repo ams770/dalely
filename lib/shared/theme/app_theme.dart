@@ -14,7 +14,7 @@ abstract final class AppTheme {
       primary: AppColors.lightPrimary,
       onPrimary: AppColors.lightOnPrimary,
       primaryContainer: AppColors.lightPrimaryContainer,
-      onPrimaryContainer: AppColors.lightPrimary,
+      onPrimaryContainer: AppColors.lightPrimaryDarker,
       secondary: AppColors.lightCar,
       onSecondary: AppColors.lightOnCar,
       secondaryContainer: AppColors.lightCarContainer,
@@ -194,7 +194,9 @@ abstract final class AppTheme {
       // TextButton
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: colorScheme.primary,
+          foregroundColor: isDark
+              ? colorScheme.primary
+              : AppColors.lightPrimaryDarker,
           textStyle: textTheme.labelLarge,
           padding: const EdgeInsetsDirectional.symmetric(
             horizontal: AppDimens.space12,
@@ -368,15 +370,22 @@ abstract final class AppTheme {
         ),
       ),
 
+      // ProgressIndicator
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: colorScheme.primary,
+        linearTrackColor: colorScheme.primaryContainer,
+        circularTrackColor: colorScheme.primaryContainer,
+      ),
+
       // SnackBar
       snackBarTheme: SnackBarThemeData(
         backgroundColor: isDark
             ? const Color(0xFF1E293B)
-            : const Color(0xFF0F172A),
+            : const Color(0xFF12263F),
         contentTextStyle: textTheme.bodyMedium?.copyWith(color: Colors.white),
         actionTextColor: isDark
             ? AppColors.darkPrimary
-            : AppColors.lightPrimaryContainer,
+            : AppColors.lightPrimary,
         behavior: SnackBarBehavior.floating,
         shape: const RoundedRectangleBorder(
           borderRadius: AppDimens.borderRadiusMedium,

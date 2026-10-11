@@ -18,7 +18,7 @@ A simple, friendly, **local-only** Flutter app for saving places you need to fin
 - Home/lock-screen widgets: Car (wide), Park, Find car, Favorite spot.
 - Languages: **en**, **ar** (RTL). Starts on the device language, falls back to **en**.
 - Theme: System / Light / Dark. Starts on **System**.
-- Design: soft indigo primary, coral for the car, rounded type, large touch targets, primary actions in the thumb zone (bottom).
+- Design: primary light blue (#3C79F3), darker blue (#0B6FBF) for links/icons, pale blue (#F3F9FF) backgrounds, deep navy (#12263F) for text/dark elements, coral (#FF8A65) for the car, rounded type, large touch targets, primary actions in the thumb zone (bottom).
 
 Screens: **Home**, **All spots on map**, **Save a spot**, **Settings**.
 
@@ -124,7 +124,7 @@ Keep this list updated when adding shared widgets.
 
 ## 4. Theme rules
 
-- `shared/theme/app_colors.dart` — raw palette only (light + dark). Indigo primary, coral car, green home, neutrals.
+- `shared/theme/app_colors.dart` — raw palette only (light + dark). Primary light blue (#3C79F3), darker blue (#0B6FBF), pale blue (#F3F9FF), deep navy (#12263F), coral car (#FF8A65), green home, neutrals.
 - `shared/theme/app_theme.dart` — `AppTheme.light()` / `AppTheme.dark()` returning `ThemeData` with **all** component themes configured: `filledButtonTheme`, `outlinedButtonTheme`, `textButtonTheme`, `elevatedButtonTheme`, `iconButtonTheme`, `floatingActionButtonTheme`, `inputDecorationTheme`, `chipTheme`, `cardTheme`, `segmentedButtonTheme`, `listTileTheme`, `bottomSheetTheme`, `dialogTheme`, `snackBarTheme`, `textTheme`, `appBarTheme`.
 - `shared/theme/app_theme_extension.dart` — custom tokens not covered by Material (category colors, car card colors, pill backgrounds, map overlay surfaces). Access via `context.tokens`.
 - `shared/theme/app_dimens.dart` — spacing scale, radii, touch sizes. No magic numbers in widgets.
@@ -228,7 +228,8 @@ Nullable fields in `copyWith` that must be clearable use a `ValueGetter<T?>?` pa
 ## 10. Maps
 
 - Always render maps through `shared/widgets/app_google_map.dart` (applies theme style, cached markers, gesture config).
-- Marker bitmaps are generated once and cached in `marker_icon_cache.dart` — never generate per build.
+- Marker bitmaps are generated once and cached in `marker_icon_cache.dart` — never generate per build. The parked car spot uses `assets/images/car.png` rendered inside a dedicated pin marker component with a white inner badge matching standard pin geometry and zoom tiers.
+- Buttons across the entire app are strictly flat solid color with no gradients (`filledButtonTheme`, `primary_bottom_button.dart`).
 - Home preview map is non-interactive (Android `liteModeEnabled`).
 - Opening external maps goes through `shared/services/maps_launcher.dart` only:
   - Android: Google Maps directions URL, fallback `geo:` URI.

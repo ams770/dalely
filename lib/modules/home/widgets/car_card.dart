@@ -100,8 +100,12 @@ class CarCard extends StatelessWidget {
         if (CarTrackingCalculator.isTooFar(dist)) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).clearSnackBars();
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(l10n.carTrackingTooFar)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(l10n.carTrackingTooFar),
+                duration: const Duration(seconds: 3),
+              ),
+            );
             Navigator.of(context)
                 .pushNamed(AppRouter.spotsMap, arguments: car.id);
           }
@@ -139,6 +143,7 @@ class CarCard extends StatelessWidget {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          duration: const Duration(seconds: 3),
           content: Text(l10n.carCleared),
           action: SnackBarAction(
             label: l10n.undo,
@@ -166,11 +171,6 @@ class CarCard extends StatelessWidget {
         latitude: pos.latitude,
         longitude: pos.longitude,
       );
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(l10n.carSaved)));
-      }
     } else {
       if (context.mounted) {
         final access = locationCubit.state.access;
@@ -420,14 +420,16 @@ class _EmptyCarContent extends StatelessWidget {
                     crossAxisAlignment: .end,
                     mainAxisAlignment: .spaceBetween,
                     children: [
-                      _PillButton(
-                        label: l10n.parkHere,
-                        icon: Icons.add_location_alt_rounded,
-                        backgroundColor: colors.primary,
-                        foregroundColor: colors.onPrimary,
-                        onPressed: onPark,
+                      Expanded(
+                        child: _PillButton(
+                          label: l10n.parkHere,
+                          // icon: Icons.add_location_alt_rounded,
+                          backgroundColor: colors.primary,
+                          foregroundColor: colors.onPrimary,
+                          onPressed: onPark,
+                        ),
                       ),
-
+                      const SizedBox(width: AppDimens.space32),
                       const SizedBox(
                         width: AppDimens.carImageSize,
                         child: Image(
@@ -454,7 +456,6 @@ class _PillButton extends StatelessWidget {
     required this.backgroundColor,
     required this.foregroundColor,
     this.icon,
-    this.border,
   });
 
   final String label;
@@ -462,7 +463,6 @@ class _PillButton extends StatelessWidget {
   final Color backgroundColor;
   final Color foregroundColor;
   final IconData? icon;
-  final Border? border;
 
   @override
   Widget build(BuildContext context) {
@@ -472,7 +472,6 @@ class _PillButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: AppDimens.borderRadiusFull,
-          border: border,
         ),
         child: Material(
           color: Colors.transparent,

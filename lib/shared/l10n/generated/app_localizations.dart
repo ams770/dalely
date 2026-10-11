@@ -223,7 +223,7 @@ abstract class AppLocalizations {
   /// No description provided for @saveThisSpot.
   ///
   /// In en, this message translates to:
-  /// **'Save this spot'**
+  /// **'Save new spot'**
   String get saveThisSpot;
 
   /// No description provided for @savedAgo.

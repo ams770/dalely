@@ -2,10 +2,9 @@ import ActivityKit
 import SwiftUI
 import WidgetKit
 
-private let indigo = Color(red: 0.31, green: 0.27, blue: 0.90) // #4F46E5
-private let coral = Color(red: 1.0, green: 0.54, blue: 0.40)  // #FF8A65
-private let cardDark = Color(red: 0.08, green: 0.08, blue: 0.23) // #14143A
-private let ink = Color(red: 0.11, green: 0.11, blue: 0.23)    // #1B1B3A
+private let lightBlue = Color(red: 0.102, green: 0.576, blue: 0.918) // #3C79F3
+private let coral = Color(red: 1.0, green: 0.541, blue: 0.396)      // #FF8A65
+private let deepNavy = Color(red: 0.071, green: 0.149, blue: 0.247)  // #12263F
 private let arrivedGreen = Color(red: 0.05, green: 0.62, blue: 0.46) // #0E9F75
 
 struct FeenLiveActivityWidget: Widget {
@@ -13,7 +12,7 @@ struct FeenLiveActivityWidget: Widget {
     ActivityConfiguration(for: FeenTrackingAttributes.self) { context in
       LockScreenCard(state: context.state)
         .widgetURL(URL(string: "feen://map?spot=car"))
-        .activityBackgroundTint(cardDark.opacity(0.85))
+        .activityBackgroundTint(deepNavy.opacity(0.85))
         .activitySystemActionForegroundColor(.white)
     } dynamicIsland: { context in
       DynamicIsland {
@@ -21,7 +20,7 @@ struct FeenLiveActivityWidget: Widget {
           HStack(spacing: 6) {
             Image(systemName: "mappin.circle.fill")
               .font(.title3)
-              .foregroundColor(indigo)
+              .foregroundColor(lightBlue)
             Text(context.state.appName)
               .font(.headline)
               .foregroundColor(.white)
@@ -81,7 +80,7 @@ private struct LockScreenCard: View {
             .font(.system(size: 15, weight: .bold))
             .foregroundColor(.white)
             .padding(4)
-            .background(indigo)
+            .background(lightBlue)
             .clipShape(Circle())
           Text(state.appName)
             .font(.subheadline.weight(.bold))
@@ -115,7 +114,7 @@ private struct LockScreenCard: View {
     }
     .padding(.horizontal, 16)
     .padding(.vertical, 12)
-    .background(cardDark.opacity(0.62))
+    .background(deepNavy.opacity(0.62))
   }
 }
 
@@ -131,7 +130,7 @@ private struct MapActionButton: View {
         Text(label)
           .font(.system(size: isCompact ? 13 : 14, weight: .bold))
       }
-      .foregroundColor(ink)
+      .foregroundColor(deepNavy)
       .frame(maxWidth: .infinity, minHeight: isCompact ? 32 : 40)
       .background(Color.white)
       .clipShape(Capsule())

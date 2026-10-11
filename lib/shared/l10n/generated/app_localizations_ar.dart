@@ -86,7 +86,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get share => 'مشاركة';
 
   @override
-  String get saveThisSpot => 'احفظ هذا المكان';
+  String get saveThisSpot => 'ضيف مكان جديد';
 
   @override
   String savedAgo(String time) {
@@ -625,7 +625,7 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
   String get share => 'مشاركة';
 
   @override
-  String get saveThisSpot => 'احفظ المكان ده';
+  String get saveThisSpot => 'ضيف مكان جديد';
 
   @override
   String savedAgo(String time) {
@@ -1111,7 +1111,7 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
   String get share => 'مشاركة';
 
   @override
-  String get saveThisSpot => 'احفظ هذا المكان';
+  String get saveThisSpot => 'أضف مكان جديد';
 
   @override
   String savedAgo(String time) {

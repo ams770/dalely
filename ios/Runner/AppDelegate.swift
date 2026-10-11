@@ -23,6 +23,19 @@ import UserNotifications
        let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "CarTracking") {
       CarTrackingManager.shared.register(with: registrar.messenger())
     }
+    if !engineBridge.pluginRegistry.hasPlugin("NotificationActions"),
+       let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "NotificationActions") {
+      NotificationActionPlugin.shared.register(with: registrar.messenger())
+    }
+  }
+
+  override func application(
+    _ app: UIApplication,
+    open url: URL,
+    options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+  ) -> Bool {
+    NotificationActionPlugin.shared.handleUrl(url)
+    return super.application(app, open: url, options: options)
   }
 
   override func applicationWillTerminate(_ application: UIApplication) {

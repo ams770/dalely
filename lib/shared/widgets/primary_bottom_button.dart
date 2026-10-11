@@ -52,8 +52,8 @@ class PrimaryBottomButton extends StatelessWidget {
               shape: const RoundedRectangleBorder(
                 borderRadius: AppDimens.borderRadiusLarge,
               ),
-              elevation: isEnabled ? 4 : 0,
-              shadowColor: bg.withAlpha(90),
+              elevation: 0,
+              shadowColor: Colors.transparent,
             ),
             child: isLoading
                 ? SizedBox(
