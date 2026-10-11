@@ -248,7 +248,8 @@ void main() {
       );
 
       expect(started, true);
-      expect(cubit.state.status, CarTrackingStatus.waitingForGps);
+      expect(cubit.state.status, CarTrackingStatus.walking);
+      expect(cubit.state.distanceMeters, isNotNull);
 
       // Emit walking update from service
       fakeService.emitState(
@@ -267,6 +268,27 @@ void main() {
 
       await cubit.stopCarTracking();
       expect(cubit.state.status, CarTrackingStatus.idle);
+
+      await cubit.close();
+    });
+
+    test('startCarTracking emits waitingForGps when user coordinates are null', () async {
+      final fakeService = _FakeCarTrackingService();
+      final cubit = CarTrackingCubit(carTrackingService: fakeService);
+
+      final car = Spot(
+        id: 'car',
+        name: 'Car',
+        category: SpotCategory.car,
+        latitude: 30.044,
+        longitude: 31.235,
+        savedAt: DateTime.now(),
+      );
+
+      final started = await cubit.startCarTracking(car: car);
+
+      expect(started, true);
+      expect(cubit.state.status, CarTrackingStatus.waitingForGps);
 
       await cubit.close();
     });
@@ -293,6 +315,8 @@ class _FakeCarTrackingService implements CarTrackingService {
     required DateTime savedAt,
     String? carName,
     bool isArabic = false,
+    double? userLat,
+    double? userLng,
   }) async {
     _running = true;
     return true;

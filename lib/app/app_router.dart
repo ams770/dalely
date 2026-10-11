@@ -10,11 +10,15 @@ abstract final class AppRouter {
   static const String home = '/';
   static const String onboarding = '/onboarding';
   static const String spotsMap = '/spots-map';
+  static const String map = '/map';
   static const String saveSpot = '/save-spot';
   static const String settings = '/settings';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
-    switch (settings.name) {
+    final uri = Uri.tryParse(settings.name ?? '');
+    final path = uri?.path ?? settings.name;
+
+    switch (path) {
       case home:
         return MaterialPageRoute<void>(
           builder: (_) => const HomeScreen(),
@@ -27,8 +31,11 @@ abstract final class AppRouter {
           settings: settings,
         );
 
+      case map:
       case spotsMap:
-        final initialSpotId = settings.arguments as String?;
+        final spotFromArg = settings.arguments as String?;
+        final spotFromQuery = uri?.queryParameters['spot'];
+        final initialSpotId = spotFromArg ?? spotFromQuery;
         return MaterialPageRoute<void>(
           builder: (_) => SpotsMapScreen(initialSpotId: initialSpotId),
           settings: settings,

@@ -1,3 +1,4 @@
+import 'package:feen/shared/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -100,10 +101,10 @@ class CarCard extends StatelessWidget {
         if (CarTrackingCalculator.isTooFar(dist)) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).clearSnackBars();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.carTrackingTooFar)),
-            );
-            Navigator.of(context).pushNamed(AppRouter.spotsMap, arguments: car.id);
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(l10n.carTrackingTooFar)));
+            Navigator.of(context)
+                .pushNamed(AppRouter.spotsMap, arguments: car.id);
           }
           return;
         }
@@ -282,7 +283,7 @@ class _ActiveCarContent extends StatelessWidget {
               backgroundColor: primary.withAlpha(14),
               border: Border.all(color: primary.withAlpha(80)),
               tooltip: l10n.onMap,
-              onPressed: onShowOnMap,
+              onPressed: onOpenInMaps,
             ),
             const SizedBox(width: AppDimens.space6),
             CircleIconButton(
@@ -299,20 +300,7 @@ class _ActiveCarContent extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: AppDimens.space12),
-        BlocBuilder<CarTrackingCubit, CarTrackingState>(
-          builder: (context, trackingState) {
-            if (!trackingState.isRunning) return const SizedBox.shrink();
 
-            return Padding(
-              padding: const EdgeInsetsDirectional.only(bottom: AppDimens.space12),
-              child: _TrackingStatusBanner(
-                state: trackingState,
-                onStop: () => context.read<CarTrackingCubit>().stopCarTracking(),
-              ),
-            );
-          },
-        ),
         Row(
           children: [
             Expanded(
@@ -322,7 +310,7 @@ class _ActiveCarContent extends StatelessWidget {
                 icon: Icons.navigation_rounded,
                 backgroundColor: primary,
                 foregroundColor: colors.onPrimary,
-                onPressed: onOpenInMaps,
+                onPressed: onShowOnMap,
               ),
             ),
             const SizedBox(width: AppDimens.space8),
@@ -331,115 +319,15 @@ class _ActiveCarContent extends StatelessWidget {
               child: _PillButton(
                 label: l10n.foundMyCar,
                 icon: Icons.check_circle_outline_rounded,
-                backgroundColor: primary.withAlpha(14),
-                foregroundColor: primary,
-                border: Border.all(color: primary.withAlpha(80)),
+                backgroundColor: AppColors.catHomeDark.withAlpha(14),
+                foregroundColor: AppColors.catHomeDark,
+                border: Border.all(color: AppColors.catHomeDark.withAlpha(80)),
                 onPressed: onFoundCar,
               ),
             ),
           ],
         ),
       ],
-    );
-  }
-}
-
-class _TrackingStatusBanner extends StatelessWidget {
-  const _TrackingStatusBanner({
-    required this.state,
-    required this.onStop,
-  });
-
-  final CarTrackingState state;
-  final VoidCallback onStop;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colorScheme;
-    final l10n = context.l10n;
-    final isArrived = state.isArrived;
-    final accent = isArrived ? const Color(0xFF0E9F75) : colors.primary;
-
-    final titleText = isArrived
-        ? l10n.carTrackingArrivedTitle
-        : (state.formattedDistance.isNotEmpty
-            ? l10n.carTrackingWalkingTitle(state.formattedDistance)
-            : l10n.carTrackingLookingForLocation);
-
-    final subtitleText = isArrived
-        ? l10n.carTrackingArrivedBody
-        : (state.formattedWalkTime.isNotEmpty
-            ? state.formattedWalkTime
-            : l10n.carTrackingWaitingForGps);
-
-    return Container(
-      padding: const EdgeInsetsDirectional.all(AppDimens.space12),
-      decoration: BoxDecoration(
-        color: accent.withAlpha(18),
-        borderRadius: AppDimens.borderRadiusMedium,
-        border: Border.all(color: accent.withAlpha(60)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                isArrived
-                    ? Icons.check_circle_rounded
-                    : Icons.directions_walk_rounded,
-                color: accent,
-                size: AppDimens.iconMedium,
-              ),
-              const SizedBox(width: AppDimens.space8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      titleText,
-                      style: context.textTheme.labelLarge?.copyWith(
-                        color: colors.onSurface,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      subtitleText,
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              TextButton(
-                onPressed: onStop,
-                style: TextButton.styleFrom(
-                  foregroundColor: accent,
-                  visualDensity: VisualDensity.compact,
-                ),
-                child: Text(
-                  isArrived ? l10n.carTrackingDone : l10n.carTrackingStop,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppDimens.space8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: state.status == CarTrackingStatus.waitingForGps
-                  ? null
-                  : (isArrived ? 1.0 : state.progress),
-              backgroundColor: colors.surfaceContainerHighest,
-              valueColor: AlwaysStoppedAnimation<Color>(accent),
-              minHeight: 4,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

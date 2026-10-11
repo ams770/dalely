@@ -33,6 +33,8 @@
 		<true/>
 		<key>NSSupportsLiveActivities</key>
 		<true/>
+		<key>FlutterDeepLinkingEnabled</key>
+		<false/>
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>Feen uses your location to calculate distance to your parked car, guide you back, and show a live walking distance notification.</string>
 		<key>UIBackgroundModes</key>

@@ -44,7 +44,9 @@ class CarTrackingPlugin(private val context: Context) :
                     "isArabic" to isArabic,
                     "isArrived" to isArrived
                 )
-                eventSink?.success(map)
+                try {
+                    eventSink?.success(map)
+                } catch (_: Exception) {}
             }
         }
 
@@ -53,7 +55,9 @@ class CarTrackingPlugin(private val context: Context) :
                 val map = hashMapOf<String, Any?>(
                     "state" to "foundCar"
                 )
-                eventSink?.success(map)
+                try {
+                    eventSink?.success(map)
+                } catch (_: Exception) {}
             }
         }
     }
@@ -67,6 +71,8 @@ class CarTrackingPlugin(private val context: Context) :
                 val carSavedAt = (call.argument<Number>("carSavedAt"))?.toLong()
                     ?: System.currentTimeMillis()
                 val isArabic = call.argument<Boolean>("isArabic") ?: false
+                val userLat = call.argument<Double>("userLat")
+                val userLng = call.argument<Double>("userLng")
 
                 CarTrackingService.startService(
                     context = context,
@@ -74,7 +80,9 @@ class CarTrackingPlugin(private val context: Context) :
                     carLng = carLng,
                     spotId = spotId,
                     carSavedAt = carSavedAt,
-                    isArabic = isArabic
+                    isArabic = isArabic,
+                    userLat = userLat,
+                    userLng = userLng
                 )
                 result.success(true)
             }

@@ -13,6 +13,8 @@ import '../shared/services/heading_service.dart';
 import '../shared/services/home_widget_service.dart';
 import '../shared/services/location_service.dart';
 import '../shared/services/notification_service.dart';
+import 'feen_app.dart';
+import 'notification_action_router.dart';
 
 class BootstrapDependencies {
   const BootstrapDependencies({
@@ -23,6 +25,7 @@ class BootstrapDependencies {
     required this.homeWidgetService,
     required this.notificationService,
     required this.carTrackingService,
+    required this.actionRouter,
   });
 
   final SpotsRepository spotsRepository;
@@ -32,6 +35,7 @@ class BootstrapDependencies {
   final HomeWidgetService homeWidgetService;
   final NotificationService notificationService;
   final CarTrackingService carTrackingService;
+  final NotificationActionRouter actionRouter;
 }
 
 Future<BootstrapDependencies> bootstrap() async {
@@ -69,6 +73,11 @@ Future<BootstrapDependencies> bootstrap() async {
   const locationService = LocationService();
   final headingService = HeadingService();
   final carTrackingService = PlatformCarTrackingService();
+  final actionRouter = NotificationActionRouter(
+    navigatorKey: appNavigatorKey,
+    homeWidgetService: homeWidgetService,
+    currentRouteGetter: () => appRouteObserver.currentRoute,
+  );
 
   return BootstrapDependencies(
     spotsRepository: SpotsRepository(spotsBox),
@@ -78,5 +87,6 @@ Future<BootstrapDependencies> bootstrap() async {
     homeWidgetService: homeWidgetService,
     notificationService: notificationService,
     carTrackingService: carTrackingService,
+    actionRouter: actionRouter,
   );
 }

@@ -9,11 +9,21 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 
 object CarTrackingNotificationBuilder {
     const val CHANNEL_ID = "car_tracking"
     const val NOTIFICATION_ID = 2001
+
+    const val REQUEST_CODE_SHOW_ON_MAP = 2001
+    const val REQUEST_CODE_FOUND_CAR = 2002
+
+    const val ACTION_SHOW_ON_MAP = "com.example.feen.ACTION_SHOW_ON_MAP"
+    const val ACTION_FOUND_CAR = "com.example.feen.ACTION_FOUND_CAR"
+
+    const val URI_MAP_CAR = "feen://map?spot=car"
+    const val URI_FOUND_CAR = "feen://found_car"
 
     private const val COLOR_INDIGO = 0xFF4F46E5.toInt()
     private const val COLOR_GREEN = 0xFF0E9F75.toInt()
@@ -42,10 +52,10 @@ object CarTrackingNotificationBuilder {
         walkMinutes: Int?,
         progress: Double,
         isArabic: Boolean,
+        carSavedAt: Long = System.currentTimeMillis(),
     ): Notification {
         val title: String
         val body: String
-        val collapsedSummary: String
         val accentColor = if (state == "arrived") COLOR_GREEN else COLOR_INDIGO
         val isArrived = state == "arrived"
         val isWaiting = state == "waitingForGps"
@@ -65,40 +75,38 @@ object CarTrackingNotificationBuilder {
             isWaiting -> {
                 title = context.getString(R.string.car_tracking_looking_for_location)
                 body = context.getString(R.string.car_tracking_waiting_for_gps)
-                collapsedSummary = title
             }
             isArrived -> {
                 title = context.getString(R.string.car_tracking_arrived_title)
                 body = context.getString(R.string.car_tracking_arrived_body)
-                collapsedSummary = title
             }
             else -> {
                 title = context.getString(R.string.car_tracking_walking_title, distanceFormatted)
                 body = walkFormatted
-                collapsedSummary = "$title - $body"
             }
         }
 
-        // Action 1: "Show on map" -> opens app via deep link feen://map?spot=car
-        val mapIntent = Intent(Intent.ACTION_VIEW, Uri.parse("feen://map?spot=car")).apply {
-            setPackage(context.packageName)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        // Action 1: "Show on map" -> Explicit Activity intent to MainActivity with singleTask flags
+        val mapIntent = Intent(context, MainActivity::class.java).apply {
+            action = Intent.ACTION_VIEW
+            data = Uri.parse(URI_MAP_CAR)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
         val mapPendingIntent = PendingIntent.getActivity(
             context,
-            101,
+            REQUEST_CODE_SHOW_ON_MAP,
             mapIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Action 2: "Found my car" / "Done" -> triggers broadcast receiver
-        val actionFoundIntent = Intent(context, CarTrackingReceiver::class.java).apply {
-            action = CarTrackingReceiver.ACTION_FOUND_CAR
+        // Action 2: "Found my car" / "Done" -> Explicit Broadcast to CarTrackingReceiver (no Activity launch)
+        val foundIntent = Intent(context, CarTrackingReceiver::class.java).apply {
+            action = ACTION_FOUND_CAR
         }
         val foundPendingIntent = PendingIntent.getBroadcast(
             context,
-            102,
-            actionFoundIntent,
+            REQUEST_CODE_FOUND_CAR,
+            foundIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -108,11 +116,62 @@ object CarTrackingNotificationBuilder {
             context.getString(R.string.car_tracking_action_found_car)
         }
 
+        val appName = if (isArabic) "فين" else "Feen"
+        val parkedAgoText = formatParkedAgo(carSavedAt, isArabic)
+
+        val displayDistance = if (isWaiting) {
+            if (isArabic) "جارٍ التحديد..." else "Locating..."
+        } else {
+            distanceFormatted
+        }
+
+        val displayDetail = if (isWaiting) {
+            if (isArabic) "في انتظار GPS" else "Looking for location"
+        } else if (isArrived) {
+            if (isArabic) "أنت على بعد أقل من 15 م" else "You are within 15 m"
+        } else {
+            walkFormatted
+        }
+
+        // Custom view: Collapsed
+        val collapsedViews = RemoteViews(context.packageName, R.layout.notification_car_tracking_collapsed).apply {
+            setTextViewText(R.id.tv_app_name, appName)
+            setTextViewText(R.id.tv_parked_time, parkedAgoText)
+            setTextViewText(R.id.tv_distance, displayDistance)
+            setTextViewText(R.id.tv_detail, displayDetail)
+            setTextViewText(R.id.btn_map_quick, context.getString(R.string.car_tracking_action_show_on_map))
+            setOnClickPendingIntent(R.id.btn_map_quick, mapPendingIntent)
+            setOnClickPendingIntent(R.id.notification_root, mapPendingIntent)
+            if (isArrived) {
+                setTextColor(R.id.tv_detail, COLOR_GREEN)
+            } else {
+                setTextColor(R.id.tv_detail, Color.parseColor("#E6FFFFFF"))
+            }
+        }
+
+        // Custom view: Expanded
+        val expandedViews = RemoteViews(context.packageName, R.layout.notification_car_tracking_expanded).apply {
+            setTextViewText(R.id.tv_app_name, appName)
+            setTextViewText(R.id.tv_parked_time, parkedAgoText)
+            setTextViewText(R.id.tv_distance, displayDistance)
+            setTextViewText(R.id.tv_detail, displayDetail)
+            setTextViewText(R.id.tv_btn_map_label, context.getString(R.string.car_tracking_action_show_on_map))
+            setTextViewText(R.id.tv_btn_found_label, foundLabel)
+            setOnClickPendingIntent(R.id.btn_show_on_map, mapPendingIntent)
+            setOnClickPendingIntent(R.id.btn_found_car, foundPendingIntent)
+            setOnClickPendingIntent(R.id.notification_root, mapPendingIntent)
+            if (isArrived) {
+                setTextColor(R.id.tv_detail, COLOR_GREEN)
+            } else {
+                setTextColor(R.id.tv_detail, Color.parseColor("#E6FFFFFF"))
+            }
+        }
+
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_stat_feen)
             .setContentTitle(title)
             .setContentText(body)
-            .setSubText(context.getString(R.string.app_name))
+            .setSubText(appName)
             .setColor(accentColor)
             .setColorized(false)
             .setOngoing(true)
@@ -122,11 +181,9 @@ object CarTrackingNotificationBuilder {
             .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setContentIntent(mapPendingIntent)
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(body)
-                    .setSummaryText(collapsedSummary)
-            )
+            .setCustomContentView(collapsedViews)
+            .setCustomBigContentView(expandedViews)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .addAction(
                 0,
                 context.getString(R.string.car_tracking_action_show_on_map),
@@ -177,6 +234,15 @@ object CarTrackingNotificationBuilder {
             }
         } else {
             if (minutes == 1) "About 1 min walk" else "About $minutes min walk"
+        }
+    }
+
+    private fun formatParkedAgo(savedAtMillis: Long, isArabic: Boolean): String {
+        val hours = ((System.currentTimeMillis() - savedAtMillis) / 3_600_000L).toInt()
+        return if (hours <= 0) {
+            if (isArabic) "رُكنت حديثًا" else "Parked recently"
+        } else {
+            if (isArabic) "رُكنت منذ $hours س" else "Parked $hours h ago"
         }
     }
 }

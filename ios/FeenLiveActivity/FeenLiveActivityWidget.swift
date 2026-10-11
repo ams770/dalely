@@ -12,6 +12,7 @@ struct FeenLiveActivityWidget: Widget {
   var body: some WidgetConfiguration {
     ActivityConfiguration(for: FeenTrackingAttributes.self) { context in
       LockScreenCard(state: context.state)
+        .widgetURL(URL(string: "feen://map?spot=car"))
         .activityBackgroundTint(cardDark.opacity(0.85))
         .activitySystemActionForegroundColor(.white)
     } dynamicIsland: { context in
@@ -123,29 +124,18 @@ private struct MapActionButton: View {
   let isCompact: Bool
 
   var body: some View {
-    if #available(iOS 17.0, *) {
-      Button(intent: ShowOnMapIntent()) {
-        content
+    Link(destination: URL(string: "feen://map?spot=car")!) {
+      HStack(spacing: 6) {
+        Image(systemName: "map.fill")
+          .font(.system(size: isCompact ? 12 : 13, weight: .bold))
+        Text(label)
+          .font(.system(size: isCompact ? 13 : 14, weight: .bold))
       }
-      .buttonStyle(.plain)
-    } else {
-      Link(destination: URL(string: "feen://map?spot=car")!) {
-        content
-      }
+      .foregroundColor(ink)
+      .frame(maxWidth: .infinity, minHeight: isCompact ? 32 : 40)
+      .background(Color.white)
+      .clipShape(Capsule())
     }
-  }
-
-  private var content: some View {
-    HStack(spacing: 6) {
-      Image(systemName: "map.fill")
-        .font(.system(size: isCompact ? 12 : 13, weight: .bold))
-      Text(label)
-        .font(.system(size: isCompact ? 13 : 14, weight: .bold))
-    }
-    .foregroundColor(ink)
-    .frame(maxWidth: .infinity, minHeight: isCompact ? 32 : 40)
-    .background(Color.white)
-    .clipShape(Capsule())
   }
 }
 
@@ -154,24 +144,13 @@ private struct FoundActionButton: View {
   let isCompact: Bool
 
   var body: some View {
-    if #available(iOS 17.0, *) {
-      Button(intent: FoundCarIntent()) {
-        content
-      }
-      .buttonStyle(.plain)
-    } else {
-      Link(destination: URL(string: "feen://found_car")!) {
-        content
-      }
+    Link(destination: URL(string: "feen://found_car")!) {
+      Text(label)
+        .font(.system(size: isCompact ? 13 : 14, weight: .bold))
+        .foregroundColor(.white)
+        .frame(maxWidth: .infinity, minHeight: isCompact ? 32 : 40)
+        .background(Color.white.opacity(0.22))
+        .clipShape(Capsule())
     }
-  }
-
-  private var content: some View {
-    Text(label)
-      .font(.system(size: isCompact ? 13 : 14, weight: .bold))
-      .foregroundColor(.white)
-      .frame(maxWidth: .infinity, minHeight: isCompact ? 32 : 40)
-      .background(Color.white.opacity(0.22))
-      .clipShape(Capsule())
   }
 }

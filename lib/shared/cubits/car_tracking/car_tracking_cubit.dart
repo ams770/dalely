@@ -82,13 +82,30 @@ class CarTrackingCubit extends Cubit<CarTrackingState> {
         );
         return false;
       }
-    }
 
-    emit(
-      const CarTrackingState(
-        status: CarTrackingStatus.waitingForGps,
-      ),
-    );
+      final isArrived = initialDistance <= 15.0;
+      final walkMinutes = CarTrackingCalculator.calculateWalkMinutes(initialDistance);
+      final formattedDist = CarTrackingCalculator.formatDistance(initialDistance, isArabic: isArabic);
+      final formattedWalk = CarTrackingCalculator.formatWalkTime(walkMinutes, isArabic: isArabic);
+
+      emit(
+        CarTrackingState(
+          status: isArrived ? CarTrackingStatus.arrived : CarTrackingStatus.walking,
+          distanceMeters: initialDistance,
+          walkMinutes: walkMinutes,
+          progress: isArrived ? 1.0 : 0.0,
+          formattedDistance: formattedDist,
+          formattedWalkTime: formattedWalk,
+          isArrived: isArrived,
+        ),
+      );
+    } else {
+      emit(
+        const CarTrackingState(
+          status: CarTrackingStatus.waitingForGps,
+        ),
+      );
+    }
 
     final success = await _service.start(
       carLat: car.latitude,
@@ -97,6 +114,8 @@ class CarTrackingCubit extends Cubit<CarTrackingState> {
       savedAt: car.savedAt,
       carName: car.name,
       isArabic: isArabic,
+      userLat: currentLat,
+      userLng: currentLng,
     );
 
     if (!success && !isClosed) {

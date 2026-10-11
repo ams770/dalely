@@ -14,6 +14,8 @@ abstract interface class CarTrackingService {
     required DateTime savedAt,
     String? carName,
     bool isArabic = false,
+    double? userLat,
+    double? userLng,
   });
 
   Future<void> stop();
@@ -46,6 +48,8 @@ class PlatformCarTrackingService implements CarTrackingService {
     required DateTime savedAt,
     String? carName,
     bool isArabic = false,
+    double? userLat,
+    double? userLng,
   }) async {
     try {
       final result = await _methodChannel.invokeMethod<bool>('start', {
@@ -55,6 +59,8 @@ class PlatformCarTrackingService implements CarTrackingService {
         'carSavedAt': savedAt.millisecondsSinceEpoch,
         'carName': carName ?? 'My car',
         'isArabic': isArabic,
+        'userLat': ?userLat,
+        'userLng': ?userLng,
       });
       return result ?? true;
     } on PlatformException catch (e) {

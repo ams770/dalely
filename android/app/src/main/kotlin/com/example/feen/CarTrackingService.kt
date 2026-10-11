@@ -33,6 +33,9 @@ class CarTrackingService : Service() {
         const val EXTRA_CAR_SAVED_AT = "extra_car_saved_at"
         const val EXTRA_IS_ARABIC = "extra_is_arabic"
 
+        const val EXTRA_USER_LAT = "extra_user_lat"
+        const val EXTRA_USER_LNG = "extra_user_lng"
+
         private const val ARRIVAL_DISTANCE_METERS = 15.0
         private const val ARRIVAL_MAX_ACCURACY_METERS = 25.0
         private const val DEPARTURE_DISTANCE_METERS = 30.0
@@ -51,7 +54,9 @@ class CarTrackingService : Service() {
             carLng: Double,
             spotId: String,
             carSavedAt: Long,
-            isArabic: Boolean
+            isArabic: Boolean,
+            userLat: Double? = null,
+            userLng: Double? = null
         ) {
             val intent = Intent(context, CarTrackingService::class.java).apply {
                 action = ACTION_START
@@ -60,6 +65,10 @@ class CarTrackingService : Service() {
                 putExtra(EXTRA_SPOT_ID, spotId)
                 putExtra(EXTRA_CAR_SAVED_AT, carSavedAt)
                 putExtra(EXTRA_IS_ARABIC, isArabic)
+                if (userLat != null && userLng != null) {
+                    putExtra(EXTRA_USER_LAT, userLat)
+                    putExtra(EXTRA_USER_LNG, userLng)
+                }
             }
             ContextCompat.startForegroundService(context, intent)
         }
@@ -80,6 +89,7 @@ class CarTrackingService : Service() {
     private var carLng = 0.0
     private var spotId = ""
     private var isArabic = false
+    private var carSavedAt = System.currentTimeMillis()
 
     private var startDistanceMeters: Double? = null
     private var isArrived = false
@@ -115,6 +125,7 @@ class CarTrackingService : Service() {
         carLng = intent.getDoubleExtra(EXTRA_CAR_LNG, 0.0)
         spotId = intent.getStringExtra(EXTRA_SPOT_ID) ?: ""
         isArabic = intent.getBooleanExtra(EXTRA_IS_ARABIC, false)
+        carSavedAt = intent.getLongExtra(EXTRA_CAR_SAVED_AT, System.currentTimeMillis())
 
         val notification = CarTrackingNotificationBuilder.buildNotification(
             context = this,
@@ -122,7 +133,8 @@ class CarTrackingService : Service() {
             distanceMeters = null,
             walkMinutes = null,
             progress = 0.0,
-            isArabic = isArabic
+            isArabic = isArabic,
+            carSavedAt = carSavedAt
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -135,16 +147,29 @@ class CarTrackingService : Service() {
             startForeground(CarTrackingNotificationBuilder.NOTIFICATION_ID, notification)
         }
 
-        startLocationUpdates()
+        // If initial user location was passed, immediately calculate distance and update notification
+        if (intent.hasExtra(EXTRA_USER_LAT) && intent.hasExtra(EXTRA_USER_LNG)) {
+            val uLat = intent.getDoubleExtra(EXTRA_USER_LAT, 0.0)
+            val uLng = intent.getDoubleExtra(EXTRA_USER_LNG, 0.0)
+            val seedLocation = Location("seed").apply {
+                latitude = uLat
+                longitude = uLng
+                accuracy = 10f
+                time = System.currentTimeMillis()
+            }
+            handleLocationFix(seedLocation)
+        } else {
+            CarTrackingPlugin.dispatchTrackingEvent(
+                state = "waitingForGps",
+                distanceMeters = null,
+                walkMinutes = null,
+                progress = 0.0,
+                isArabic = isArabic,
+                isArrived = false
+            )
+        }
 
-        CarTrackingPlugin.dispatchTrackingEvent(
-            state = "waitingForGps",
-            distanceMeters = null,
-            walkMinutes = null,
-            progress = 0.0,
-            isArabic = isArabic,
-            isArrived = false
-        )
+        startLocationUpdates()
 
         return START_NOT_STICKY
     }
@@ -152,16 +177,23 @@ class CarTrackingService : Service() {
     @SuppressLint("MissingPermission")
     private fun startLocationUpdates() {
         try {
+            // Immediately request last location for instant update
+            fusedLocationClient.lastLocation.addOnSuccessListener { lastLoc ->
+                if (lastLoc != null) {
+                    handleLocationFix(lastLoc)
+                }
+            }
+
             val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
             val isPowerSave = powerManager?.isPowerSaveMode ?: false
-            val interval = if (isPowerSave) 15_000L else 5_000L
+            val interval = if (isPowerSave) 10_000L else 4_000L
 
             val locationRequest = LocationRequest.Builder(
-                Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+                Priority.PRIORITY_HIGH_ACCURACY,
                 interval
             ).apply {
-                setMinUpdateDistanceMeters(5f)
-                setMinUpdateIntervalMillis(3_000L)
+                setMinUpdateDistanceMeters(0f)
+                setMinUpdateIntervalMillis(2_000L)
             }.build()
 
             fusedLocationClient.requestLocationUpdates(
@@ -254,7 +286,8 @@ class CarTrackingService : Service() {
                 distanceMeters = distance,
                 walkMinutes = walkMinutes,
                 progress = if (isArrived) 1.0 else progress,
-                isArabic = isArabic
+                isArabic = isArabic,
+                carSavedAt = carSavedAt
             )
             notificationManager.notify(
                 CarTrackingNotificationBuilder.NOTIFICATION_ID,
@@ -292,6 +325,12 @@ class CarTrackingService : Service() {
         isRunning = false
         cancelArrivalTimeout()
         fusedLocationClient.removeLocationUpdates(locationCallback)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
         notificationManager.cancel(CarTrackingNotificationBuilder.NOTIFICATION_ID)
         CarTrackingPlugin.dispatchTrackingEvent(
             state = "stopped",

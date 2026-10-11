@@ -57,6 +57,8 @@ import Foundation
       let savedAtMillis = args["carSavedAt"] as? Double ?? Date().timeIntervalSince1970 * 1000.0
       let name = args["carName"] as? String ?? "My car"
       let isAr = args["isArabic"] as? Bool ?? false
+      let userLat = args["userLat"] as? Double
+      let userLng = args["userLng"] as? Double
 
       let success = startTracking(
         latitude: lat,
@@ -64,7 +66,9 @@ import Foundation
         spotId: spotId,
         savedAt: Date(timeIntervalSince1970: savedAtMillis / 1000.0),
         carName: name,
-        isArabic: isAr
+        isArabic: isAr,
+        userLat: userLat,
+        userLng: userLng
       )
       result(success)
 
@@ -86,7 +90,9 @@ import Foundation
     spotId: String,
     savedAt: Date,
     carName: String,
-    isArabic: Bool
+    isArabic: Bool,
+    userLat: Double? = nil,
+    userLng: Double? = nil
   ) -> Bool {
     self.carLocation = CLLocation(latitude: latitude, longitude: longitude)
     self.carSpotId = spotId
@@ -124,16 +130,44 @@ import Foundation
     manager.startUpdatingLocation()
     isTracking = true
 
-    startLiveActivity()
+    var initialLoc: CLLocation? = nil
+    if let uLat = userLat, let uLng = userLng {
+      initialLoc = CLLocation(latitude: uLat, longitude: uLng)
+    } else if let loc = manager.location {
+      initialLoc = loc
+    }
 
-    dispatchTrackingEvent(
-      state: "waitingForGps",
-      distanceMeters: nil,
-      walkMinutes: nil,
-      progress: 0.0,
-      isArabic: isArabic,
-      isArrived: false
-    )
+    if let loc = initialLoc, let car = self.carLocation {
+      let distance = loc.distance(from: car)
+      let walkSeconds = distance / 1.4
+      let walkMins = max(1, Int(ceil(walkSeconds / 60.0)))
+      let arrived = distance <= 15.0
+      self.isArrived = arrived
+      self.startDistanceMeters = distance
+      self.lastState = arrived ? "arrived" : "walking"
+
+      startLiveActivity(seedLocation: loc)
+
+      dispatchTrackingEvent(
+        state: self.lastState,
+        distanceMeters: distance,
+        walkMinutes: walkMins,
+        progress: arrived ? 1.0 : 0.0,
+        isArabic: isArabic,
+        isArrived: arrived
+      )
+    } else {
+      startLiveActivity(seedLocation: nil)
+
+      dispatchTrackingEvent(
+        state: "waitingForGps",
+        distanceMeters: nil,
+        walkMinutes: nil,
+        progress: 0.0,
+        isArabic: isArabic,
+        isArrived: false
+      )
+    }
 
     return true
   }
@@ -160,7 +194,7 @@ import Foundation
 
   // MARK: - ActivityKit Live Activity
 
-  private func startLiveActivity() {
+  private func startLiveActivity(seedLocation: CLLocation? = nil) {
     guard #available(iOS 16.2, *) else { return }
 
     endLiveActivity()
@@ -182,11 +216,12 @@ import Foundation
       appName: appName
     )
 
-    if let loc = locationManager?.location, let car = carLocation, loc.horizontalAccuracy > 0, loc.horizontalAccuracy <= 100 {
+    let loc = seedLocation ?? locationManager?.location
+    if let loc = loc, let car = carLocation {
       let distance = loc.distance(from: car)
       let walkSeconds = distance / 1.4
       let walkMins = max(1, Int(ceil(walkSeconds / 60.0)))
-      let arrived = distance <= 15.0 && loc.horizontalAccuracy <= 25.0
+      let arrived = distance <= 15.0
       self.isArrived = arrived
       self.startDistanceMeters = distance
 
