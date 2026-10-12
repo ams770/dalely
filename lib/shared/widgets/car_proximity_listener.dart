@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../app/app_router.dart';
 import '../cubits/car_proximity/car_proximity_cubit.dart';
 import '../cubits/car_proximity/car_proximity_state.dart';
 import '../cubits/location/location_cubit.dart';
 import '../cubits/location/location_state.dart';
 import '../cubits/spots/spots_cubit.dart';
 import '../cubits/spots/spots_state.dart';
+import '../utils/adaptive_navigation.dart';
 import '../utils/context_ext.dart';
 import 'car_arrival_dialog.dart';
 
@@ -28,14 +28,14 @@ class CarProximityListener extends StatelessWidget {
             final spotsState = context.read<SpotsCubit>().state;
             final l10n = context.l10n;
             context.read<CarProximityCubit>().checkProximity(
-                  car: spotsState.car,
-                  userLatitude: locationState.position?.latitude,
-                  userLongitude: locationState.position?.longitude,
-                  arrivalTitle: l10n.carArrivalTitle,
-                  arrivalBody: l10n.carArrivalMessage,
-                  onMapActionText: l10n.onMap,
-                  foundCarActionText: l10n.foundMyCar,
-                );
+              car: spotsState.car,
+              userLatitude: locationState.position?.latitude,
+              userLongitude: locationState.position?.longitude,
+              arrivalTitle: l10n.carArrivalTitle,
+              arrivalBody: l10n.carArrivalMessage,
+              onMapActionText: l10n.onMap,
+              foundCarActionText: l10n.foundMyCar,
+            );
           },
         ),
         BlocListener<SpotsCubit, SpotsState>(
@@ -44,14 +44,14 @@ class CarProximityListener extends StatelessWidget {
             final locationState = context.read<LocationCubit>().state;
             final l10n = context.l10n;
             context.read<CarProximityCubit>().checkProximity(
-                  car: spotsState.car,
-                  userLatitude: locationState.position?.latitude,
-                  userLongitude: locationState.position?.longitude,
-                  arrivalTitle: l10n.carArrivalTitle,
-                  arrivalBody: l10n.carArrivalMessage,
-                  onMapActionText: l10n.onMap,
-                  foundCarActionText: l10n.foundMyCar,
-                );
+              car: spotsState.car,
+              userLatitude: locationState.position?.latitude,
+              userLongitude: locationState.position?.longitude,
+              arrivalTitle: l10n.carArrivalTitle,
+              arrivalBody: l10n.carArrivalMessage,
+              onMapActionText: l10n.onMap,
+              foundCarActionText: l10n.foundMyCar,
+            );
           },
         ),
         BlocListener<CarProximityCubit, CarProximityState>(
@@ -92,10 +92,7 @@ class CarProximityListener extends StatelessWidget {
                 },
                 onCantSeeCar: () {
                   proximityCubit.onCantSeeCar();
-                  Navigator.of(context).pushNamed(
-                    AppRouter.spotsMap,
-                    arguments: car.id,
-                  );
+                  AdaptiveNavigation.openMap(context, spotId: car.id);
                 },
               ),
             ).then((_) {

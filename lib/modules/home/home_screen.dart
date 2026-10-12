@@ -1,4 +1,5 @@
 import 'dart:ui' show DisplayFeature, DisplayFeatureType;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,6 +9,7 @@ import '../../shared/cubits/adaptive_nav/adaptive_nav_state.dart';
 import '../../shared/cubits/spots/spots_cubit.dart';
 import '../../shared/cubits/spots/spots_state.dart';
 import '../../shared/models/spot.dart';
+import '../../shared/theme/app_colors.dart';
 import '../../shared/theme/app_dimens.dart';
 import '../../shared/utils/adaptive_layout_ext.dart';
 import '../../shared/utils/adaptive_navigation.dart';
@@ -44,7 +46,6 @@ class _AdaptiveTwoPaneHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
     final isFoldable = context.isFoldableDevice;
     final size = MediaQuery.sizeOf(context);
     final features = MediaQuery.displayFeaturesOf(context);
@@ -87,31 +88,93 @@ class _AdaptiveTwoPaneHome extends StatelessWidget {
           // On foldable/flip devices, each part takes exactly half (50%) of the device.
           // On tablets, home pane is a fixed sidebar so the map takes the largest area.
           if (isFoldable)
-            const Expanded(
-              flex: 1,
-              child: _HomePane(),
-            )
+            const Expanded(flex: 1, child: _HomePane())
           else
-            const SizedBox(
-              width: 380.0,
-              child: _HomePane(),
-            ),
+            const SizedBox(width: 380.0, child: _HomePane()),
 
-          // Pane Divider
-          VerticalDivider(
-            width: 1,
-            thickness: 1,
-            color: theme.colorScheme.outlineVariant.withAlpha(80),
-          ),
+          // Professional Adaptive Pane Separator
+          const _AdaptivePaneSeparator(),
 
           // Right Pane: Active Detail (Map by default, or Settings, SaveSpot, Search)
           // On tablets, takes all remaining space (the largest area).
           // On foldable/flip devices, takes the second half (50%).
-          const Expanded(
-            flex: 1,
-            child: _AdaptiveDetailPane(),
+          const Expanded(flex: 1, child: _AdaptiveDetailPane()),
+        ],
+      ),
+    );
+  }
+}
+
+class _AdaptivePaneSeparator extends StatelessWidget {
+  const _AdaptivePaneSeparator();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    final isDark = context.isDarkMode;
+
+    final borderColor = isDark
+        ? AppColors.darkBorder
+        : theme.colorScheme.outlineVariant.withAlpha(140);
+    final handleColor = isDark
+        ? theme.colorScheme.primary.withAlpha(200)
+        : theme.colorScheme.primary.withAlpha(140);
+
+    return Container(
+      width: 12.0,
+      color: theme.scaffoldBackgroundColor,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Vertical divider line
+          Container(width: 1.0, color: borderColor),
+          // Refined split affordance pill indicator
+          Container(
+            width: 4.0,
+            height: 48.0,
+            decoration: BoxDecoration(
+              color: handleColor,
+              borderRadius: AppDimens.borderRadiusFull,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(isDark ? 40 : 15),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LeftPaneEdgeShadow extends StatelessWidget {
+  const _LeftPaneEdgeShadow();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = context.isDarkMode;
+
+    return PositionedDirectional(
+      top: 0,
+      bottom: 0,
+      start: 0,
+      width: 16.0,
+      child: IgnorePointer(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: AlignmentDirectional.centerStart,
+              end: AlignmentDirectional.centerEnd,
+              colors: [
+                Colors.black.withAlpha(isDark ? 60 : 15),
+                Colors.transparent,
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -146,6 +209,9 @@ class _AdaptiveDetailPane extends StatelessWidget {
                   onSpotSelected: (id) => cubit.showMap(spotId: id),
                 ),
               ),
+
+            // Ambient depth shadow cast from the pane separator onto the detail pane
+            const _LeftPaneEdgeShadow(),
           ],
         );
       },

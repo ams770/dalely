@@ -216,7 +216,7 @@ void main() {
       final cubit = CarProximityCubit();
       cubit.onFoundCar();
       expect(cubit.state.hasMovedAway, isFalse);
-      expect(cubit.state.targetThresholdMeters, 20.0);
+      expect(cubit.state.targetThresholdMeters, 15.0);
       expect(cubit.state.shouldShowDialog, isFalse);
       expect(cubit.state.hasShownArrivalNotification, isFalse);
     });
@@ -340,6 +340,65 @@ void main() {
       await tester.tap(find.text('لسه مشوفتش العربيه'));
       await tester.pumpAndSettle();
       expect(cantSeeCarPressed, isTrue);
+    });
+
+    testWidgets('renders Dialog.fullscreen on mobile screen (< 600 dp)',
+        (tester) async {
+      tester.view.physicalSize = const Size(390 * 2.0, 844 * 2.0);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ar', 'EG'),
+          home: Scaffold(
+            body: CarArrivalDialog(
+              onFoundCar: () {},
+              onCantSeeCar: () {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final dialogFinder = find.byType(Dialog);
+      expect(dialogFinder, findsOneWidget);
+      final dialog = tester.widget<Dialog>(dialogFinder);
+      expect(dialog.insetPadding, EdgeInsets.zero);
+    });
+
+    testWidgets('renders bounded dialog in available area on foldable/tablet screen',
+        (tester) async {
+      tester.view.physicalSize = const Size(720 * 2.0, 900 * 2.0);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ar', 'EG'),
+          home: Scaffold(
+            body: CarArrivalDialog(
+              onFoundCar: () {},
+              onCantSeeCar: () {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final dialogFinder = find.byType(Dialog);
+      expect(dialogFinder, findsOneWidget);
+      final dialog = tester.widget<Dialog>(dialogFinder);
+      expect(dialog.alignment, AlignmentDirectional.centerEnd);
+      expect(dialog.insetPadding, isNot(EdgeInsets.zero));
     });
   });
 
