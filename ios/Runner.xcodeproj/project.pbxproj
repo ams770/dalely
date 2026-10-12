@@ -16,17 +16,23 @@
 		57A7E341E9CA510C3D06C6A0 /* DalelyTrackingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CB74DB2214AD52F713FCC0 /* DalelyTrackingAttributes.swift */; };
 		5AC24126ABB8DAC936A0B050 /* CarTrackingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0B2236DFC72AF6CA2B95B9 /* CarTrackingManager.swift */; };
 		5D9794CDE55EBF6E3CC83E86 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E322683DA461D07E8FEB9080 /* Pods_Runner.framework */; };
+		6451BB652EB4637B71B0C6C2 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5110B4DE7A016669BD147BC5 /* InfoPlist.strings */; };
 		6E8E9D15331AB4A4304E3062 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAAEAA4813F75D476D0E80B /* Foundation.framework */; };
+		6EA27A7E338059A9A32443CC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B26CAC03A839516030CD8827 /* InfoPlist.strings */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
 		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		9B2C9F4417CC82AEE3D379DE /* Social.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B86EBC811F77DAD4AE51CCB9 /* Social.framework */; };
 		AB36125157ED8F8A55AD2E80 /* DalelyTrackingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CB74DB2214AD52F713FCC0 /* DalelyTrackingAttributes.swift */; };
+		BD9151B018B1EB1B35B04736 /* DalelyShare.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 206F3337CA777C8B12362AB9 /* DalelyShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, CodeSignOnCopy, ); }; };
 		CF40E9DAFEC9DB0A851F7766 /* DalelyAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A76B753EF84BFDF7C5E4BF9 /* DalelyAppIntents.swift */; };
+		DA36CC1925CF94BAF88CAB55 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A2C8FBA0E44844AA838801 /* ShareViewController.swift */; };
 		E11ED3A002D278A6C73697F0 /* DalelyLiveActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB0049E94D5F51279AF4973 /* DalelyLiveActivityWidget.swift */; };
 		E86F207B5FF8ADC425712B41 /* DalelyLiveActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DE0EC8961A1A0576BADB9FF /* DalelyLiveActivityBundle.swift */; };
+		F4B3EC7FB94669D91E3DE87C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAAEAA4813F75D476D0E80B /* Foundation.framework */; };
 		FEEN00012EC3CC0700C636F2 /* NotificationActionPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEEN00022EC3CC0400C636F2 /* NotificationActionPlugin.swift */; };
 /* End PBXBuildFile section */
 
@@ -44,6 +50,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = AD4AB5E899581325D1AB54CF;
 			remoteInfo = DalelyLiveActivity;
+		};
+		D6875779648EFA5704669D4B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A735A0937CF47040EBE9A2D4;
+			remoteInfo = DalelyShare;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -65,6 +78,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				0AC93B99D74871BFEB879EC2 /* DalelyLiveActivity.appex in Embed App Extensions */,
+				BD9151B018B1EB1B35B04736 /* DalelyShare.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -72,9 +86,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		05A2C8FBA0E44844AA838801 /* ShareViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		1A4C5C9D4F85A053465EF143 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
+		206F3337CA777C8B12362AB9 /* DalelyShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DalelyShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		23C9E02739C73875E69C3709 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -82,6 +98,8 @@
 		3DB0049E94D5F51279AF4973 /* DalelyLiveActivityWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DalelyLiveActivityWidget.swift; sourceTree = "<group>"; };
 		474EBCB956577ECC47DC42E8 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		4DE0EC8961A1A0576BADB9FF /* DalelyLiveActivityBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DalelyLiveActivityBundle.swift; sourceTree = "<group>"; };
+		5110B4DE7A016669BD147BC5 /* InfoPlist.strings */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		5EE33FC53FBAB0EA335B64DC /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -101,6 +119,8 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A3CB74DB2214AD52F713FCC0 /* DalelyTrackingAttributes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DalelyTrackingAttributes.swift; sourceTree = "<group>"; };
 		AF0C2F42B898F70E3C899528 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B26CAC03A839516030CD8827 /* InfoPlist.strings */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B86EBC811F77DAD4AE51CCB9 /* Social.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Social.framework; path = System/Library/Frameworks/Social.framework; sourceTree = SDKROOT; };
 		C038057D264AD027FD1A311F /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		D09BA20474BEAD202BF25177 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E322683DA461D07E8FEB9080 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -132,6 +152,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				6E8E9D15331AB4A4304E3062 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FF6F985A680C155E8EF76CD9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4B3EC7FB94669D91E3DE87C /* Foundation.framework in Frameworks */,
+				9B2C9F4417CC82AEE3D379DE /* Social.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -177,6 +206,7 @@
 				AEB7ABF559E89A06900E6A5A /* Frameworks */,
 				9CA63559700F80F0A4B77BF1 /* Shared */,
 				FD1B32DCA4E20717FA49CE14 /* DalelyLiveActivity */,
+				B541F058974685C9C49D75B1 /* DalelyShare */,
 			);
 			sourceTree = "<group>";
 		};
@@ -187,6 +217,7 @@
 				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
 				E33872CB4ACC4D007C783949 /* DalelyLiveActivity.appex */,
 				F0B45590C758F8EFE4D217EF /* DalelyLiveActivity.appex */,
+				206F3337CA777C8B12362AB9 /* DalelyShare.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -224,8 +255,21 @@
 				E322683DA461D07E8FEB9080 /* Pods_Runner.framework */,
 				D09BA20474BEAD202BF25177 /* Pods_RunnerTests.framework */,
 				5D0E6224C840B09D43E04A06 /* iOS */,
+				B86EBC811F77DAD4AE51CCB9 /* Social.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B541F058974685C9C49D75B1 /* DalelyShare */ = {
+			isa = PBXGroup;
+			children = (
+				05A2C8FBA0E44844AA838801 /* ShareViewController.swift */,
+				5EE33FC53FBAB0EA335B64DC /* Info.plist */,
+				5110B4DE7A016669BD147BC5 /* InfoPlist.strings */,
+				B26CAC03A839516030CD8827 /* InfoPlist.strings */,
+			);
+			name = DalelyShare;
+			path = DalelyShare;
 			sourceTree = "<group>";
 		};
 		BCEBA51869BD4EE11CFD1BAC /* Pods */ = {
@@ -292,6 +336,7 @@
 			);
 			dependencies = (
 				2A1F84661FE1B8707AD4CCCF /* PBXTargetDependency */,
+				03A98EC57884B825C607E6CC /* PBXTargetDependency */,
 			);
 			name = Runner;
 			packageProductDependencies = (
@@ -300,6 +345,23 @@
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
 			productType = "com.apple.product-type.application";
+		};
+		A735A0937CF47040EBE9A2D4 /* DalelyShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 29A64DD061E37393D59923F2 /* Build configuration list for PBXNativeTarget "DalelyShare" */;
+			buildPhases = (
+				880C249ED2E5BE0117E75AA1 /* Sources */,
+				FF6F985A680C155E8EF76CD9 /* Frameworks */,
+				ABE394E27775EE144CD9B3B1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DalelyShare;
+			productName = DalelyShare;
+			productReference = 206F3337CA777C8B12362AB9 /* DalelyShare.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 		AD4AB5E899581325D1AB54CF /* DalelyLiveActivity */ = {
 			isa = PBXNativeTarget;
@@ -357,6 +419,7 @@
 				97C146ED1CF9000F007C117D /* Runner */,
 				331C8080294A63A400263BE5 /* RunnerTests */,
 				AD4AB5E899581325D1AB54CF /* DalelyLiveActivity */,
+				A735A0937CF47040EBE9A2D4 /* DalelyShare */,
 			);
 		};
 /* End PBXProject section */
@@ -377,6 +440,15 @@
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ABE394E27775EE144CD9B3B1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6451BB652EB4637B71B0C6C2 /* InfoPlist.strings in Resources */,
+				6EA27A7E338059A9A32443CC /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -510,6 +582,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		880C249ED2E5BE0117E75AA1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DA36CC1925CF94BAF88CAB55 /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		97C146EA1CF9000F007C117D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -538,6 +618,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		03A98EC57884B825C607E6CC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DalelyShare;
+			target = A735A0937CF47040EBE9A2D4 /* DalelyShare */;
+			targetProxy = D6875779648EFA5704669D4B /* PBXContainerItemProxy */;
+		};
 		2A1F84661FE1B8707AD4CCCF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = DalelyLiveActivity;
@@ -630,6 +716,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "Runner/Runner.entitlements";
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = F6Y4U267GX;
 				ENABLE_BITCODE = NO;
@@ -643,6 +730,36 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Profile;
+		};
+		313422C93E89D629A5616B21 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = "DalelyShare/DalelyShare.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = F6Y4U267GX;
+				ENABLE_BITCODE = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DalelyShare/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.dalely.app.DalelyShare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Profile;
 		};
@@ -701,6 +818,7 @@
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = "DalelyLiveActivity/DalelyLiveActivity.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = F6Y4U267GX;
@@ -723,6 +841,35 @@
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Profile;
+		};
+		8F0434CC71FB8E97009A1BFA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = "DalelyShare/DalelyShare.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = F6Y4U267GX;
+				ENABLE_BITCODE = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DalelyShare/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.dalely.app.DalelyShare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		97C147031CF9000F007C117D /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -843,6 +990,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "Runner/Runner.entitlements";
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = F6Y4U267GX;
 				ENABLE_BITCODE = NO;
@@ -866,6 +1014,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "Runner/Runner.entitlements";
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = F6Y4U267GX;
 				ENABLE_BITCODE = NO;
@@ -882,11 +1031,42 @@
 			};
 			name = Release;
 		};
+		A8942845D80A8EE850C8BFB9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = "DalelyShare/DalelyShare.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = F6Y4U267GX;
+				ENABLE_BITCODE = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = DalelyShare/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.dalely.app.DalelyShare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		A95AA0001A1BEF6F5768CCE9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = "DalelyLiveActivity/DalelyLiveActivity.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = F6Y4U267GX;
@@ -915,6 +1095,7 @@
 			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = "DalelyLiveActivity/DalelyLiveActivity.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = F6Y4U267GX;
@@ -940,6 +1121,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		29A64DD061E37393D59923F2 /* Build configuration list for PBXNativeTarget "DalelyShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A8942845D80A8EE850C8BFB9 /* Release */,
+				8F0434CC71FB8E97009A1BFA /* Debug */,
+				313422C93E89D629A5616B21 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

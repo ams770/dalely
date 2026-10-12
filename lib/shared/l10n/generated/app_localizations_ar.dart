@@ -51,7 +51,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noCarTitle => 'أين ركنت سيارتك؟';
 
   @override
-  String get noCarMessage => 'اضغط «اركن هنا» عندما تترك السيارة.';
+  String get noCarMessage => 'غير مركونة';
 
   @override
   String distanceAway(String distance) {
@@ -90,6 +90,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get saveThisSpot => 'ضيف مكان جديد';
+
+  @override
+  String get addSpot => 'إضافة مكان';
 
   @override
   String savedAgo(String time) {
@@ -557,6 +560,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get noSpotsFoundDesc => 'جرّب البحث باسم أو فئة أخرى';
+
+  @override
+  String get exportData => 'تصدير البيانات';
+
+  @override
+  String get exportSpotsTitle => 'تصدير الأماكن';
+
+  @override
+  String get exportAsExcel => 'تصدير كملف Excel (CSV)';
+
+  @override
+  String get exportAsExcelSubtitle =>
+      'جدول بيانات مع الإحداثيات وروابط الخرائط';
+
+  @override
+  String get exportAsText => 'تصدير كنص';
+
+  @override
+  String get exportAsTextSubtitle => 'قائمة منسقة مع روابط الخرائط';
+
+  @override
+  String get exportSubject => 'أماكن دليلى';
 }
 
 /// The translations for Arabic, as used in Egypt (`ar_EG`).
@@ -605,7 +630,7 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
   String get noCarTitle => 'ركنت عربيتك فين؟';
 
   @override
-  String get noCarMessage => 'دوس «اركن هنا» لما تسيب العربية.';
+  String get noCarMessage => 'مش مركونة';
 
   @override
   String distanceAway(String distance) {
@@ -644,6 +669,9 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
 
   @override
   String get saveThisSpot => 'ضيف مكان جديد';
+
+  @override
+  String get addSpot => 'ضيف مكان';
 
   @override
   String savedAgo(String time) {
@@ -1106,7 +1134,7 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
   String get noCarTitle => 'أين وقفت سيارتك؟';
 
   @override
-  String get noCarMessage => 'اضغط «وقف هنا» عندما تترك السيارة.';
+  String get noCarMessage => 'مو واقفة';
 
   @override
   String distanceAway(String distance) {
@@ -1145,6 +1173,9 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
 
   @override
   String get saveThisSpot => 'أضف مكان جديد';
+
+  @override
+  String get addSpot => 'أضف مكان';
 
   @override
   String savedAgo(String time) {

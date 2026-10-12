@@ -37,6 +37,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>feen</string>
+				<string>geo</string>
 			</array>
 		</dict>
 	</array>

@@ -22,39 +22,70 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            _SettingsHeader(onClose: onClose),
+            Expanded(
+              child: ListView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsetsDirectional.all(AppDimens.space16),
+                children: const [
+                  _AppearanceSection(),
+                  SizedBox(height: AppDimens.space24),
+                  _CarTrackingSection(),
+                  SizedBox(height: AppDimens.space24),
+                  _YourSpotsSection(),
+                  SizedBox(height: AppDimens.space24),
+                  _AboutSection(),
+                  SizedBox(height: AppDimens.space32),
+                  _SettingsFooter(),
+                  SizedBox(height: AppDimens.space24),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsHeader extends StatelessWidget {
+  const _SettingsHeader({this.onClose});
+
+  final VoidCallback? onClose;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return Scaffold(
-      appBar: AppBar(
-        leadingWidth:
-            AppDimens.space16 + AppDimens.iconButtonSize + AppDimens.space12,
-        leading: Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: Padding(
-            padding: const EdgeInsetsDirectional.only(start: AppDimens.space16),
-            child: CircleIconButton(
-              icon: const BackButtonIcon(),
-              tooltip: l10n.backTooltip,
-              onPressed: onClose ?? () => Navigator.of(context).pop(),
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppDimens.space16,
+        AppDimens.space16,
+        AppDimens.space16,
+        AppDimens.space8,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CircleIconButton(
+            icon: const BackButtonIcon(),
+            tooltip: l10n.backTooltip,
+            onPressed: onClose ?? () => Navigator.of(context).pop(),
+          ),
+          const SizedBox(width: AppDimens.space16),
+          Expanded(
+            child: Text(
+              l10n.settingsTitle,
+              style: context.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
-        ),
-        title: Text(l10n.settingsTitle),
-      ),
-      body: ListView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsetsDirectional.all(AppDimens.space16),
-        children: const [
-          _AppearanceSection(),
-          SizedBox(height: AppDimens.space24),
-          _CarTrackingSection(),
-          SizedBox(height: AppDimens.space24),
-          _YourSpotsSection(),
-          SizedBox(height: AppDimens.space24),
-          _AboutSection(),
-          SizedBox(height: AppDimens.space32),
-          _SettingsFooter(),
-          SizedBox(height: AppDimens.space24),
         ],
       ),
     );

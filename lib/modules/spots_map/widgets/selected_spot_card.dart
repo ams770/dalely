@@ -10,6 +10,7 @@ import '../../../shared/models/spot.dart';
 import '../../../shared/services/maps_launcher.dart';
 import '../../../shared/services/share_service.dart';
 import '../../../shared/theme/app_dimens.dart';
+import '../../../shared/utils/app_snack_bar.dart';
 import '../../../shared/utils/car_tracking_calculator.dart';
 import '../../../shared/utils/context_ext.dart';
 import '../../../shared/widgets/category_badge.dart';
@@ -91,9 +92,9 @@ class SelectedSpotCard extends StatelessWidget {
                         endLongitude: spot.longitude,
                       );
                       if (CarTrackingCalculator.isTooFar(dist)) {
-                        ScaffoldMessenger.of(context).clearSnackBars();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(context.l10n.carTrackingTooFar)),
+                        AppSnackBar.show(
+                          context,
+                          content: Text(context.l10n.carTrackingTooFar),
                         );
                         return;
                       }

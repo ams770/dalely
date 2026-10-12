@@ -48,7 +48,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noCarTitle => 'Where did you park?';
 
   @override
-  String get noCarMessage => 'Tap Park here when you leave the car.';
+  String get noCarMessage => 'Not parked';
 
   @override
   String distanceAway(String distance) {
@@ -87,6 +87,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get saveThisSpot => 'Save new spot';
+
+  @override
+  String get addSpot => 'Add spot';
 
   @override
   String savedAgo(String time) {
@@ -533,4 +536,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noSpotsFoundDesc => 'Try typing a different name or category';
+
+  @override
+  String get exportData => 'Export data';
+
+  @override
+  String get exportSpotsTitle => 'Export spots';
+
+  @override
+  String get exportAsExcel => 'Export as Excel (CSV)';
+
+  @override
+  String get exportAsExcelSubtitle =>
+      'Spreadsheet with coordinates & map links';
+
+  @override
+  String get exportAsText => 'Export as text';
+
+  @override
+  String get exportAsTextSubtitle => 'Formatted list with map links';
+
+  @override
+  String get exportSubject => 'Dalely spots';
 }

@@ -13,6 +13,7 @@ import '../../shared/theme/app_colors.dart';
 import '../../shared/theme/app_dimens.dart';
 import '../../shared/utils/adaptive_layout_ext.dart';
 import '../../shared/utils/adaptive_navigation.dart';
+import '../../shared/utils/app_snack_bar.dart';
 import '../../shared/utils/context_ext.dart';
 import '../../shared/widgets/car_proximity_listener.dart';
 import '../../shared/widgets/circle_icon_button.dart';
@@ -25,7 +26,9 @@ import '../search/search_spots_screen.dart';
 import '../settings/settings_screen.dart';
 import '../spots_map/spots_map_screen.dart';
 import 'widgets/car_card.dart';
+import 'widgets/export_spots_sheet.dart';
 import 'widgets/home_header.dart';
+import 'widgets/home_map_card.dart';
 import 'widgets/rename_spot_sheet.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -63,9 +66,12 @@ class _AdaptiveTwoPaneHome extends StatelessWidget {
       }
     }
 
+    final theme = context.theme;
+
     if (verticalHinge != null) {
-      return Scaffold(
-        body: Row(
+      return Material(
+        color: theme.scaffoldBackgroundColor,
+        child: Row(
           children: [
             SizedBox(
               width: verticalHinge.bounds.left,
@@ -81,8 +87,9 @@ class _AdaptiveTwoPaneHome extends StatelessWidget {
       );
     }
 
-    return Scaffold(
-      body: Row(
+    return Material(
+      color: theme.scaffoldBackgroundColor,
+      child: Row(
         children: [
           // Left Pane: Home
           // On foldable/flip devices, each part takes exactly half (50%) of the device.
@@ -135,46 +142,9 @@ class _AdaptivePaneSeparator extends StatelessWidget {
             decoration: BoxDecoration(
               color: handleColor,
               borderRadius: AppDimens.borderRadiusFull,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(isDark ? 40 : 15),
-                  blurRadius: 4,
-                  offset: const Offset(0, 1),
-                ),
-              ],
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _LeftPaneEdgeShadow extends StatelessWidget {
-  const _LeftPaneEdgeShadow();
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = context.isDarkMode;
-
-    return PositionedDirectional(
-      top: 0,
-      bottom: 0,
-      start: 0,
-      width: 16.0,
-      child: IgnorePointer(
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: AlignmentDirectional.centerStart,
-              end: AlignmentDirectional.centerEnd,
-              colors: [
-                Colors.black.withAlpha(isDark ? 60 : 20),
-                Colors.transparent,
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -209,9 +179,6 @@ class _AdaptiveDetailPane extends StatelessWidget {
                   onSpotSelected: (id) => cubit.showMap(spotId: id),
                 ),
               ),
-
-            // Ambient depth shadow cast from the pane separator onto the detail pane
-            const _LeftPaneEdgeShadow(),
           ],
         );
       },
@@ -224,50 +191,109 @@ class _HomePane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            const HomeHeader(),
-            Expanded(
-              child: CustomScrollView(
-                physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics(),
-                ),
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(
-                      AppDimens.space16,
-                      AppDimens.space8,
-                      AppDimens.space16,
-                      AppDimens.space16,
-                    ),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate.fixed([
-                        const LocationPermissionBanner(),
-                        const CarCard(),
-                        const SizedBox(height: AppDimens.space24),
-                        const _SavedSpotsSectionHeader(),
-                      ]),
-                    ),
+    return ScaffoldMessenger(
+      key: mainScaffoldMessengerKey,
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              const HomeHeader(),
+              Expanded(
+                child: CustomScrollView(
+                  physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
                   ),
-                  const _SavedSpotsSliverList(),
-                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
-                ],
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                        AppDimens.space16,
+                        AppDimens.space8,
+                        AppDimens.space16,
+                        AppDimens.space16,
+                      ),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate.fixed([
+                          const LocationPermissionBanner(),
+                          const _HomeCardsGrid(),
+                          const SizedBox(height: AppDimens.space24),
+                          const _SavedSpotsSectionHeader(),
+                        ]),
+                      ),
+                    ),
+                    const _SavedSpotsSliverList(),
+                    const _BottomListSpacer(),
+                  ],
+                ),
               ),
-            ),
-            if (!context.isWideScreen)
-              PrimaryBottomButton(
-                label: context.l10n.saveThisSpot,
-                icon: const Icon(Icons.add_rounded),
-                onPressed: () {
-                  AdaptiveNavigation.openSaveSpot(context);
-                },
-              ),
-          ],
+              const _BottomSaveButton(),
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _HomeCardsGrid extends StatelessWidget {
+  const _HomeCardsGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    return const IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: CarCard()),
+          SizedBox(width: AppDimens.space12),
+          Expanded(child: HomeMapCard()),
+        ],
+      ),
+    );
+  }
+}
+
+class _BottomListSpacer extends StatelessWidget {
+  const _BottomListSpacer();
+
+  @override
+  Widget build(BuildContext context) {
+    if (context.isWideScreen) {
+      return const SliverToBoxAdapter(
+        child: SizedBox(height: AppDimens.space32),
+      );
+    }
+
+    return BlocBuilder<SpotsCubit, SpotsState>(
+      buildWhen: (prev, curr) => prev.spots.isEmpty != curr.spots.isEmpty,
+      builder: (context, state) {
+        final height = state.spots.isEmpty ? 100.0 : AppDimens.space32;
+        return SliverToBoxAdapter(child: SizedBox(height: height));
+      },
+    );
+  }
+}
+
+class _BottomSaveButton extends StatelessWidget {
+  const _BottomSaveButton();
+
+  @override
+  Widget build(BuildContext context) {
+    if (context.isWideScreen) return const SizedBox.shrink();
+
+    return BlocBuilder<SpotsCubit, SpotsState>(
+      buildWhen: (prev, curr) => prev.spots.isEmpty != curr.spots.isEmpty,
+      builder: (context, state) {
+        if (state.spots.isNotEmpty) return const SizedBox.shrink();
+
+        return PrimaryBottomButton(
+          label: context.l10n.saveThisSpot,
+          icon: const Icon(Icons.add_rounded),
+          onPressed: () {
+            AdaptiveNavigation.openSaveSpot(context);
+          },
+        );
+      },
     );
   }
 }
@@ -287,13 +313,48 @@ class _SavedSpotsSectionHeader extends StatelessWidget {
 
         return SectionHeader(
           title: context.l10n.savedSpots,
-          trailing: CircleIconButton(
-            icon: const Icon(Icons.search_rounded),
-            tooltip: context.l10n.searchSpots,
-            onPressed: () {
-              AdaptiveNavigation.openSearch(context);
-            },
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _ExportSpotsButton(spots: state.allSpots),
+              const SizedBox(width: AppDimens.space8),
+              CircleIconButton(
+                icon: const Icon(Icons.search_rounded),
+                tooltip: context.l10n.searchSpots,
+                onPressed: () {
+                  AdaptiveNavigation.openSearch(context);
+                },
+              ),
+            ],
           ),
+        );
+      },
+    );
+  }
+}
+
+class _ExportSpotsButton extends StatelessWidget {
+  const _ExportSpotsButton({required this.spots});
+
+  final List<Spot> spots;
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleIconButton(
+      icon: const Icon(Icons.share),
+      tooltip: context.l10n.exportData,
+      onPressed: () {
+        final box = context.findRenderObject() as RenderBox?;
+        final origin = (box != null && box.hasSize)
+            ? box.localToGlobal(Offset.zero) & box.size
+            : null;
+
+        showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          showDragHandle: false,
+          builder: (_) =>
+              ExportSpotsSheet(spots: spots, sharePositionOrigin: origin),
         );
       },
     );
@@ -373,17 +434,14 @@ class _DismissibleSpotItem extends StatelessWidget {
       ),
       onDismissed: (_) {
         spotsCubit.deleteSpot(spot.id);
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 3),
-            content: Text(l10n.spotDeleted(spot.name)),
-            action: SnackBarAction(
-              label: l10n.undo,
-              onPressed: () {
-                spotsCubit.restoreSpot(spot);
-              },
-            ),
+        AppSnackBar.show(
+          context,
+          content: Text(l10n.spotDeleted(spot.name)),
+          action: SnackBarAction(
+            label: l10n.undo,
+            onPressed: () {
+              spotsCubit.restoreSpot(spot);
+            },
           ),
         );
       },

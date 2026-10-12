@@ -24,12 +24,16 @@ class SpotsMapScreen extends StatelessWidget {
     super.key,
     this.initialSpotId,
     this.initialMode = SpotsMapMode.viewing,
+    this.initialTarget,
+    this.initialSpotName,
     this.isEmbedded = false,
     this.onClose,
   });
 
   final String? initialSpotId;
   final SpotsMapMode initialMode;
+  final LatLng? initialTarget;
+  final String? initialSpotName;
   final bool isEmbedded;
   final VoidCallback? onClose;
 
@@ -48,6 +52,8 @@ class SpotsMapScreen extends StatelessWidget {
         themeExtension: themeTokens,
         isDarkMode: isDarkMode,
         initialSelectedSpotId: initialSpotId,
+        initialTarget: initialTarget,
+        initialSpotName: initialSpotName,
         initialMode: initialMode,
       ),
       child: _SpotsMapView(
@@ -265,9 +271,11 @@ class _TopControlsLayer extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppDimens.space16,
-            vertical: AppDimens.space8,
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            AppDimens.space16,
+            AppDimens.space16,
+            AppDimens.space16,
+            AppDimens.space8,
           ),
           child: BlocSelector<SpotsMapCubit, SpotsMapState, bool>(
             selector: (state) => state.isAddingSpot,

@@ -9,7 +9,7 @@
   "myCar": "سيارتي",
   "parkedAgo": "{time}     ",
   "noCarTitle": "أين ركنت سيارتك؟",
-  "noCarMessage": "اضغط «اركن هنا» عندما تترك السيارة.",
+  "noCarMessage": "غير مركونة",
   "distanceAway": "على بُعد {distance}",
   "openInMaps": "افتح في الخرائط",
   "parkHere": "اركن هنا",
@@ -22,6 +22,7 @@
   "whereMyCarTitle": "وين سيارتى؟",
   "share": "مشاركة",
    "saveThisSpot": "ضيف مكان جديد",
+   "addSpot": "إضافة مكان",
   "savedAgo": "حُفظ {time}",
   "timeJustNow": "الآن",
   "timeMinutesAgo": "{count, plural, =1{منذ دقيقة} =2{منذ دقيقتين} few{منذ {count} دقائق} many{منذ {count} دقيقة} other{منذ {count} دقيقة}}",
@@ -143,5 +144,12 @@
   "searchSpots": "البحث في الأماكن",
   "searchSpotsPlaceholder": "ابحث بالاسم أو الفئة...",
   "noSpotsFound": "لم يتم العثور على أماكن",
-  "noSpotsFoundDesc": "جرّب البحث باسم أو فئة أخرى"
+  "noSpotsFoundDesc": "جرّب البحث باسم أو فئة أخرى",
+  "exportData": "تصدير البيانات",
+  "exportSpotsTitle": "تصدير الأماكن",
+  "exportAsExcel": "تصدير كملف Excel (CSV)",
+  "exportAsExcelSubtitle": "جدول بيانات مع الإحداثيات وروابط الخرائط",
+  "exportAsText": "تصدير كنص",
+  "exportAsTextSubtitle": "قائمة منسقة مع روابط الخرائط",
+  "exportSubject": "أماكن دليلى"
 }

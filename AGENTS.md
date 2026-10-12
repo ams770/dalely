@@ -121,7 +121,7 @@ lib/
 
 ### Existing shared widgets (reuse, don't recreate)
 
-`AppGoogleMap`, `CategoryBadge`, `InfoPill` / `DistancePill`, `SpotCard`, `SpotActionsRow`, `CircleIconButton`, `PrimaryBottomButton`, `SectionHeader`, `SettingsGroup`, `SettingsTile`, `CategoryChips`, `LocationPermissionBanner`, `EmptyState`, `CenterPin`.
+`AppGoogleMap`, `CategoryBadge`, `InfoPill` / `DistancePill`, `SpotCard`, `SpotActionsRow`, `CircleIconButton`, `PrimaryBottomButton`, `SectionHeader`, `SettingsGroup`, `SettingsTile`, `CategoryChips`, `LocationPermissionBanner`, `EmptyState`, `CenterPin`, `PillButton`.
 Keep this list updated when adding shared widgets.
 
 ---
@@ -312,3 +312,5 @@ Adding anything else → ask first, then add it to this list.
 | 12 | Parking notification | `flutter_local_notifications`: pinned/ongoing notification with live chronometer and distance to parked car |
 | 13 | App name localization | Android `values/strings.xml` ("Dalely") & `values-ar/strings.xml` ("دليلى"); iOS `en.lproj/InfoPlist.strings` & `ar.lproj/InfoPlist.strings` |
 | 14 | Car distance notification | Live Activity (ActivityKit / SwiftUI) on iOS; ongoing foreground service (`CarTrackingService`) on Android. Bridge via MethodChannel `feen/car_tracking` & EventChannel `feen/car_tracking/events`. |
+| 15 | Incoming location links & share sheet | Android intent-filters (`geo:`, Google Maps, Apple Maps, send intent) & iOS Share Extension (`DalelyShare`) + `geo:` scheme; App Group `group.com.dalely.app` persistence; parsed via `GeoUriParser` and routed to `saveSpot` (`SpotsMapScreen` in `addSpot` mode) with coordinates pinned and bottom panel active. |
+

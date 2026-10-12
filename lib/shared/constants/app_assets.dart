@@ -22,6 +22,9 @@ abstract final class AssetProvider {
 
   /// Lottie animation for empty locations / spots.
   static const String locationLottie = 'assets/lottie/location.json';
+
+  /// Lottie animation for map box.
+  static const String mapLottie = 'assets/lottie/map.json';
 }
 
 /// Alias for [AssetProvider].

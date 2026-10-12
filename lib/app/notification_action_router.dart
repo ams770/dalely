@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +12,10 @@ import '../shared/cubits/location/location_cubit.dart';
 import '../shared/cubits/spots/spots_cubit.dart';
 import '../shared/services/home_widget_service.dart';
 import '../shared/services/notification_service.dart';
+import '../shared/utils/geo_uri_parser.dart';
+
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'app_router.dart';
 
 /// Central router for notification and widget actions ({SHOW_MAP, FOUND_CAR, DONE, PARK, CAR}).
@@ -52,19 +57,18 @@ class NotificationActionRouter {
 
     // 1. Listen for live action events from native layer (warm start / receiver)
     try {
-      _eventSubscription = eventChannel.receiveBroadcastStream().listen(
-        (event) {
-          if (event is Map) {
-            final action = event['action'] as String?;
-            final data = event['data'] as String?;
-            final timestamp = (event['timestamp'] as num?)?.toInt();
-            if (action != null) {
-              handleAction(action: action, data: data, timestamp: timestamp);
-            }
+      _eventSubscription = eventChannel.receiveBroadcastStream().listen((
+        event,
+      ) {
+        if (event is Map) {
+          final action = event['action'] as String?;
+          final data = event['data'] as String?;
+          final timestamp = (event['timestamp'] as num?)?.toInt();
+          if (action != null) {
+            handleAction(action: action, data: data, timestamp: timestamp);
           }
-        },
-        onError: (_) {},
-      );
+        }
+      }, onError: (_) {});
     } catch (_) {}
 
     // 2. Query initial action (cold start)
@@ -74,9 +78,7 @@ class NotificationActionRouter {
     checkPendingActions();
 
     // 4. Hook lifecycle onResume to re-check pending actions when app returns to foreground
-    _lifecycleListener = AppLifecycleListener(
-      onResume: checkPendingActions,
-    );
+    _lifecycleListener = AppLifecycleListener(onResume: checkPendingActions);
 
     // 5. Home widget clicks
     _widgetSubscription = homeWidgetService.widgetClicked.listen((uri) {
@@ -97,7 +99,9 @@ class NotificationActionRouter {
 
   Future<void> _queryInitialAction() async {
     try {
-      final initial = await methodChannel.invokeMapMethod<String, dynamic>('getInitialAction');
+      final initial = await methodChannel.invokeMapMethod<String, dynamic>(
+        'getInitialAction',
+      );
       if (initial != null) {
         final action = initial['action'] as String?;
         final data = initial['data'] as String?;
@@ -111,7 +115,9 @@ class NotificationActionRouter {
 
   Future<void> checkPendingActions() async {
     try {
-      final pending = await methodChannel.invokeMapMethod<String, dynamic>('getPendingAction');
+      final pending = await methodChannel.invokeMapMethod<String, dynamic>(
+        'getPendingAction',
+      );
       if (pending != null) {
         final action = pending['action'] as String?;
         final data = pending['data'] as String?;
@@ -143,17 +149,29 @@ class NotificationActionRouter {
   }
 
   void handleUri(Uri uri) {
+    if (uri.scheme == 'geo') {
+      handleAction(action: 'OPEN_LOCATION', data: uri.toString());
+      return;
+    }
     if (uri.scheme != StorageKeys.uriScheme) return;
     final host = uri.host;
-    if (host == 'map' || host == StorageKeys.uriCar || host == StorageKeys.uriOnMap) {
+    if (host == 'save' || host == 'add') {
+      handleAction(action: 'OPEN_LOCATION', data: uri.toString());
+    } else if (host == 'map' ||
+        host == StorageKeys.uriCar ||
+        host == StorageKeys.uriOnMap) {
       final spotParam = uri.queryParameters['spot'];
       handleAction(action: 'SHOW_MAP', data: spotParam ?? 'car');
-    } else if (host == StorageKeys.uriFoundCar || host == 'found_car' || host == 'done') {
+    } else if (host == StorageKeys.uriFoundCar ||
+        host == 'found_car' ||
+        host == 'done') {
       handleAction(action: 'FOUND_CAR');
     } else if (host == StorageKeys.uriPark) {
       handleAction(action: 'PARK');
     } else if (host == StorageKeys.uriSpot) {
-      final spotId = uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
+      final spotId = uri.pathSegments.isNotEmpty
+          ? uri.pathSegments.first
+          : null;
       handleAction(action: 'SHOW_SPOT', data: spotId);
     }
   }
@@ -189,13 +207,9 @@ class NotificationActionRouter {
     _lastAction = action;
     _lastActionTimestamp = now;
 
-    final spotsCubit = context.read<SpotsCubit>();
-    final trackingCubit = context.read<CarTrackingCubit>();
-    final proximityCubit = context.read<CarProximityCubit>();
-    final locationCubit = context.read<LocationCubit>();
-
     switch (action) {
       case 'SHOW_MAP':
+        final spotsCubit = context.read<SpotsCubit>();
         final car = spotsCubit.state.car;
         final targetSpotId = data ?? car?.id ?? 'car';
 
@@ -234,6 +248,9 @@ class NotificationActionRouter {
 
       case 'FOUND_CAR':
       case 'DONE':
+        final proximityCubit = context.read<CarProximityCubit>();
+        final trackingCubit = context.read<CarTrackingCubit>();
+        final spotsCubit = context.read<SpotsCubit>();
         proximityCubit.onFoundCar();
         await trackingCubit.stopCarTracking();
         await spotsCubit.clearCar();
@@ -243,6 +260,9 @@ class NotificationActionRouter {
         break;
 
       case 'PARK':
+        final trackingCubit = context.read<CarTrackingCubit>();
+        final locationCubit = context.read<LocationCubit>();
+        final spotsCubit = context.read<SpotsCubit>();
         await trackingCubit.stopCarTracking();
         var pos = locationCubit.state.latLng;
         if (pos == null) {
@@ -271,6 +291,30 @@ class NotificationActionRouter {
             AppRouter.spotsMap,
             (route) => route.isFirst,
             arguments: data,
+          );
+        }
+        break;
+
+      case 'OPEN_LOCATION':
+        if (data != null && data.isNotEmpty) {
+          final currentLocation = context.read<LocationCubit>().state.latLng;
+          final parsed = await GeoUriParser.parseAsync(data);
+          if (!context.mounted) return;
+
+          LatLng? target;
+          String? name;
+          if (parsed != null) {
+            target = LatLng(parsed.latitude, parsed.longitude);
+            name = parsed.label ?? GeoUriParser.extractLabel(data);
+          } else {
+            name = GeoUriParser.extractLabel(data);
+          }
+
+          target ??= currentLocation;
+
+          navigatorKey.currentState?.pushNamed(
+            AppRouter.saveSpot,
+            arguments: SaveSpotArgs(target: target, name: name),
           );
         }
         break;

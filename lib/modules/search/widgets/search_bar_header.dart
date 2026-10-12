@@ -23,7 +23,7 @@ class SearchBarHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(
         AppDimens.space16,
-        AppDimens.space8,
+        AppDimens.space16,
         AppDimens.space16,
         AppDimens.space8,
       ),

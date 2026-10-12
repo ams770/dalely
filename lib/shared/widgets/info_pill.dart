@@ -33,7 +33,8 @@ class InfoPill extends StatelessWidget {
     final fg = foregroundColor ?? context.tokens.pillForeground;
 
     return Container(
-      padding: padding ??
+      padding:
+          padding ??
           const EdgeInsetsDirectional.symmetric(
             horizontal: AppDimens.space12,
             vertical: AppDimens.space4,
@@ -46,16 +47,13 @@ class InfoPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(
-              icon,
-              size: AppDimens.iconSmall,
-              color: fg,
-            ),
+            Icon(icon, size: AppDimens.iconSmall, color: fg),
             const SizedBox(width: AppDimens.space4),
           ],
           Text(
             label,
-            style: textStyle ??
+            style:
+                textStyle ??
                 context.textTheme.labelMedium?.copyWith(
                   color: fg,
                   fontWeight: FontWeight.w600,
@@ -113,8 +111,8 @@ class DistancePill extends StatelessWidget {
           context.l10n,
         );
         final label = showSuffix
-          ? context.l10n.distanceAway(distanceStr)
-          : distanceStr;
+            ? context.l10n.distanceAway(distanceStr)
+            : distanceStr;
 
         return InfoPill(
           label: label,

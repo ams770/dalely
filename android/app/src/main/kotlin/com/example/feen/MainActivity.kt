@@ -68,7 +68,28 @@ class MainActivity : FlutterActivity() {
         val uriStr = intent.data?.toString()
         val action = intent.action
 
+        val isSendAction = action == Intent.ACTION_SEND
+        val sendData = if (isSendAction) {
+            val extraText = intent.getStringExtra(Intent.EXTRA_TEXT)
+                ?: intent.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString()
+            val extraSubject = intent.getStringExtra(Intent.EXTRA_SUBJECT)
+            val clipText = if (intent.clipData != null && intent.clipData!!.itemCount > 0) {
+                intent.clipData!!.getItemAt(0).coerceToText(this).toString()
+            } else null
+            val primaryText = if (!extraText.isNullOrBlank()) extraText else clipText
+
+            when {
+                extraSubject.isNullOrBlank() -> primaryText
+                primaryText.isNullOrBlank() -> extraSubject
+                primaryText.contains(extraSubject) -> primaryText
+                else -> "$extraSubject\n$primaryText"
+            }
+        } else null
+
+        val dataPayload = sendData ?: uriStr
+
         val actionName = when {
+            isSendAction && !sendData.isNullOrBlank() -> "OPEN_LOCATION"
             uriStr == CarTrackingNotificationBuilder.URI_MAP_CAR ||
                     uriStr?.startsWith("feen://map") == true ||
                     action == CarTrackingNotificationBuilder.ACTION_SHOW_ON_MAP -> "SHOW_MAP"
@@ -76,19 +97,35 @@ class MainActivity : FlutterActivity() {
                     action == CarTrackingNotificationBuilder.ACTION_FOUND_CAR -> "FOUND_CAR"
             uriStr == "feen://park" -> "PARK"
             uriStr == "feen://car" -> "CAR"
+            uriStr?.startsWith("geo:") == true ||
+                    uriStr?.contains("maps.google.") == true ||
+                    uriStr?.contains("/maps") == true ||
+                    uriStr?.contains("maps.app.goo.gl") == true ||
+                    uriStr?.contains("maps.apple.com") == true ||
+                    uriStr?.startsWith("feen://save") == true ||
+                    uriStr?.startsWith("feen://add") == true -> "OPEN_LOCATION"
             else -> null
         }
 
         if (actionName != null) {
             val now = System.currentTimeMillis()
             if (isColdStart) {
-                setInitialAction(actionName, uriStr, now)
+                setInitialAction(actionName, dataPayload, now)
             } else {
-                NotificationActionPlugin.dispatchAction(actionName, now, uriStr)
+                NotificationActionPlugin.dispatchAction(actionName, now, dataPayload)
             }
+            val prefs = getSharedPreferences(CarTrackingReceiver.PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            prefs.edit()
+                .putString(CarTrackingReceiver.KEY_PENDING_ACTION, actionName)
+                .putLong(CarTrackingReceiver.KEY_PENDING_TIME, now)
+                .putString("pending_action_data", dataPayload)
+                .apply()
             // Clear consumed action and data so recreation or rotation does not replay it
             intent.data = null
             intent.action = null
+            intent.removeExtra(Intent.EXTRA_TEXT)
+            intent.removeExtra(Intent.EXTRA_SUBJECT)
+            intent.clipData = null
         }
     }
 }

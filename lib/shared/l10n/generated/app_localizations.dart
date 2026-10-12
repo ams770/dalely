@@ -157,7 +157,7 @@ abstract class AppLocalizations {
   /// No description provided for @noCarMessage.
   ///
   /// In en, this message translates to:
-  /// **'Tap Park here when you leave the car.'**
+  /// **'Not parked'**
   String get noCarMessage;
 
   /// No description provided for @distanceAway.
@@ -231,6 +231,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save new spot'**
   String get saveThisSpot;
+
+  /// No description provided for @addSpot.
+  ///
+  /// In en, this message translates to:
+  /// **'Add spot'**
+  String get addSpot;
 
   /// No description provided for @savedAgo.
   ///
@@ -963,6 +969,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try typing a different name or category'**
   String get noSpotsFoundDesc;
+
+  /// No description provided for @exportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data'**
+  String get exportData;
+
+  /// No description provided for @exportSpotsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export spots'**
+  String get exportSpotsTitle;
+
+  /// No description provided for @exportAsExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Export as Excel (CSV)'**
+  String get exportAsExcel;
+
+  /// No description provided for @exportAsExcelSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Spreadsheet with coordinates & map links'**
+  String get exportAsExcelSubtitle;
+
+  /// No description provided for @exportAsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Export as text'**
+  String get exportAsText;
+
+  /// No description provided for @exportAsTextSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Formatted list with map links'**
+  String get exportAsTextSubtitle;
+
+  /// No description provided for @exportSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Dalely spots'**
+  String get exportSubject;
 }
 
 class _AppLocalizationsDelegate

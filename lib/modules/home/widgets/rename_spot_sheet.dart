@@ -86,28 +86,6 @@ class RenameSpotSheet extends StatelessWidget {
           ),
           const SizedBox(height: AppDimens.space12),
 
-          // Widget favorite toggle button
-          OutlinedButton.icon(
-            onPressed: () {
-              Navigator.of(context).pop();
-              onToggleFavorite();
-            },
-            icon: Icon(
-              isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
-              color: isFavorite
-                  ? context.tokens.categoryColor(spot.category)
-                  : null,
-            ),
-            label: Text(isFavorite ? l10n.removeFromWidget : l10n.showOnWidget),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 46),
-              shape: const RoundedRectangleBorder(
-                borderRadius: AppDimens.borderRadiusMedium,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppDimens.space12),
-
           // Primary Save button
           FilledButton(
             onPressed: () => _handleSave(context),

@@ -19,7 +19,7 @@
     }
   },
   "noCarTitle": "Where did you park?",
-  "noCarMessage": "Tap Park here when you leave the car.",
+  "noCarMessage": "Not parked",
   "distanceAway": "{distance} away",
   "@distanceAway": {
     "placeholders": {
@@ -37,6 +37,7 @@
   "whereMyCarTitle": "find my car",
   "share": "Share",
   "saveThisSpot": "Save new spot",
+  "addSpot": "Add spot",
   "savedAgo": "Saved {time}",
   "@savedAgo": {
     "placeholders": {
@@ -238,5 +239,12 @@
   "searchSpots": "Search spots",
   "searchSpotsPlaceholder": "Search by name or category...",
   "noSpotsFound": "No matching spots",
-  "noSpotsFoundDesc": "Try typing a different name or category"
+  "noSpotsFoundDesc": "Try typing a different name or category",
+  "exportData": "Export data",
+  "exportSpotsTitle": "Export spots",
+  "exportAsExcel": "Export as Excel (CSV)",
+  "exportAsExcelSubtitle": "Spreadsheet with coordinates & map links",
+  "exportAsText": "Export as text",
+  "exportAsTextSubtitle": "Formatted list with map links",
+  "exportSubject": "Dalely spots"
 }

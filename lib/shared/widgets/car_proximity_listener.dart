@@ -8,6 +8,7 @@ import '../cubits/location/location_state.dart';
 import '../cubits/spots/spots_cubit.dart';
 import '../cubits/spots/spots_state.dart';
 import '../utils/adaptive_navigation.dart';
+import '../utils/app_snack_bar.dart';
 import '../utils/context_ext.dart';
 import 'car_arrival_dialog.dart';
 
@@ -75,17 +76,14 @@ class CarProximityListener extends StatelessWidget {
                   proximityCubit.onFoundCar();
                   await spotsCubit.clearCar();
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).clearSnackBars();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        duration: const Duration(seconds: 3),
-                        content: Text(context.l10n.carCleared),
-                        action: SnackBarAction(
-                          label: context.l10n.undo,
-                          onPressed: () {
-                            spotsCubit.restoreSpot(previousCar);
-                          },
-                        ),
+                    AppSnackBar.show(
+                      context,
+                      content: Text(context.l10n.carCleared),
+                      action: SnackBarAction(
+                        label: context.l10n.undo,
+                        onPressed: () {
+                          spotsCubit.restoreSpot(previousCar);
+                        },
                       ),
                     );
                   }

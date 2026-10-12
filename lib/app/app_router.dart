@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../modules/home/home_screen.dart';
 import '../modules/onboarding/onboarding_screen.dart';
@@ -6,6 +7,13 @@ import '../modules/search/search_spots_screen.dart';
 import '../modules/settings/settings_screen.dart';
 import '../modules/spots_map/cubit/spots_map_state.dart';
 import '../modules/spots_map/spots_map_screen.dart';
+import '../shared/utils/geo_uri_parser.dart';
+
+class SaveSpotArgs {
+  const SaveSpotArgs({this.target, this.name});
+  final LatLng? target;
+  final String? name;
+}
 
 abstract final class AppRouter {
   static const String home = '/';
@@ -44,9 +52,36 @@ abstract final class AppRouter {
         );
 
       case saveSpot:
+        LatLng? initialTarget;
+        String? initialSpotName;
+        final args = settings.arguments;
+        if (args is SaveSpotArgs) {
+          initialTarget = args.target;
+          initialSpotName = args.name;
+        } else if (args is LatLng) {
+          initialTarget = args;
+        } else if (uri != null && uri.queryParameters.containsKey('lat')) {
+          final lat = double.tryParse(uri.queryParameters['lat'] ?? '');
+          final lng = double.tryParse(uri.queryParameters['lng'] ?? '');
+          if (lat != null && lng != null) {
+            initialTarget = LatLng(lat, lng);
+            initialSpotName = uri.queryParameters['name'];
+          }
+        } else if (uri != null && uri.queryParameters.containsKey('data')) {
+          final data = uri.queryParameters['data'];
+          final parsed = GeoUriParser.parse(data);
+          if (parsed != null) {
+            initialTarget = LatLng(parsed.latitude, parsed.longitude);
+            initialSpotName = parsed.label ?? GeoUriParser.extractLabel(data);
+          } else {
+            initialSpotName = GeoUriParser.extractLabel(data);
+          }
+        }
         return MaterialPageRoute<void>(
-          builder: (_) => const SpotsMapScreen(
+          builder: (_) => SpotsMapScreen(
             initialMode: SpotsMapMode.addSpot,
+            initialTarget: initialTarget,
+            initialSpotName: initialSpotName,
           ),
           settings: settings,
         );

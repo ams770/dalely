@@ -23,15 +23,19 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     required this.themeExtension,
     bool isDarkMode = false,
     this.initialSelectedSpotId,
+    this.initialTarget,
+    String? initialSpotName,
     SpotsMapMode initialMode = SpotsMapMode.viewing,
   }) : _isDarkMode = isDarkMode,
-       nameController = TextEditingController(),
+       nameController = TextEditingController(text: initialSpotName ?? ''),
        super(
          _computeInitialState(
            spotsCubit: spotsCubit,
            locationCubit: locationCubit,
            isDarkMode: isDarkMode,
            initialSelectedSpotId: initialSelectedSpotId,
+           initialTarget: initialTarget,
+           initialSpotName: initialSpotName,
            initialMode: initialMode,
          ),
        ) {
@@ -43,6 +47,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   final MarkerIconCache markerIconCache;
   final AppThemeExtension themeExtension;
   final String? initialSelectedSpotId;
+  final LatLng? initialTarget;
   final TextEditingController nameController;
 
   final bool _isDarkMode;
@@ -58,6 +63,8 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     required LocationCubit locationCubit,
     bool isDarkMode = false,
     String? initialSelectedSpotId,
+    LatLng? initialTarget,
+    String? initialSpotName,
     SpotsMapMode initialMode = SpotsMapMode.viewing,
   }) {
     Spot? selectedSpot;
@@ -72,7 +79,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
     LatLng target = const LatLng(30.0444, 31.2357);
     if (initialMode == SpotsMapMode.addSpot) {
-      if (locationCubit.state.hasLocation) {
+      if (initialTarget != null) {
+        target = initialTarget;
+      } else if (locationCubit.state.hasLocation) {
         target = locationCubit.state.latLng!;
       } else if (spotsCubit.state.car != null) {
         target = spotsCubit.state.car!.latLng;
@@ -96,6 +105,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       selectedSpot: selectedSpot,
       initialTarget: target,
       pickedLocation: target,
+      spotName: initialSpotName ?? '',
       category: SpotCategory.other,
       isMapReady: !isDarkMode,
     );
@@ -142,10 +152,10 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       emit(state.copyWith(isMapReady: true));
     }
     if (state.isAddingSpot) {
-      final userPos = locationCubit.state.latLng;
-      if (userPos != null) {
+      final target = initialTarget ?? locationCubit.state.latLng;
+      if (target != null) {
         _mapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(userPos, defaultZoom),
+          CameraUpdate.newLatLngZoom(target, defaultZoom),
         );
       }
     } else if (initialSelectedSpotId != null) {

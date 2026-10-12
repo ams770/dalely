@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../models/spot.dart';
 import '../utils/spot_link_builder.dart';
+import '../utils/spots_csv_builder.dart';
 
 class ShareService {
   const ShareService();
@@ -41,4 +42,30 @@ class ShareService {
       ),
     );
   }
+
+  /// Exports and shares all spots as a CSV spreadsheet (compatible with Microsoft Excel).
+  Future<void> shareAllSpotsAsCsv(
+    List<Spot> spots, {
+    required AppLocalizations l10n,
+    Rect? sharePositionOrigin,
+  }) async {
+    final bytes = SpotsCsvBuilder.buildBytes(spots, l10n: l10n);
+    if (bytes.isEmpty) return;
+
+    final file = XFile.fromData(
+      bytes,
+      mimeType: 'text/csv',
+      name: 'dalely_spots.csv',
+    );
+
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [file],
+        fileNameOverrides: ['dalely_spots.csv'],
+        subject: l10n.exportSubject,
+        sharePositionOrigin: sharePositionOrigin,
+      ),
+    );
+  }
 }
+

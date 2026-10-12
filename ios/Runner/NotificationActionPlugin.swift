@@ -104,13 +104,30 @@ import UIKit
   }
 
   @objc public func handleUrl(_ url: URL) {
-    guard let scheme = url.scheme?.lowercased(), scheme == "feen" else { return }
+    let scheme = url.scheme?.lowercased() ?? ""
+    if scheme == "geo" {
+      let uriStr = url.absoluteString
+      let timestamp = Int64(Date().timeIntervalSince1970 * 1000.0)
+      recordPendingAction(action: "OPEN_LOCATION", timestamp: timestamp, data: uriStr)
+      dispatchAction(action: "OPEN_LOCATION", timestamp: timestamp, data: uriStr)
+      return
+    }
+
+    guard scheme == "feen" else { return }
 
     let host = url.host?.lowercased() ?? ""
     var action: String?
     var data: String?
 
-    if host == "map" || host == "car" || host == "on_map" {
+    if host == "save" || host == "add" {
+      action = "OPEN_LOCATION"
+      let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+      if let dataParam = components?.queryItems?.first(where: { $0.name == "data" })?.value {
+        data = dataParam
+      } else {
+        data = url.absoluteString
+      }
+    } else if host == "map" || host == "car" || host == "on_map" {
       action = "SHOW_MAP"
       if host == "map" {
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
