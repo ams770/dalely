@@ -169,7 +169,7 @@ class _LeftPaneEdgeShadow extends StatelessWidget {
               begin: AlignmentDirectional.centerStart,
               end: AlignmentDirectional.centerEnd,
               colors: [
-                Colors.black.withAlpha(isDark ? 60 : 15),
+                Colors.black.withAlpha(isDark ? 60 : 20),
                 Colors.transparent,
               ],
             ),

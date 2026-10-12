@@ -16,7 +16,7 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
     required this.spotsCubit,
     required this.locationCubit,
     required this.placeSearchService,
-    SpotCategory initialCategory = SpotCategory.market,
+    SpotCategory initialCategory = SpotCategory.other,
   })  : nameController = TextEditingController(),
         searchController = TextEditingController(),
         super(

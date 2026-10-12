@@ -104,7 +104,7 @@ void main() {
 
       expect(cubit.state.mode, SpotsMapMode.viewing);
       expect(cubit.state.isAddingSpot, isFalse);
-      expect(cubit.state.category, SpotCategory.market);
+      expect(cubit.state.category, SpotCategory.other);
       // Confirms camera target centers on user position when no spot is selected
       expect(cubit.state.initialTarget.latitude, 30.0444);
       expect(cubit.state.initialTarget.longitude, 31.2357);

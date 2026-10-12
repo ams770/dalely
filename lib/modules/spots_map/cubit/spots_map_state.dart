@@ -16,7 +16,7 @@ class SpotsMapState {
     this.currentZoom = 20.0,
     this.pickedLocation = const LatLng(30.0444, 31.2357),
     this.spotName = '',
-    this.category = SpotCategory.market,
+    this.category = SpotCategory.other,
     this.isCameraMoving = false,
     this.isSaving = false,
     this.isMapReady = false,

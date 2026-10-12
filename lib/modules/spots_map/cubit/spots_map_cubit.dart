@@ -96,7 +96,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       selectedSpot: selectedSpot,
       initialTarget: target,
       pickedLocation: target,
-      category: SpotCategory.market,
+      category: SpotCategory.other,
       isMapReady: !isDarkMode,
     );
   }
@@ -194,7 +194,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
         clearSelected: true,
         pickedLocation: target,
         spotName: '',
-        category: SpotCategory.market,
+        category: SpotCategory.other,
         isSaving: false,
         isCameraMoving: false,
       ),
