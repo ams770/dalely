@@ -9,6 +9,7 @@ class AdaptiveNavCubit extends Cubit<AdaptiveNavState> {
     emit(state.copyWith(
       detailPane: DetailPaneType.map,
       selectedSpotId: () => spotId,
+      requestTimestamp: DateTime.now().microsecondsSinceEpoch,
     ));
   }
 

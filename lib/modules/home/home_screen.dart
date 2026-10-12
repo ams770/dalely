@@ -1,3 +1,4 @@
+import 'dart:ui' show DisplayFeature, DisplayFeatureType;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -44,12 +45,57 @@ class _AdaptiveTwoPaneHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final isFoldable = context.isFoldableDevice;
+    final size = MediaQuery.sizeOf(context);
+    final features = MediaQuery.displayFeaturesOf(context);
+
+    // Check for a physical vertical hinge with a gap (e.g. dual-screen devices)
+    DisplayFeature? verticalHinge;
+    for (final f in features) {
+      if ((f.type == DisplayFeatureType.hinge ||
+              f.type == DisplayFeatureType.fold) &&
+          f.bounds.top <= 0 &&
+          f.bounds.bottom >= size.height &&
+          f.bounds.width > 1) {
+        verticalHinge = f;
+        break;
+      }
+    }
+
+    if (verticalHinge != null) {
+      return Scaffold(
+        body: Row(
+          children: [
+            SizedBox(
+              width: verticalHinge.bounds.left,
+              child: const _HomePane(),
+            ),
+            SizedBox(width: verticalHinge.bounds.width),
+            SizedBox(
+              width: size.width - verticalHinge.bounds.right,
+              child: const _AdaptiveDetailPane(),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
       body: Row(
         children: [
-          // Left Pane: Home (portrait column)
-          const SizedBox(width: 390.0, child: _HomePane()),
+          // Left Pane: Home
+          // On foldable/flip devices, each part takes exactly half (50%) of the device.
+          // On tablets, home pane is a fixed sidebar so the map takes the largest area.
+          if (isFoldable)
+            const Expanded(
+              flex: 1,
+              child: _HomePane(),
+            )
+          else
+            const SizedBox(
+              width: 380.0,
+              child: _HomePane(),
+            ),
 
           // Pane Divider
           VerticalDivider(
@@ -59,7 +105,12 @@ class _AdaptiveTwoPaneHome extends StatelessWidget {
           ),
 
           // Right Pane: Active Detail (Map by default, or Settings, SaveSpot, Search)
-          const Expanded(child: _AdaptiveDetailPane()),
+          // On tablets, takes all remaining space (the largest area).
+          // On foldable/flip devices, takes the second half (50%).
+          const Expanded(
+            flex: 1,
+            child: _AdaptiveDetailPane(),
+          ),
         ],
       ),
     );

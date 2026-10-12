@@ -13,20 +13,24 @@ class AdaptiveNavState {
   const AdaptiveNavState({
     this.detailPane = DetailPaneType.map,
     this.selectedSpotId,
+    this.requestTimestamp = 0,
   });
 
   final DetailPaneType detailPane;
   final String? selectedSpotId;
+  final int requestTimestamp;
 
   AdaptiveNavState copyWith({
     DetailPaneType? detailPane,
     ValueGetter<String?>? selectedSpotId,
+    int? requestTimestamp,
   }) {
     return AdaptiveNavState(
       detailPane: detailPane ?? this.detailPane,
       selectedSpotId: selectedSpotId != null
           ? selectedSpotId()
           : this.selectedSpotId,
+      requestTimestamp: requestTimestamp ?? this.requestTimestamp,
     );
   }
 
@@ -35,8 +39,9 @@ class AdaptiveNavState {
       identical(this, other) ||
       other is AdaptiveNavState &&
           other.detailPane == detailPane &&
-          other.selectedSpotId == selectedSpotId;
+          other.selectedSpotId == selectedSpotId &&
+          other.requestTimestamp == requestTimestamp;
 
   @override
-  int get hashCode => Object.hash(detailPane, selectedSpotId);
+  int get hashCode => Object.hash(detailPane, selectedSpotId, requestTimestamp);
 }

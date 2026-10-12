@@ -51,6 +51,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   GoogleMapController? _mapController;
   StreamSubscription? _spotsSubscription;
   StreamSubscription? _locationSubscription;
+  bool _hasCenteredOnUser = false;
 
   static SpotsMapState _computeInitialState({
     required SpotsCubit spotsCubit,
@@ -79,12 +80,14 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     } else {
       if (selectedSpot != null) {
         target = selectedSpot.latLng;
+      } else if (locationCubit.state.hasLocation) {
+        // When opening map without a specific spot (e.g. from Home or on big page),
+        // prioritize current user position!
+        target = locationCubit.state.latLng!;
       } else if (spotsCubit.state.car != null) {
         target = spotsCubit.state.car!.latLng;
       } else if (spotsCubit.state.spots.isNotEmpty) {
         target = spotsCubit.state.spots.first.latLng;
-      } else if (locationCubit.state.hasLocation) {
-        target = locationCubit.state.latLng!;
       }
     }
 
@@ -112,8 +115,20 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       if (!isClosed) _rebuildMarkers();
     });
 
-    _locationSubscription = locationCubit.stream.listen((_) {
-      if (!isClosed) _rebuildMarkers();
+    _locationSubscription = locationCubit.stream.listen((locState) {
+      if (!isClosed) {
+        _rebuildMarkers();
+        if (state.selectedSpot == null &&
+            !state.isAddingSpot &&
+            !_hasCenteredOnUser &&
+            locState.hasLocation &&
+            _mapController != null) {
+          _hasCenteredOnUser = true;
+          _mapController?.animateCamera(
+            CameraUpdate.newLatLngZoom(locState.latLng!, defaultZoom),
+          );
+        }
+      }
     });
   }
 
@@ -135,6 +150,14 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       }
     } else if (initialSelectedSpotId != null) {
       selectSpotById(initialSelectedSpotId!);
+    } else {
+      final userPos = locationCubit.state.latLng;
+      if (userPos != null) {
+        _hasCenteredOnUser = true;
+        _mapController?.animateCamera(
+          CameraUpdate.newLatLngZoom(userPos, defaultZoom),
+        );
+      }
     }
   }
 
@@ -342,10 +365,12 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   void recenterOnUser() {
     final userPos = locationCubit.state.latLng;
     if (userPos != null) {
+      _hasCenteredOnUser = true;
       _mapController?.animateCamera(
         CameraUpdate.newLatLngZoom(userPos, defaultZoom),
       );
     } else {
+      _hasCenteredOnUser = false;
       locationCubit.requestPermission();
     }
   }

@@ -119,6 +119,9 @@ class _SpotsMapView extends StatelessWidget {
             }
             if (navState.selectedSpotId != null) {
               cubit.selectSpotById(navState.selectedSpotId!);
+            } else {
+              cubit.selectSpot(null);
+              cubit.recenterOnUser();
             }
           }
         },

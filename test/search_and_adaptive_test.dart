@@ -10,6 +10,7 @@ import 'package:feen/shared/cubits/spots/spots_state.dart';
 import 'package:feen/shared/l10n/generated/app_localizations.dart';
 import 'package:feen/shared/models/spot.dart';
 import 'package:feen/shared/theme/app_theme.dart';
+import 'package:feen/shared/utils/adaptive_layout_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -48,6 +49,77 @@ void main() {
       cubit.showMap(spotId: 'car_123');
       expect(cubit.state.detailPane, DetailPaneType.map);
       expect(cubit.state.selectedSpotId, 'car_123');
+    });
+
+    test('showMap updates requestTimestamp allowing repeated focus events', () {
+      final cubit = AdaptiveNavCubit();
+      cubit.showMap();
+      final ts1 = cubit.state.requestTimestamp;
+      expect(ts1, greaterThan(0));
+
+      cubit.showMap();
+      final ts2 = cubit.state.requestTimestamp;
+      expect(ts2, greaterThanOrEqualTo(ts1));
+    });
+  });
+
+  group('AdaptiveLayoutContext & Foldable/Tablet Layouts', () {
+    testWidgets('identifies foldable dimensions (50% / 50%) for unfolded foldables',
+        (tester) async {
+      tester.view.physicalSize = const Size(720 * 2.0, 900 * 2.0);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      late bool isWide;
+      late bool isFoldable;
+      late bool isTablet;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              isWide = context.isWideScreen;
+              isFoldable = context.isFoldableDevice;
+              isTablet = context.isTabletDevice;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(isWide, isTrue);
+      expect(isFoldable, isTrue);
+      expect(isTablet, isFalse);
+    });
+
+    testWidgets('identifies tablet dimensions for large screens (width >= 840)',
+        (tester) async {
+      tester.view.physicalSize = const Size(1024 * 2.0, 768 * 2.0);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      late bool isWide;
+      late bool isFoldable;
+      late bool isTablet;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              isWide = context.isWideScreen;
+              isFoldable = context.isFoldableDevice;
+              isTablet = context.isTabletDevice;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(isWide, isTrue);
+      expect(isFoldable, isFalse);
+      expect(isTablet, isTrue);
     });
   });
 

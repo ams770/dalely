@@ -63,6 +63,8 @@ class _FakeLocationCubit extends Cubit<LocationState> implements LocationCubit {
                 )
               : null,
         ));
+  @override
+  Future<LocationAccess> requestPermission() async => LocationAccess.granted;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -103,6 +105,23 @@ void main() {
       expect(cubit.state.mode, SpotsMapMode.viewing);
       expect(cubit.state.isAddingSpot, isFalse);
       expect(cubit.state.category, SpotCategory.market);
+      // Confirms camera target centers on user position when no spot is selected
+      expect(cubit.state.initialTarget.latitude, 30.0444);
+      expect(cubit.state.initialTarget.longitude, 31.2357);
+      cubit.close();
+    });
+
+    test('recenterOnUser requests permission when location is null', () {
+      final noLocCubit = _FakeLocationCubit();
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: noLocCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+      );
+
+      cubit.recenterOnUser();
+      expect(cubit.state.selectedSpot, isNull);
       cubit.close();
     });
 
