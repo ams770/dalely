@@ -403,7 +403,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get privacyPolicy => 'سياسة الخصوصية';
 
   @override
-  String get termsOfUse => 'شروط الاستخدام';
+  String get contactWhatsApp => 'تواصل عبر واتساب';
 
   @override
   String get contactSupport => 'تواصل مع الدعم';
@@ -957,7 +957,7 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
   String get privacyPolicy => 'سياسة الخصوصية';
 
   @override
-  String get termsOfUse => 'شروط الاستخدام';
+  String get contactWhatsApp => 'تواصل عبر واتساب';
 
   @override
   String get contactSupport => 'تواصل مع الدعم';
@@ -1458,7 +1458,7 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
   String get privacyPolicy => 'سياسة الخصوصية';
 
   @override
-  String get termsOfUse => 'شروط الاستخدام';
+  String get contactWhatsApp => 'تواصل عبر واتساب';
 
   @override
   String get contactSupport => 'تواصل مع الدعم';

@@ -1,46 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import '../theme/app_dimens.dart';
 import '../utils/context_ext.dart';
 
-/// A friendly empty state view with icon, title, and description.
+/// A friendly empty state view with icon, lottie animation, or custom visual, title, and description.
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,
     required this.title,
     required this.message,
     this.icon = Icons.place_outlined,
+    this.lottieAsset,
+    this.visual,
   });
 
   final String title;
   final String message;
   final IconData icon;
+  final String? lottieAsset;
+  final Widget? visual;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
+
+    final Widget leadingVisual;
+    if (visual != null) {
+      leadingVisual = visual!;
+    } else if (lottieAsset != null) {
+      leadingVisual = SizedBox(
+        width: 150,
+        height: 150,
+        child: Lottie.asset(
+          lottieAsset!,
+          fit: BoxFit.contain,
+          repeat: true,
+        ),
+      );
+    } else {
+      leadingVisual = Container(
+        width: 72,
+        height: 72,
+        decoration: BoxDecoration(
+          color: colorScheme.primaryContainer.withAlpha(120),
+          shape: BoxShape.circle,
+        ),
+        alignment: Alignment.center,
+        child: Icon(
+          icon,
+          size: 36,
+          color: colorScheme.primary,
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppDimens.space32),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer.withAlpha(120),
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                icon,
-                size: 36,
-                color: colorScheme.primary,
-              ),
-            ),
+            leadingVisual,
             const SizedBox(height: AppDimens.space16),
             Text(
               title,

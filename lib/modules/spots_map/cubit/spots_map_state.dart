@@ -12,14 +12,17 @@ class SpotsMapState {
     this.selectedSpot,
     this.markers = const <Marker>{},
     this.initialTarget = const LatLng(30.0444, 31.2357),
-    this.initialZoom = 14.0,
-    this.currentZoom = 14.0,
+    this.initialZoom = 20.0,
+    this.currentZoom = 20.0,
     this.pickedLocation = const LatLng(30.0444, 31.2357),
     this.spotName = '',
     this.category = SpotCategory.market,
     this.isCameraMoving = false,
     this.isSaving = false,
+    this.isMapReady = false,
   });
+
+  final bool isMapReady;
 
   final SpotsMapMode mode;
   final Spot? selectedSpot;
@@ -50,6 +53,7 @@ class SpotsMapState {
     SpotCategory? category,
     bool? isCameraMoving,
     bool? isSaving,
+    bool? isMapReady,
   }) {
     return SpotsMapState(
       mode: mode ?? this.mode,
@@ -63,6 +67,7 @@ class SpotsMapState {
       category: category ?? this.category,
       isCameraMoving: isCameraMoving ?? this.isCameraMoving,
       isSaving: isSaving ?? this.isSaving,
+      isMapReady: isMapReady ?? this.isMapReady,
     );
   }
 
@@ -80,22 +85,24 @@ class SpotsMapState {
           other.category == category &&
           other.isCameraMoving == isCameraMoving &&
           other.isSaving == isSaving &&
+          other.isMapReady == isMapReady &&
           _setEquals(other.markers, markers);
 
   @override
   int get hashCode => Object.hash(
-        mode,
-        selectedSpot,
-        initialTarget,
-        initialZoom,
-        currentZoom,
-        pickedLocation,
-        spotName,
-        category,
-        isCameraMoving,
-        isSaving,
-        Object.hashAll(markers),
-      );
+    mode,
+    selectedSpot,
+    initialTarget,
+    initialZoom,
+    currentZoom,
+    pickedLocation,
+    spotName,
+    category,
+    isCameraMoving,
+    isSaving,
+    isMapReady,
+    Object.hashAll(markers),
+  );
 
   static bool _setEquals(Set<Marker> a, Set<Marker> b) {
     if (identical(a, b)) return true;

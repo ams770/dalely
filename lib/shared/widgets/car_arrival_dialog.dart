@@ -27,19 +27,24 @@ class CarArrivalDialog extends StatelessWidget {
             horizontal: AppDimens.space24,
             vertical: AppDimens.space12,
           ),
-          child: Column(
-            children: [
-              const Spacer(),
-              const _CarHeroIllustration(),
-              const SizedBox(height: AppDimens.space24),
-              const _ArrivalTextSection(),
-              const Spacer(),
-              _ActionButtons(
-                onFoundCar: onFoundCar,
-                onCantSeeCar: onCantSeeCar,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 600),
+              child: Column(
+                children: [
+                  const Spacer(),
+                  const _CarHeroIllustration(),
+                  const SizedBox(height: AppDimens.space24),
+                  const _ArrivalTextSection(),
+                  const Spacer(),
+                  _ActionButtons(
+                    onFoundCar: onFoundCar,
+                    onCantSeeCar: onCantSeeCar,
+                  ),
+                  const SizedBox(height: AppDimens.space8),
+                ],
               ),
-              const SizedBox(height: AppDimens.space8),
-            ],
+            ),
           ),
         ),
       ),
@@ -124,10 +129,7 @@ class _ArrivalTextSection extends StatelessWidget {
 }
 
 class _ActionButtons extends StatelessWidget {
-  const _ActionButtons({
-    required this.onFoundCar,
-    required this.onCantSeeCar,
-  });
+  const _ActionButtons({required this.onFoundCar, required this.onCantSeeCar});
 
   final VoidCallback onFoundCar;
   final VoidCallback onCantSeeCar;
@@ -179,10 +181,7 @@ class _ActionButtons extends StatelessWidget {
               Navigator.of(context).pop();
               onCantSeeCar();
             },
-            icon: Icon(
-              Icons.map_rounded,
-              color: colorScheme.primary,
-            ),
+            icon: Icon(Icons.map_rounded, color: colorScheme.primary),
             label: Text(
               l10n.cantSeeCar,
               style: theme.textTheme.titleMedium?.copyWith(
@@ -192,10 +191,7 @@ class _ActionButtons extends StatelessWidget {
             ),
             style: OutlinedButton.styleFrom(
               foregroundColor: colorScheme.onSurface,
-              side: BorderSide(
-                color: colorScheme.outline,
-                width: 1.5,
-              ),
+              side: BorderSide(color: colorScheme.outline, width: 1.5),
               shape: const RoundedRectangleBorder(
                 borderRadius: AppDimens.borderRadiusLarge,
               ),

@@ -361,10 +361,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageArabic => 'العربية';
 
   @override
-  String get languageArabicEg => 'Arabic (Egypt)';
+  String get languageArabicEg => 'العربية (مصر)';
 
   @override
-  String get languageArabicSa => 'Arabic (Saudi Arabia)';
+  String get languageArabicSa => 'العربية (السعودية)';
 
   @override
   String get yourSpots => 'Your spots';
@@ -382,7 +382,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacyPolicy => 'Privacy policy';
 
   @override
-  String get termsOfUse => 'Terms of use';
+  String get contactWhatsApp => 'Contact via WhatsApp';
 
   @override
   String get contactSupport => 'Contact support';

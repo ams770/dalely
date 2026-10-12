@@ -19,6 +19,9 @@ abstract final class AssetProvider {
   /// Onboarding illustration 3 (Phone & privacy shield).
   static const String onboarding3 = 'assets/images/onboarding_3.png';
   static const AssetImage onboarding3Image = AssetImage(onboarding3);
+
+  /// Lottie animation for empty locations / spots.
+  static const String locationLottie = 'assets/lottie/location.json';
 }
 
 /// Alias for [AssetProvider].

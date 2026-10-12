@@ -8,6 +8,7 @@ import 'package:feen/shared/models/spot.dart';
 import 'package:feen/modules/settings/settings_screen.dart';
 import 'package:feen/shared/cubits/settings/settings_cubit.dart';
 import 'package:feen/shared/cubits/settings/settings_state.dart';
+import 'package:feen/shared/data/settings_repository.dart';
 import 'package:feen/shared/cubits/spots/spots_cubit.dart';
 import 'package:feen/shared/cubits/spots/spots_state.dart';
 import 'package:feen/shared/l10n/generated/app_localizations.dart';
@@ -16,8 +17,15 @@ import 'package:feen/shared/theme/app_theme.dart';
 import 'package:feen/shared/utils/distance_formatter.dart';
 import 'package:feen/shared/utils/duration_formatter.dart';
 import 'package:feen/shared/utils/spot_link_builder.dart';
+import 'package:feen/shared/constants/app_links.dart';
 import 'package:feen/shared/widgets/car_arrival_dialog.dart';
 import 'package:feen/shared/widgets/circle_icon_button.dart';
+import 'package:feen/modules/spots_map/widgets/selected_spot_card.dart';
+import 'package:feen/shared/cubits/car_tracking/car_tracking_cubit.dart';
+import 'package:feen/shared/models/car_tracking_state.dart';
+import 'package:feen/shared/cubits/location/location_cubit.dart';
+import 'package:feen/shared/cubits/location/location_state.dart';
+import 'package:feen/shared/widgets/category_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,6 +46,12 @@ void main() {
       expect(mediumAnchor.dy, 0.81);
       expect(lowAnchor.dx, 0.5);
       expect(lowAnchor.dy, 0.5);
+    });
+
+    test('provides increased marker sizes for all zoom tiers', () {
+      expect(MarkerZoomTier.high.pinSize, 88.0);
+      expect(MarkerZoomTier.medium.pinSize, 58.0);
+      expect(MarkerZoomTier.low.pinSize, 38.0);
     });
 
     test('getCarMarker returns a BitmapDescriptor without throwing', () async {
@@ -202,7 +216,7 @@ void main() {
       final cubit = CarProximityCubit();
       cubit.onFoundCar();
       expect(cubit.state.hasMovedAway, isFalse);
-      expect(cubit.state.targetThresholdMeters, 5.0);
+      expect(cubit.state.targetThresholdMeters, 20.0);
       expect(cubit.state.shouldShowDialog, isFalse);
       expect(cubit.state.hasShownArrivalNotification, isFalse);
     });
@@ -215,6 +229,7 @@ void main() {
       expect(AssetProvider.onboarding1, 'assets/images/onboarding_1.png');
       expect(AssetProvider.onboarding2, 'assets/images/onboarding_2.png');
       expect(AssetProvider.onboarding3, 'assets/images/onboarding_3.png');
+      expect(AssetProvider.locationLottie, 'assets/lottie/location.json');
     });
   });
 
@@ -350,7 +365,144 @@ void main() {
       expect(find.byType(CircleIconButton), findsOneWidget);
       expect(find.byType(BackButtonIcon), findsOneWidget);
     });
+
+    testWidgets('renders website, privacy policy, and whatsapp in about section',
+        (tester) async {
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<SettingsCubit>.value(value: _FakeSettingsCubit()),
+            BlocProvider<SpotsCubit>.value(value: _FakeSpotsCubit()),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const SettingsScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Website'), findsOneWidget);
+      expect(find.text('Privacy policy'), findsOneWidget);
+      expect(find.text('Contact via WhatsApp'), findsOneWidget);
+      expect(find.text('Contact support'), findsOneWidget);
+    });
   });
+
+  group('AppLinks', () {
+    test('contains production Dalely website, privacy policy, WhatsApp, support email, and play store', () {
+      expect(AppLinks.website, 'https://dalely.firebaseapp.com/');
+      expect(AppLinks.privacyPolicy, 'https://dalely.firebaseapp.com/#privacy');
+      expect(AppLinks.whatsApp, 'https://wa.me/201123225592');
+      expect(AppLinks.supportEmail, 'salem.dev.77@gmail.com');
+      expect(AppLinks.playStore, 'https://play.google.com/store/apps/details?id=com.dalely.app');
+      expect(AppLinks.playStoreMarket, 'market://details?id=com.dalely.app');
+    });
+  });
+
+  group('SelectedSpotCard', () {
+    testWidgets('renders car image from AssetProvider when spot is car', (tester) async {
+      final carSpot = Spot(
+        id: 'car',
+        name: 'My Car',
+        category: SpotCategory.car,
+        latitude: 30.0444,
+        longitude: 31.2357,
+        savedAt: DateTime.now(),
+      );
+
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<SettingsCubit>.value(value: _FakeSettingsCubit()),
+            BlocProvider<LocationCubit>.value(value: _FakeLocationCubit()),
+            BlocProvider<CarTrackingCubit>.value(value: _FakeCarTrackingCubit()),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: SelectedSpotCard(
+                spot: carSpot,
+                onClose: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final imageFinder = find.byWidgetPredicate(
+        (widget) => widget is Image && widget.image == AssetProvider.carImage,
+      );
+      expect(imageFinder, findsOneWidget);
+      expect(find.byType(CategoryBadge), findsNothing);
+    });
+
+    testWidgets('renders CategoryBadge when spot is not car', (tester) async {
+      final marketSpot = Spot(
+        id: 'market_1',
+        name: 'City Market',
+        category: SpotCategory.market,
+        latitude: 30.0444,
+        longitude: 31.2357,
+        savedAt: DateTime.now(),
+      );
+
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<SettingsCubit>.value(value: _FakeSettingsCubit()),
+            BlocProvider<LocationCubit>.value(value: _FakeLocationCubit()),
+            BlocProvider<CarTrackingCubit>.value(value: _FakeCarTrackingCubit()),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: SelectedSpotCard(
+                spot: marketSpot,
+                onClose: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CategoryBadge), findsOneWidget);
+      final imageFinder = find.byWidgetPredicate(
+        (widget) => widget is Image && widget.image == AssetProvider.carImage,
+      );
+      expect(imageFinder, findsNothing);
+    });
+  });
+
+  group('SettingsCubit Initialization', () {
+    test('initializes state synchronously with saved theme without flashing system theme', () {
+      final repo = _FakeSettingsRepository(
+        settings: const AppSettings(themeMode: ThemeMode.light),
+      );
+      final cubit = SettingsCubit(repo);
+      expect(cubit.state.themeMode, ThemeMode.light);
+      cubit.close();
+    });
+  });
+}
+
+class _FakeSettingsRepository implements SettingsRepository {
+  _FakeSettingsRepository({this.settings = const AppSettings()});
+  final AppSettings settings;
+
+  @override
+  AppSettings load() => settings;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class _FakeSettingsCubit extends Cubit<SettingsState> implements SettingsCubit {
@@ -362,6 +514,20 @@ class _FakeSettingsCubit extends Cubit<SettingsState> implements SettingsCubit {
 
 class _FakeSpotsCubit extends Cubit<SpotsState> implements SpotsCubit {
   _FakeSpotsCubit() : super(const SpotsState());
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FakeLocationCubit extends Cubit<LocationState> implements LocationCubit {
+  _FakeLocationCubit() : super(const LocationState());
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FakeCarTrackingCubit extends Cubit<CarTrackingState> implements CarTrackingCubit {
+  _FakeCarTrackingCubit() : super(const CarTrackingState());
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

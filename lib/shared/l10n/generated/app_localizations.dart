@@ -655,13 +655,13 @@ abstract class AppLocalizations {
   /// No description provided for @languageArabicEg.
   ///
   /// In en, this message translates to:
-  /// **'Arabic (Egypt)'**
+  /// **'العربية (مصر)'**
   String get languageArabicEg;
 
   /// No description provided for @languageArabicSa.
   ///
   /// In en, this message translates to:
-  /// **'Arabic (Saudi Arabia)'**
+  /// **'العربية (السعودية)'**
   String get languageArabicSa;
 
   /// No description provided for @yourSpots.
@@ -694,11 +694,11 @@ abstract class AppLocalizations {
   /// **'Privacy policy'**
   String get privacyPolicy;
 
-  /// No description provided for @termsOfUse.
+  /// No description provided for @contactWhatsApp.
   ///
   /// In en, this message translates to:
-  /// **'Terms of use'**
-  String get termsOfUse;
+  /// **'Contact via WhatsApp'**
+  String get contactWhatsApp;
 
   /// No description provided for @contactSupport.
   ///

@@ -5,23 +5,19 @@ import '../../data/settings_repository.dart';
 import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
-  SettingsCubit(this._repository) : super(const SettingsState()) {
-    _init();
-  }
+  SettingsCubit(this._repository) : super(_computeInitialState(_repository));
 
   final SettingsRepository _repository;
 
-  void _init() {
-    final settings = _repository.load();
-    emit(
-      SettingsState(
-        themeMode: settings.themeMode,
-        localeCode: settings.localeCode,
-        favoriteSpotId: settings.favoriteSpotId,
-        hasCompletedOnboarding: settings.hasCompletedOnboarding,
-        carDistanceNotificationEnabled:
-            settings.carDistanceNotificationEnabled,
-      ),
+  static SettingsState _computeInitialState(SettingsRepository repository) {
+    final settings = repository.load();
+    return SettingsState(
+      themeMode: settings.themeMode,
+      localeCode: settings.localeCode,
+      favoriteSpotId: settings.favoriteSpotId,
+      hasCompletedOnboarding: settings.hasCompletedOnboarding,
+      carDistanceNotificationEnabled:
+          settings.carDistanceNotificationEnabled,
     );
   }
 

@@ -93,6 +93,7 @@ export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com
 export const PACKAGE_NAME = 'com.dalely.app';
 export const CONTACT_EMAIL = 'salem.dev.77@gmail.com';
 export const CONTACT_PHONE = '+201123225592';
+export const WHATSAPP_URL = 'https://wa.me/201123225592';
 
 export const translations: Record<'en' | 'ar', TranslationContent> = {
   en: {

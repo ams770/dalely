@@ -11,7 +11,7 @@ class CircleIconButton extends StatelessWidget {
     required this.onPressed,
     this.tooltip,
     this.size = AppDimens.iconButtonSize,
-    this.iconSize = AppDimens.iconMedium,
+    this.iconSize = AppDimens.iconLarge,
     this.backgroundColor,
     this.foregroundColor,
     this.border,
@@ -68,10 +68,7 @@ class CircleIconButton extends StatelessWidget {
           highlightColor: fg.withAlpha(18),
           child: Center(
             child: IconTheme(
-              data: IconThemeData(
-                size: iconSize,
-                color: fg,
-              ),
+              data: IconThemeData(size: iconSize, color: fg),
               child: icon,
             ),
           ),
@@ -80,10 +77,7 @@ class CircleIconButton extends StatelessWidget {
     );
 
     if (tooltip != null) {
-      button = Tooltip(
-        message: tooltip!,
-        child: button,
-      );
+      button = Tooltip(message: tooltip!, child: button);
     }
 
     return ConstrainedBox(

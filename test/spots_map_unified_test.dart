@@ -192,5 +192,31 @@ void main() {
 
       cubit.close();
     });
+
+    test('initializes with isMapReady true immediately in light mode', () {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+        isDarkMode: false,
+      );
+
+      expect(cubit.state.isMapReady, isTrue);
+      cubit.close();
+    });
+
+    test('initializes with isMapReady false in dark mode until map is ready', () {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+        isDarkMode: true,
+      );
+
+      expect(cubit.state.isMapReady, isFalse);
+      cubit.close();
+    });
   });
 }

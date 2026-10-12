@@ -3,23 +3,19 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0AC93B99D74871BFEB879EC2 /* DalelyLiveActivity.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = F0B45590C758F8EFE4D217EF /* DalelyLiveActivity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, CodeSignOnCopy, ); }; };
+		0AC93B99D74871BFEB879EC2 /* DalelyLiveActivity.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = F0B45590C758F8EFE4D217EF /* DalelyLiveActivity.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		0C73E7BCA1967828437CAE33 /* DalelyAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A76B753EF84BFDF7C5E4BF9 /* DalelyAppIntents.swift */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		2570A3D56C7498514A3FE5D9 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D09BA20474BEAD202BF25177 /* Pods_RunnerTests.framework */; };
-		3097584016597F1EC5EF4C27 /* DalelyLiveActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DE0EC8961A1A0576BADB9FF /* DalelyLiveActivityBundle.swift */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
-		3DC59EEE4566C931858C9444 /* DalelyLiveActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB0049E94D5F51279AF4973 /* DalelyLiveActivityWidget.swift */; };
 		57A7E341E9CA510C3D06C6A0 /* DalelyTrackingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CB74DB2214AD52F713FCC0 /* DalelyTrackingAttributes.swift */; };
 		5AC24126ABB8DAC936A0B050 /* CarTrackingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D0B2236DFC72AF6CA2B95B9 /* CarTrackingManager.swift */; };
-		FEEN00012EC3CC0700C636F2 /* NotificationActionPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEEN00022EC3CC0400C636F2 /* NotificationActionPlugin.swift */; };
 		5D9794CDE55EBF6E3CC83E86 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E322683DA461D07E8FEB9080 /* Pods_Runner.framework */; };
-		62DBCCA21A7A413AF9E49880 /* DalelyTrackingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CB74DB2214AD52F713FCC0 /* DalelyTrackingAttributes.swift */; };
 		6E8E9D15331AB4A4304E3062 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAAEAA4813F75D476D0E80B /* Foundation.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
@@ -30,18 +26,11 @@
 		AB36125157ED8F8A55AD2E80 /* DalelyTrackingAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CB74DB2214AD52F713FCC0 /* DalelyTrackingAttributes.swift */; };
 		CF40E9DAFEC9DB0A851F7766 /* DalelyAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A76B753EF84BFDF7C5E4BF9 /* DalelyAppIntents.swift */; };
 		E11ED3A002D278A6C73697F0 /* DalelyLiveActivityWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB0049E94D5F51279AF4973 /* DalelyLiveActivityWidget.swift */; };
-		E2932CC96A0AC83604C6F856 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EAAEAA4813F75D476D0E80B /* Foundation.framework */; };
 		E86F207B5FF8ADC425712B41 /* DalelyLiveActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DE0EC8961A1A0576BADB9FF /* DalelyLiveActivityBundle.swift */; };
+		FEEN00012EC3CC0700C636F2 /* NotificationActionPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEEN00022EC3CC0400C636F2 /* NotificationActionPlugin.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		292F458D4F87641364A49BE6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 441D83E8A8A58D6CC0B358FD;
-			remoteInfo = DalelyLiveActivity;
-		};
 		331C8085294A63A400263BE5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
@@ -100,7 +89,6 @@
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		7C6D5079159184715DD21263 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		7D0B2236DFC72AF6CA2B95B9 /* CarTrackingManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CarTrackingManager.swift; sourceTree = "<group>"; };
-		FEEN00022EC3CC0400C636F2 /* NotificationActionPlugin.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationActionPlugin.swift; sourceTree = "<group>"; };
 		7EAAEAA4813F75D476D0E80B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		84C7B3D1A11AB8BFE3EF88DD /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 		8A76B753EF84BFDF7C5E4BF9 /* DalelyAppIntents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DalelyAppIntents.swift; sourceTree = "<group>"; };
@@ -118,6 +106,7 @@
 		E322683DA461D07E8FEB9080 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E33872CB4ACC4D007C783949 /* DalelyLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DalelyLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0B45590C758F8EFE4D217EF /* DalelyLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DalelyLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FEEN00022EC3CC0400C636F2 /* NotificationActionPlugin.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NotificationActionPlugin.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -226,7 +215,6 @@
 				A3CB74DB2214AD52F713FCC0 /* DalelyTrackingAttributes.swift */,
 				8A76B753EF84BFDF7C5E4BF9 /* DalelyAppIntents.swift */,
 			);
-			name = Shared;
 			path = Shared;
 			sourceTree = "<group>";
 		};
@@ -250,7 +238,6 @@
 				474EBCB956577ECC47DC42E8 /* Pods-RunnerTests.release.xcconfig */,
 				84C7B3D1A11AB8BFE3EF88DD /* Pods-RunnerTests.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -261,7 +248,6 @@
 				3DB0049E94D5F51279AF4973 /* DalelyLiveActivityWidget.swift */,
 				AF0C2F42B898F70E3C899528 /* Info.plist */,
 			);
-			name = DalelyLiveActivity;
 			path = DalelyLiveActivity;
 			sourceTree = "<group>";
 		};
@@ -563,11 +549,6 @@
 			target = 97C146ED1CF9000F007C117D /* Runner */;
 			targetProxy = 331C8085294A63A400263BE5 /* PBXContainerItemProxy */;
 		};
-		B6AC4D2F053F3BDBE3B34B75 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = DalelyLiveActivity;
-			targetProxy = 292F458D4F87641364A49BE6 /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -590,33 +571,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		219EBAC5EADBE995BD227184 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = F6Y4U267GX;
-				ENABLE_BITCODE = NO;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = DalelyLiveActivity/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dalely.app.DalelyLiveActivity;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
 		249021D3217E4FDB00AE95B9 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -742,34 +696,6 @@
 			};
 			name = Profile;
 		};
-		3900976B7E71A104D89A3F18 /* Profile */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = F6Y4U267GX;
-				ENABLE_BITCODE = NO;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = DalelyLiveActivity/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dalely.app.DalelyLiveActivity;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Profile;
-		};
 		3D0EB6C6415CFA6945B45A96 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
@@ -797,34 +723,6 @@
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Profile;
-		};
-		5A7030E530206C6C9192A3F1 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = F6Y4U267GX;
-				ENABLE_BITCODE = NO;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = DalelyLiveActivity/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.dalely.app.DalelyLiveActivity;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
 		};
 		97C147031CF9000F007C117D /* Debug */ = {
 			isa = XCBuildConfiguration;

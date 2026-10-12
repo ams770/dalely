@@ -20,6 +20,14 @@ enum MarkerZoomTier {
     return MarkerZoomTier.low;
   }
 
+  double get pinSize {
+    return switch (this) {
+      MarkerZoomTier.high => 88.0,
+      MarkerZoomTier.medium => 58.0,
+      MarkerZoomTier.low => 38.0,
+    };
+  }
+
   Offset get anchor {
     return switch (this) {
       MarkerZoomTier.high => const Offset(0.5, 0.83),
@@ -31,7 +39,9 @@ enum MarkerZoomTier {
 
 /// Pre-renders and caches custom Google Map markers.
 class MarkerIconCache {
-  MarkerIconCache();
+  MarkerIconCache._internal();
+  static final MarkerIconCache _instance = MarkerIconCache._internal();
+  factory MarkerIconCache() => _instance;
 
   final Map<String, BitmapDescriptor> _cache = {};
   ui.Image? _cachedCarImage;
@@ -64,7 +74,11 @@ class MarkerIconCache {
         isSelected: isSelected,
         tier: tier,
       );
-      final descriptor = BitmapDescriptor.bytes(bytes);
+      final descriptor = BitmapDescriptor.bytes(
+        bytes,
+        width: tier.pinSize,
+        bitmapScaling: MapBitmapScaling.auto,
+      );
       _cache[key] = descriptor;
       return descriptor;
     } catch (_) {
@@ -74,7 +88,11 @@ class MarkerIconCache {
         isSelected: isSelected,
         tier: tier,
       );
-      final descriptor = BitmapDescriptor.bytes(bytes);
+      final descriptor = BitmapDescriptor.bytes(
+        bytes,
+        width: tier.pinSize,
+        bitmapScaling: MapBitmapScaling.auto,
+      );
       _cache[key] = descriptor;
       return descriptor;
     }
@@ -103,7 +121,11 @@ class MarkerIconCache {
       tier: tier,
     );
 
-    final descriptor = BitmapDescriptor.bytes(bytes);
+    final descriptor = BitmapDescriptor.bytes(
+      bytes,
+      width: tier.pinSize,
+      bitmapScaling: MapBitmapScaling.auto,
+    );
     _cache[key] = descriptor;
     return descriptor;
   }
@@ -118,8 +140,16 @@ class MarkerIconCache {
     final existing = _cache[key];
     if (existing != null) return existing;
 
-    final bytes = await _renderUserLocation(heading: bucket.toDouble());
-    final descriptor = BitmapDescriptor.bytes(bytes);
+    const size = 110.0;
+    final bytes = await _renderUserLocation(
+      size: size,
+      heading: bucket.toDouble(),
+    );
+    final descriptor = BitmapDescriptor.bytes(
+      bytes,
+      width: size,
+      bitmapScaling: MapBitmapScaling.auto,
+    );
     _cache[key] = descriptor;
     return descriptor;
   }
@@ -154,18 +184,113 @@ class MarkerIconCache {
     required Color color,
     required bool isSelected,
   }) async {
-    const size = 72.0;
+    const size = 88.0;
+    const scale = 3.0;
+    final physicalSize = (size * scale).toInt();
+
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
+    canvas.scale(scale, scale);
 
-    final center = const Offset(size / 2, size / 2 - 6);
-    final radius = isSelected ? 23.0 : 19.0;
+    final center = const Offset(size / 2, size / 2 - 7);
+    final radius = isSelected ? 27.0 : 23.0;
+
+    // Glowing halo when selected
+    if (isSelected) {
+      final glowPaint = Paint()
+        ..color = color.withAlpha(80)
+        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 7);
+      canvas.drawCircle(center, radius + 6, glowPaint);
+    }
 
     // Drop shadow
     final shadowPaint = Paint()
       ..color = const Color(0x38000000)
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 5);
-    canvas.drawCircle(center.translate(0, 4), radius, shadowPaint);
+      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 6);
+    canvas.drawCircle(center.translate(0, 5), radius, shadowPaint);
+
+    // Outer ring / border
+    final ringPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, radius + 3.0, ringPaint);
+
+    // Colored body
+    final bodyPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, radius, bodyPaint);
+
+    // Pin bottom pointer triangle
+    final pointerPath = Path()
+      ..moveTo(size / 2 - 7.5, center.dy + radius - 3)
+      ..lineTo(size / 2 + 7.5, center.dy + radius - 3)
+      ..lineTo(size / 2, center.dy + radius + 11)
+      ..close();
+    canvas.drawPath(pointerPath, ringPaint);
+
+    final innerPointerPath = Path()
+      ..moveTo(size / 2 - 5.5, center.dy + radius - 3)
+      ..lineTo(size / 2 + 5.5, center.dy + radius - 3)
+      ..lineTo(size / 2, center.dy + radius + 8)
+      ..close();
+    canvas.drawPath(innerPointerPath, bodyPaint);
+
+    // Icon in center
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+    textPainter.text = TextSpan(
+      text: String.fromCharCode(icon.codePoint),
+      style: TextStyle(
+        fontSize: isSelected ? 28.0 : 23.0,
+        fontFamily: icon.fontFamily,
+        package: icon.fontPackage,
+        color: Colors.white,
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        center.dx - textPainter.width / 2,
+        center.dy - textPainter.height / 2,
+      ),
+    );
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(physicalSize, physicalSize);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
+  }
+
+  Future<Uint8List> _renderMediumZoomPin({
+    required IconData icon,
+    required Color color,
+    required bool isSelected,
+  }) async {
+    const size = 58.0;
+    const scale = 3.0;
+    final physicalSize = (size * scale).toInt();
+
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    canvas.scale(scale, scale);
+
+    final center = const Offset(size / 2, size / 2 - 5);
+    final radius = isSelected ? 19.0 : 16.0;
+
+    // Glowing halo when selected
+    if (isSelected) {
+      final glowPaint = Paint()
+        ..color = color.withAlpha(80)
+        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 5);
+      canvas.drawCircle(center, radius + 4, glowPaint);
+    }
+
+    // Drop shadow
+    final shadowPaint = Paint()
+      ..color = const Color(0x30000000)
+      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4);
+    canvas.drawCircle(center.translate(0, 3), radius, shadowPaint);
 
     // Outer ring / border
     final ringPaint = Paint()
@@ -181,16 +306,16 @@ class MarkerIconCache {
 
     // Pin bottom pointer triangle
     final pointerPath = Path()
-      ..moveTo(size / 2 - 6, center.dy + radius - 2.5)
-      ..lineTo(size / 2 + 6, center.dy + radius - 2.5)
-      ..lineTo(size / 2, center.dy + radius + 9)
+      ..moveTo(size / 2 - 5, center.dy + radius - 2.5)
+      ..lineTo(size / 2 + 5, center.dy + radius - 2.5)
+      ..lineTo(size / 2, center.dy + radius + 7.5)
       ..close();
     canvas.drawPath(pointerPath, ringPaint);
 
     final innerPointerPath = Path()
-      ..moveTo(size / 2 - 4.5, center.dy + radius - 2.5)
-      ..lineTo(size / 2 + 4.5, center.dy + radius - 2.5)
-      ..lineTo(size / 2, center.dy + radius + 6.5)
+      ..moveTo(size / 2 - 3.5, center.dy + radius - 2.5)
+      ..lineTo(size / 2 + 3.5, center.dy + radius - 2.5)
+      ..lineTo(size / 2, center.dy + radius + 5.5)
       ..close();
     canvas.drawPath(innerPointerPath, bodyPaint);
 
@@ -199,7 +324,7 @@ class MarkerIconCache {
     textPainter.text = TextSpan(
       text: String.fromCharCode(icon.codePoint),
       style: TextStyle(
-        fontSize: isSelected ? 23.0 : 19.0,
+        fontSize: isSelected ? 19.0 : 16.0,
         fontFamily: icon.fontFamily,
         package: icon.fontPackage,
         color: Colors.white,
@@ -215,78 +340,7 @@ class MarkerIconCache {
     );
 
     final picture = recorder.endRecording();
-    final image = await picture.toImage(size.toInt(), size.toInt());
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    return byteData!.buffer.asUint8List();
-  }
-
-  Future<Uint8List> _renderMediumZoomPin({
-    required IconData icon,
-    required Color color,
-    required bool isSelected,
-  }) async {
-    const size = 48.0;
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
-
-    final center = const Offset(size / 2, size / 2 - 4);
-    final radius = isSelected ? 16.0 : 13.0;
-
-    // Drop shadow
-    final shadowPaint = Paint()
-      ..color = const Color(0x30000000)
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3.5);
-    canvas.drawCircle(center.translate(0, 2.5), radius, shadowPaint);
-
-    // Outer ring / border
-    final ringPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius + 2.0, ringPaint);
-
-    // Colored body
-    final bodyPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius, bodyPaint);
-
-    // Pin bottom pointer triangle
-    final pointerPath = Path()
-      ..moveTo(size / 2 - 4, center.dy + radius - 2)
-      ..lineTo(size / 2 + 4, center.dy + radius - 2)
-      ..lineTo(size / 2, center.dy + radius + 6)
-      ..close();
-    canvas.drawPath(pointerPath, ringPaint);
-
-    final innerPointerPath = Path()
-      ..moveTo(size / 2 - 3, center.dy + radius - 2)
-      ..lineTo(size / 2 + 3, center.dy + radius - 2)
-      ..lineTo(size / 2, center.dy + radius + 4.5)
-      ..close();
-    canvas.drawPath(innerPointerPath, bodyPaint);
-
-    // Icon in center
-    final textPainter = TextPainter(textDirection: TextDirection.ltr);
-    textPainter.text = TextSpan(
-      text: String.fromCharCode(icon.codePoint),
-      style: TextStyle(
-        fontSize: isSelected ? 16.0 : 13.0,
-        fontFamily: icon.fontFamily,
-        package: icon.fontPackage,
-        color: Colors.white,
-      ),
-    );
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(
-        center.dx - textPainter.width / 2,
-        center.dy - textPainter.height / 2,
-      ),
-    );
-
-    final picture = recorder.endRecording();
-    final image = await picture.toImage(size.toInt(), size.toInt());
+    final image = await picture.toImage(physicalSize, physicalSize);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
@@ -296,24 +350,28 @@ class MarkerIconCache {
     required Color color,
     required bool isSelected,
   }) async {
-    const size = 32.0;
+    const size = 38.0;
+    const scale = 3.0;
+    final physicalSize = (size * scale).toInt();
+
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
+    canvas.scale(scale, scale);
 
     const center = Offset(size / 2, size / 2);
-    final radius = isSelected ? 11.0 : 9.0;
+    final radius = isSelected ? 13.0 : 11.0;
 
     // Drop shadow
     final shadowPaint = Paint()
       ..color = const Color(0x28000000)
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 2.5);
-    canvas.drawCircle(center.translate(0, 1.5), radius, shadowPaint);
+      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3);
+    canvas.drawCircle(center.translate(0, 2), radius, shadowPaint);
 
     // Outer ring
     final ringPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius + 1.5, ringPaint);
+    canvas.drawCircle(center, radius + 2.0, ringPaint);
 
     // Colored body
     final bodyPaint = Paint()
@@ -326,7 +384,7 @@ class MarkerIconCache {
     textPainter.text = TextSpan(
       text: String.fromCharCode(icon.codePoint),
       style: TextStyle(
-        fontSize: isSelected ? 10.5 : 8.5,
+        fontSize: isSelected ? 12.5 : 10.5,
         fontFamily: icon.fontFamily,
         package: icon.fontPackage,
         color: Colors.white,
@@ -342,16 +400,23 @@ class MarkerIconCache {
     );
 
     final picture = recorder.endRecording();
-    final image = await picture.toImage(size.toInt(), size.toInt());
+    final image = await picture.toImage(physicalSize, physicalSize);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
 
-  Future<Uint8List> _renderUserLocation({required double heading}) async {
-    const size = 96.0;
+  Future<Uint8List> _renderUserLocation({
+    required double size,
+    required double heading,
+  }) async {
+    const scale = 3.0;
+    final physicalSize = (size * scale).toInt();
+
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
-    const center = Offset(size / 2, size / 2);
+    canvas.scale(scale, scale);
+
+    final center = Offset(size / 2, size / 2);
 
     canvas.save();
     canvas.translate(center.dx, center.dy);
@@ -361,7 +426,7 @@ class MarkerIconCache {
     // Direction cone
     final coneGradient = ui.Gradient.radial(
       center,
-      42.0,
+      48.0,
       [const Color(0x553C79F3), const Color(0x003C79F3)],
       [0.2, 1.0],
     );
@@ -372,7 +437,7 @@ class MarkerIconCache {
     final conePath = Path()
       ..moveTo(center.dx, center.dy)
       ..arcTo(
-        Rect.fromCircle(center: center, radius: 42.0),
+        Rect.fromCircle(center: center, radius: 48.0),
         -math.pi / 2 - (math.pi / 5),
         (2 * math.pi / 5),
         false,
@@ -386,22 +451,22 @@ class MarkerIconCache {
     final haloPaint = Paint()
       ..color = const Color(0x333C79F3)
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, 16.0, haloPaint);
+    canvas.drawCircle(center, 18.5, haloPaint);
 
     // White border ring
     final borderPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, 9.0, borderPaint);
+    canvas.drawCircle(center, 10.5, borderPaint);
 
     // Blue center dot
     final dotPaint = Paint()
       ..color = const Color(0xFF3C79F3)
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, 6.5, dotPaint);
+    canvas.drawCircle(center, 7.5, dotPaint);
 
     final picture = recorder.endRecording();
-    final image = await picture.toImage(size.toInt(), size.toInt());
+    final image = await picture.toImage(physicalSize, physicalSize);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
@@ -436,26 +501,119 @@ class MarkerIconCache {
     required Color color,
     required bool isSelected,
   }) async {
-    const size = 72.0;
+    const size = 88.0;
+    const scale = 3.0;
+    final physicalSize = (size * scale).toInt();
+
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
+    canvas.scale(scale, scale);
 
-    final center = const Offset(size / 2, size / 2 - 6);
-    final radius = isSelected ? 23.0 : 19.0;
+    final center = const Offset(size / 2, size / 2 - 7);
+    final radius = isSelected ? 27.0 : 23.0;
 
     // Glowing halo when selected
     if (isSelected) {
       final glowPaint = Paint()
         ..color = color.withAlpha(80)
-        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 6);
-      canvas.drawCircle(center, radius + 5, glowPaint);
+        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 7);
+      canvas.drawCircle(center, radius + 6, glowPaint);
     }
 
     // Drop shadow
     final shadowPaint = Paint()
       ..color = const Color(0x38000000)
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 5);
-    canvas.drawCircle(center.translate(0, 4), radius, shadowPaint);
+      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 6);
+    canvas.drawCircle(center.translate(0, 5), radius, shadowPaint);
+
+    // Outer ring / border
+    final ringPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, radius + 3.0, ringPaint);
+
+    // Colored body
+    final bodyPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, radius, bodyPaint);
+
+    // Pin bottom pointer triangle
+    final pointerPath = Path()
+      ..moveTo(size / 2 - 7.5, center.dy + radius - 3)
+      ..lineTo(size / 2 + 7.5, center.dy + radius - 3)
+      ..lineTo(size / 2, center.dy + radius + 11)
+      ..close();
+    canvas.drawPath(pointerPath, ringPaint);
+
+    final innerPointerPath = Path()
+      ..moveTo(size / 2 - 5.5, center.dy + radius - 3)
+      ..lineTo(size / 2 + 5.5, center.dy + radius - 3)
+      ..lineTo(size / 2, center.dy + radius + 8)
+      ..close();
+    canvas.drawPath(innerPointerPath, bodyPaint);
+
+    // White badge disk inside pin
+    final badgePaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+    final badgeRadius = radius - 3.5;
+    canvas.drawCircle(center, badgeRadius, badgePaint);
+
+    // Car image inside badge
+    final carWidth = isSelected ? 34.0 : 28.0;
+    final carHeight = carWidth / 1.5;
+    final dstRect = Rect.fromCenter(
+      center: center,
+      width: carWidth,
+      height: carHeight,
+    );
+    final srcRect = Rect.fromLTWH(
+      0,
+      0,
+      image.width.toDouble(),
+      image.height.toDouble(),
+    );
+    final carPaint = Paint()..filterQuality = ui.FilterQuality.high;
+    canvas.drawImageRect(image, srcRect, dstRect, carPaint);
+
+    final picture = recorder.endRecording();
+    final renderedImage = await picture.toImage(physicalSize, physicalSize);
+    final byteData = await renderedImage.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
+    return byteData!.buffer.asUint8List();
+  }
+
+  Future<Uint8List> _renderMediumZoomCarPin({
+    required ui.Image image,
+    required Color color,
+    required bool isSelected,
+  }) async {
+    const size = 58.0;
+    const scale = 3.0;
+    final physicalSize = (size * scale).toInt();
+
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    canvas.scale(scale, scale);
+
+    final center = const Offset(size / 2, size / 2 - 5);
+    final radius = isSelected ? 19.0 : 16.0;
+
+    // Glowing halo when selected
+    if (isSelected) {
+      final glowPaint = Paint()
+        ..color = color.withAlpha(80)
+        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 5);
+      canvas.drawCircle(center, radius + 4, glowPaint);
+    }
+
+    // Drop shadow
+    final shadowPaint = Paint()
+      ..color = const Color(0x30000000)
+      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4);
+    canvas.drawCircle(center.translate(0, 3), radius, shadowPaint);
 
     // Outer ring / border
     final ringPaint = Paint()
@@ -471,16 +629,16 @@ class MarkerIconCache {
 
     // Pin bottom pointer triangle
     final pointerPath = Path()
-      ..moveTo(size / 2 - 6, center.dy + radius - 2.5)
-      ..lineTo(size / 2 + 6, center.dy + radius - 2.5)
-      ..lineTo(size / 2, center.dy + radius + 9)
+      ..moveTo(size / 2 - 5, center.dy + radius - 2.5)
+      ..lineTo(size / 2 + 5, center.dy + radius - 2.5)
+      ..lineTo(size / 2, center.dy + radius + 7.5)
       ..close();
     canvas.drawPath(pointerPath, ringPaint);
 
     final innerPointerPath = Path()
-      ..moveTo(size / 2 - 4.5, center.dy + radius - 2.5)
-      ..lineTo(size / 2 + 4.5, center.dy + radius - 2.5)
-      ..lineTo(size / 2, center.dy + radius + 6.5)
+      ..moveTo(size / 2 - 3.5, center.dy + radius - 2.5)
+      ..lineTo(size / 2 + 3.5, center.dy + radius - 2.5)
+      ..lineTo(size / 2, center.dy + radius + 5.5)
       ..close();
     canvas.drawPath(innerPointerPath, bodyPaint);
 
@@ -488,11 +646,11 @@ class MarkerIconCache {
     final badgePaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    final badgeRadius = radius - 3.2;
+    final badgeRadius = radius - 2.5;
     canvas.drawCircle(center, badgeRadius, badgePaint);
 
     // Car image inside badge
-    final carWidth = isSelected ? 28.0 : 23.0;
+    final carWidth = isSelected ? 23.0 : 18.0;
     final carHeight = carWidth / 1.5;
     final dstRect = Rect.fromCenter(
       center: center,
@@ -509,92 +667,7 @@ class MarkerIconCache {
     canvas.drawImageRect(image, srcRect, dstRect, carPaint);
 
     final picture = recorder.endRecording();
-    final renderedImage = await picture.toImage(size.toInt(), size.toInt());
-    final byteData = await renderedImage.toByteData(
-      format: ui.ImageByteFormat.png,
-    );
-    return byteData!.buffer.asUint8List();
-  }
-
-  Future<Uint8List> _renderMediumZoomCarPin({
-    required ui.Image image,
-    required Color color,
-    required bool isSelected,
-  }) async {
-    const size = 48.0;
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
-
-    final center = const Offset(size / 2, size / 2 - 4);
-    final radius = isSelected ? 16.0 : 13.0;
-
-    // Glowing halo when selected
-    if (isSelected) {
-      final glowPaint = Paint()
-        ..color = color.withAlpha(80)
-        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 4.5);
-      canvas.drawCircle(center, radius + 3.5, glowPaint);
-    }
-
-    // Drop shadow
-    final shadowPaint = Paint()
-      ..color = const Color(0x30000000)
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3.5);
-    canvas.drawCircle(center.translate(0, 2.5), radius, shadowPaint);
-
-    // Outer ring / border
-    final ringPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius + 2.0, ringPaint);
-
-    // Colored body
-    final bodyPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius, bodyPaint);
-
-    // Pin bottom pointer triangle
-    final pointerPath = Path()
-      ..moveTo(size / 2 - 4, center.dy + radius - 2)
-      ..lineTo(size / 2 + 4, center.dy + radius - 2)
-      ..lineTo(size / 2, center.dy + radius + 6)
-      ..close();
-    canvas.drawPath(pointerPath, ringPaint);
-
-    final innerPointerPath = Path()
-      ..moveTo(size / 2 - 3, center.dy + radius - 2)
-      ..lineTo(size / 2 + 3, center.dy + radius - 2)
-      ..lineTo(size / 2, center.dy + radius + 4.5)
-      ..close();
-    canvas.drawPath(innerPointerPath, bodyPaint);
-
-    // White badge disk inside pin
-    final badgePaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-    final badgeRadius = radius - 2.2;
-    canvas.drawCircle(center, badgeRadius, badgePaint);
-
-    // Car image inside badge
-    final carWidth = isSelected ? 19.0 : 15.0;
-    final carHeight = carWidth / 1.5;
-    final dstRect = Rect.fromCenter(
-      center: center,
-      width: carWidth,
-      height: carHeight,
-    );
-    final srcRect = Rect.fromLTWH(
-      0,
-      0,
-      image.width.toDouble(),
-      image.height.toDouble(),
-    );
-    final carPaint = Paint()..filterQuality = ui.FilterQuality.high;
-    canvas.drawImageRect(image, srcRect, dstRect, carPaint);
-
-    final picture = recorder.endRecording();
-    final renderedImage = await picture.toImage(size.toInt(), size.toInt());
+    final renderedImage = await picture.toImage(physicalSize, physicalSize);
     final byteData = await renderedImage.toByteData(
       format: ui.ImageByteFormat.png,
     );
@@ -606,32 +679,36 @@ class MarkerIconCache {
     required Color color,
     required bool isSelected,
   }) async {
-    const size = 32.0;
+    const size = 38.0;
+    const scale = 3.0;
+    final physicalSize = (size * scale).toInt();
+
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
+    canvas.scale(scale, scale);
 
     const center = Offset(size / 2, size / 2);
-    final radius = isSelected ? 11.0 : 9.0;
+    final radius = isSelected ? 13.0 : 11.0;
 
     // Glowing halo when selected
     if (isSelected) {
       final glowPaint = Paint()
         ..color = color.withAlpha(80)
-        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3);
-      canvas.drawCircle(center, radius + 2.5, glowPaint);
+        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3.5);
+      canvas.drawCircle(center, radius + 3, glowPaint);
     }
 
     // Drop shadow
     final shadowPaint = Paint()
       ..color = const Color(0x28000000)
-      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 2.5);
-    canvas.drawCircle(center.translate(0, 1.5), radius, shadowPaint);
+      ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 3);
+    canvas.drawCircle(center.translate(0, 2), radius, shadowPaint);
 
     // Outer ring
     final ringPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius + 1.5, ringPaint);
+    canvas.drawCircle(center, radius + 2.0, ringPaint);
 
     // Colored body
     final bodyPaint = Paint()
@@ -643,11 +720,11 @@ class MarkerIconCache {
     final badgePaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    final badgeRadius = radius - 1.8;
+    final badgeRadius = radius - 2.0;
     canvas.drawCircle(center, badgeRadius, badgePaint);
 
     // Car image inside badge
-    final carWidth = isSelected ? 13.0 : 10.5;
+    final carWidth = isSelected ? 15.5 : 12.5;
     final carHeight = carWidth / 1.5;
     final dstRect = Rect.fromCenter(
       center: center,
@@ -664,7 +741,7 @@ class MarkerIconCache {
     canvas.drawImageRect(image, srcRect, dstRect, carPaint);
 
     final picture = recorder.endRecording();
-    final renderedImage = await picture.toImage(size.toInt(), size.toInt());
+    final renderedImage = await picture.toImage(physicalSize, physicalSize);
     final byteData = await renderedImage.toByteData(
       format: ui.ImageByteFormat.png,
     );

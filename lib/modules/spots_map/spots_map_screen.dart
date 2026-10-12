@@ -1,4 +1,4 @@
-import '../../shared/theme/app_colors.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -8,6 +8,7 @@ import '../../shared/cubits/adaptive_nav/adaptive_nav_state.dart';
 import '../../shared/cubits/location/location_cubit.dart';
 import '../../shared/cubits/spots/spots_cubit.dart';
 import '../../shared/services/marker_icon_cache.dart';
+import '../../shared/theme/app_colors.dart';
 import '../../shared/theme/app_dimens.dart';
 import '../../shared/utils/context_ext.dart';
 import '../../shared/widgets/app_google_map.dart';
@@ -37,6 +38,7 @@ class SpotsMapScreen extends StatelessWidget {
     final spotsCubit = context.read<SpotsCubit>();
     final locationCubit = context.read<LocationCubit>();
     final themeTokens = context.tokens;
+    final isDarkMode = context.isDarkMode;
 
     return BlocProvider<SpotsMapCubit>(
       create: (_) => SpotsMapCubit(
@@ -44,6 +46,7 @@ class SpotsMapScreen extends StatelessWidget {
         locationCubit: locationCubit,
         markerIconCache: MarkerIconCache(),
         themeExtension: themeTokens,
+        isDarkMode: isDarkMode,
         initialSelectedSpotId: initialSpotId,
         initialMode: initialMode,
       ),
@@ -76,20 +79,23 @@ class _SpotsMapView extends StatelessWidget {
           // 1. Fullscreen Google Map
           const _MapLayer(),
 
-          // 2. Center Pin (only when adding a spot)
+          // 2. Dark Map Loading Mask (masks native map during dark theme initialization)
+          const _DarkMapLoadingMask(),
+
+          // 3. Center Pin (only when adding a spot)
           const _CenterPinLayer(),
 
-          // 3. Top Floating Navigation Controls
+          // 4. Top Floating Navigation Controls
           _TopControlsLayer(
             initialMode: initialMode,
             isEmbedded: isEmbedded,
             onClose: onClose,
           ),
 
-          // 4. Recenter / My Location FAB
+          // 5. Recenter / My Location FAB
           const _RecenterButtonLayer(),
 
-          // 5. Bottom Overlay: SelectedSpotCard or SaveSpotBottomPanel
+          // 6. Bottom Overlay: SelectedSpotCard or SaveSpotBottomPanel
           _BottomOverlayLayer(
             initialMode: initialMode,
             isEmbedded: isEmbedded,
@@ -136,31 +142,61 @@ class _MapLayer extends StatelessWidget {
 
     return BlocBuilder<SpotsMapCubit, SpotsMapState>(
       buildWhen: (prev, curr) =>
-          prev.markers != curr.markers || prev.mode != curr.mode,
+          prev.markers != curr.markers ||
+          prev.isAddingSpot != curr.isAddingSpot,
       builder: (context, state) {
-        return AppGoogleMap(
-          initialCameraPosition: CameraPosition(
-            target: state.initialTarget,
-            zoom: state.initialZoom,
+        return RepaintBoundary(
+          child: AppGoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: state.initialTarget,
+              zoom: state.initialZoom,
+            ),
+            onMapCreated: cubit.onMapCreated,
+            markers: state.markers,
+            onTap: (_) {
+              FocusScope.of(context).unfocus();
+              if (!state.isAddingSpot) {
+                cubit.selectSpot(null);
+              }
+            },
+            onCameraMoveStarted: cubit.onCameraMoveStarted,
+            onCameraMove: cubit.onCameraMove,
+            onCameraIdle: cubit.onCameraIdle,
+            zoomGesturesEnabled: true,
+            scrollGesturesEnabled: true,
+            rotateGesturesEnabled: true,
+            tiltGesturesEnabled: true,
+            padding: EdgeInsets.only(
+              top: topPadding,
+              bottom: state.isAddingSpot ? bottomAddPadding : 120.0,
+            ),
           ),
-          onMapCreated: cubit.onMapCreated,
-          markers: state.markers,
-          onTap: (_) {
-            FocusScope.of(context).unfocus();
-            if (!state.isAddingSpot) {
-              cubit.selectSpot(null);
-            }
-          },
-          onCameraMoveStarted: cubit.onCameraMoveStarted,
-          onCameraMove: cubit.onCameraMove,
-          onCameraIdle: cubit.onCameraIdle,
-          zoomGesturesEnabled: true,
-          scrollGesturesEnabled: true,
-          rotateGesturesEnabled: true,
-          tiltGesturesEnabled: true,
-          padding: EdgeInsets.only(
-            top: topPadding,
-            bottom: state.isAddingSpot ? bottomAddPadding : 120.0,
+        );
+      },
+    );
+  }
+}
+
+class _DarkMapLoadingMask extends StatelessWidget {
+  const _DarkMapLoadingMask();
+
+  @override
+  Widget build(BuildContext context) {
+    if (!context.isDarkMode) return const SizedBox.shrink();
+
+    return BlocSelector<SpotsMapCubit, SpotsMapState, bool>(
+      selector: (state) => state.isMapReady,
+      builder: (context, isMapReady) {
+        return IgnorePointer(
+          ignoring: isMapReady,
+          child: AnimatedOpacity(
+            opacity: isMapReady ? 0.0 : 1.0,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            child: const ColoredBox(
+              color: AppColors.darkMapBackground,
+              child: SizedBox.expand(),
+            ),
           ),
         );
       },
@@ -269,8 +305,9 @@ class _TopControlsLayer extends StatelessWidget {
                   else
                     const SizedBox.shrink(),
                   CircleIconButton(
-                    icon: const Icon(Icons.add_rounded),
+                    icon: const Icon(CupertinoIcons.add),
                     tooltip: l10n.saveThisSpot,
+                    foregroundColor: AppColors.lightSurface,
                     onPressed: cubit.enterAddSpotMode,
                     backgroundColor: AppColors.lightPrimary,
                   ),

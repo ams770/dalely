@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:in_app_review/in_app_review.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../shared/constants/app_links.dart';
@@ -249,25 +248,20 @@ class _AboutSection extends StatelessWidget {
           onTap: () => launcher.openUrl(AppLinks.privacyPolicy),
         ),
         SettingsTile(
-          leading: const Icon(Icons.description_outlined),
-          title: l10n.termsOfUse,
-          onTap: () => launcher.openUrl(AppLinks.termsOfUse),
+          leading: const Icon(Icons.chat_outlined),
+          title: l10n.contactWhatsApp,
+          onTap: () => launcher.openUrl(AppLinks.whatsApp),
         ),
         SettingsTile(
           leading: const Icon(Icons.mail_outline_rounded),
           title: l10n.contactSupport,
           onTap: () => launcher.openUrl('mailto:${AppLinks.supportEmail}'),
         ),
-        SettingsTile(
-          leading: const Icon(Icons.rate_review_outlined),
-          title: l10n.rateApp,
-          onTap: () async {
-            final inAppReview = InAppReview.instance;
-            if (await inAppReview.isAvailable()) {
-              await inAppReview.requestReview();
-            }
-          },
-        ),
+        // SettingsTile(
+        //   leading: const Icon(Icons.rate_review_outlined),
+        //   title: l10n.rateApp,
+        //   onTap: () => launcher.openStoreReview(),
+        // ),
       ],
     );
   }

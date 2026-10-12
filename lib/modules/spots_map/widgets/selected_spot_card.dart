@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../shared/constants/app_assets.dart';
+import '../../../shared/constants/spot_categories.dart';
 import '../../../shared/cubits/car_tracking/car_tracking_cubit.dart';
 import '../../../shared/cubits/location/location_cubit.dart';
 import '../../../shared/cubits/settings/settings_cubit.dart';
@@ -40,7 +42,10 @@ class SelectedSpotCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CategoryBadge(category: spot.category),
+                if (spot.isCar)
+                  const _SelectedCarBadge()
+                else
+                  CategoryBadge(category: spot.category),
                 const SizedBox(width: AppDimens.space12),
                 Expanded(
                   child: Column(
@@ -118,3 +123,42 @@ class SelectedSpotCard extends StatelessWidget {
     );
   }
 }
+
+class _SelectedCarBadge extends StatelessWidget {
+  const _SelectedCarBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final isDark = context.isDarkMode;
+    final carColor = tokens.categoryColor(SpotCategory.car);
+
+    return Container(
+      width: 52,
+      height: 52,
+      padding: const EdgeInsets.all(AppDimens.space6),
+      decoration: BoxDecoration(
+        color: carColor.withAlpha(isDark ? 50 : 35),
+        borderRadius: AppDimens.borderRadiusMedium,
+        border: Border.all(
+          color: carColor.withAlpha(isDark ? 100 : 180),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: carColor.withAlpha(isDark ? 25 : 45),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: const Image(
+        image: AssetProvider.carImage,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.high,
+      ),
+    );
+  }
+}
+
+

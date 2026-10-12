@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,22 +14,27 @@ import '../../../shared/theme/app_theme_extension.dart';
 import 'spots_map_state.dart';
 
 class SpotsMapCubit extends Cubit<SpotsMapState> {
+  static const double defaultZoom = 20.0;
+
   SpotsMapCubit({
     required this.spotsCubit,
     required this.locationCubit,
     required this.markerIconCache,
     required this.themeExtension,
+    bool isDarkMode = false,
     this.initialSelectedSpotId,
     SpotsMapMode initialMode = SpotsMapMode.viewing,
-  })  : nameController = TextEditingController(),
-        super(
-          _computeInitialState(
-            spotsCubit: spotsCubit,
-            locationCubit: locationCubit,
-            initialSelectedSpotId: initialSelectedSpotId,
-            initialMode: initialMode,
-          ),
-        ) {
+  }) : _isDarkMode = isDarkMode,
+       nameController = TextEditingController(),
+       super(
+         _computeInitialState(
+           spotsCubit: spotsCubit,
+           locationCubit: locationCubit,
+           isDarkMode: isDarkMode,
+           initialSelectedSpotId: initialSelectedSpotId,
+           initialMode: initialMode,
+         ),
+       ) {
     _init();
   }
 
@@ -39,6 +45,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   final String? initialSelectedSpotId;
   final TextEditingController nameController;
 
+  final bool _isDarkMode;
+  bool get isDarkMode => _isDarkMode;
+
   GoogleMapController? _mapController;
   StreamSubscription? _spotsSubscription;
   StreamSubscription? _locationSubscription;
@@ -46,6 +55,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   static SpotsMapState _computeInitialState({
     required SpotsCubit spotsCubit,
     required LocationCubit locationCubit,
+    bool isDarkMode = false,
     String? initialSelectedSpotId,
     SpotsMapMode initialMode = SpotsMapMode.viewing,
   }) {
@@ -82,10 +92,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       mode: initialMode,
       selectedSpot: selectedSpot,
       initialTarget: target,
-      initialZoom: 16.5,
-      currentZoom: 16.5,
       pickedLocation: target,
       category: SpotCategory.market,
+      isMapReady: !isDarkMode,
     );
   }
 
@@ -108,19 +117,24 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     });
   }
 
-  void onMapCreated(GoogleMapController controller) {
+  Future<void> onMapCreated(GoogleMapController controller) async {
     _mapController = controller;
+    if (_isDarkMode) {
+      // Give the native map engine a moment to swap in dark tiles
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+    }
+    if (!isClosed) {
+      emit(state.copyWith(isMapReady: true));
+    }
     if (state.isAddingSpot) {
       final userPos = locationCubit.state.latLng;
       if (userPos != null) {
         _mapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(userPos, 16.5),
+          CameraUpdate.newLatLngZoom(userPos, defaultZoom),
         );
       }
     } else if (initialSelectedSpotId != null) {
       selectSpotById(initialSelectedSpotId!);
-    } else {
-      _fitAllSpotsOrUser();
     }
   }
 
@@ -131,70 +145,52 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   }
 
   void onCameraMove(CameraPosition position) {
-    final newTier = MarkerZoomTier.fromZoom(position.zoom);
-    final tierChanged = newTier != state.zoomTier;
-
     if (state.isAddingSpot) {
-      emit(state.copyWith(
-        currentZoom: position.zoom,
-        pickedLocation: position.target,
-      ));
-    } else if (tierChanged) {
-      emit(state.copyWith(currentZoom: position.zoom));
-    }
-
-    if (tierChanged) {
-      _rebuildMarkers();
+      emit(
+        state.copyWith(
+          currentZoom: position.zoom,
+          pickedLocation: position.target,
+        ),
+      );
     }
   }
 
-  Future<void> onCameraIdle() async {
-    if (_mapController == null) return;
-    try {
-      final zoom = await _mapController!.getZoomLevel();
-      final newTier = MarkerZoomTier.fromZoom(zoom);
-      final tierChanged = newTier != state.zoomTier;
-
-      if (!isClosed) {
-        emit(state.copyWith(
-          isCameraMoving: false,
-          currentZoom: zoom,
-        ));
-      }
-
-      if (tierChanged) {
-        _rebuildMarkers();
-      }
-    } catch (_) {}
+  void onCameraIdle() {
+    if (!isClosed && state.isCameraMoving) {
+      emit(state.copyWith(isCameraMoving: false));
+    }
   }
 
   void enterAddSpotMode({LatLng? initialTarget}) {
-    final target = initialTarget ??
-        locationCubit.state.latLng ??
-        state.pickedLocation;
+    final target =
+        initialTarget ?? locationCubit.state.latLng ?? state.pickedLocation;
     nameController.clear();
-    emit(state.copyWith(
-      mode: SpotsMapMode.addSpot,
-      clearSelected: true,
-      pickedLocation: target,
-      spotName: '',
-      category: SpotCategory.market,
-      isSaving: false,
-      isCameraMoving: false,
-    ));
+    emit(
+      state.copyWith(
+        mode: SpotsMapMode.addSpot,
+        clearSelected: true,
+        pickedLocation: target,
+        spotName: '',
+        category: SpotCategory.market,
+        isSaving: false,
+        isCameraMoving: false,
+      ),
+    );
     _mapController?.animateCamera(
-      CameraUpdate.newLatLngZoom(target, 16.5),
+      CameraUpdate.newLatLngZoom(target, defaultZoom),
     );
   }
 
   void exitAddSpotMode() {
     nameController.clear();
-    emit(state.copyWith(
-      mode: SpotsMapMode.viewing,
-      spotName: '',
-      isSaving: false,
-      isCameraMoving: false,
-    ));
+    emit(
+      state.copyWith(
+        mode: SpotsMapMode.viewing,
+        spotName: '',
+        isSaving: false,
+        isCameraMoving: false,
+      ),
+    );
     _rebuildMarkers();
   }
 
@@ -213,7 +209,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     if (pos != null) {
       emit(state.copyWith(pickedLocation: pos));
       _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(pos, 16.5),
+        CameraUpdate.newLatLngZoom(pos, defaultZoom),
       );
     }
   }
@@ -232,14 +228,16 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
       if (!isClosed) {
         nameController.clear();
-        emit(state.copyWith(
-          mode: SpotsMapMode.viewing,
-          isSaving: false,
-          selectedSpot: spot,
-        ));
+        emit(
+          state.copyWith(
+            mode: SpotsMapMode.viewing,
+            isSaving: false,
+            selectedSpot: spot,
+          ),
+        );
         _rebuildMarkers();
         _mapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(spot.latLng, 16.5),
+          CameraUpdate.newLatLngZoom(spot.latLng, defaultZoom),
         );
       }
       return spot;
@@ -255,7 +253,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     final spots = spotsCubit.state.allSpots;
     final locState = locationCubit.state;
     final selected = state.selectedSpot;
-    final tier = state.zoomTier;
+    const tier = MarkerZoomTier.high;
 
     final markers = <Marker>{};
 
@@ -322,7 +320,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     } else {
       emit(state.copyWith(selectedSpot: spot));
       _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(spot.latLng, 16.5),
+        CameraUpdate.newLatLngZoom(spot.latLng, defaultZoom),
       );
     }
     _rebuildMarkers();
@@ -345,59 +343,11 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     final userPos = locationCubit.state.latLng;
     if (userPos != null) {
       _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(userPos, 16.5),
+        CameraUpdate.newLatLngZoom(userPos, defaultZoom),
       );
     } else {
       locationCubit.requestPermission();
     }
-  }
-
-  void _fitAllSpotsOrUser() {
-    final spots = spotsCubit.state.allSpots;
-    final userPos = locationCubit.state.latLng;
-
-    if (spots.isEmpty && userPos == null) return;
-
-    if (spots.length == 1 && userPos == null) {
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(spots.first.latLng, 16.5),
-      );
-      return;
-    }
-
-    final points = <LatLng>[
-      ?userPos,
-      for (final spot in spots) spot.latLng,
-    ];
-
-    if (points.length == 1) {
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(points.first, 16.5),
-      );
-      return;
-    }
-
-    double minLat = points.first.latitude;
-    double maxLat = points.first.latitude;
-    double minLng = points.first.longitude;
-    double maxLng = points.first.longitude;
-
-    for (final p in points) {
-      if (p.latitude < minLat) minLat = p.latitude;
-      if (p.latitude > maxLat) maxLat = p.latitude;
-      if (p.longitude < minLng) minLng = p.longitude;
-      if (p.longitude > maxLng) maxLng = p.longitude;
-    }
-
-    _mapController?.animateCamera(
-      CameraUpdate.newLatLngBounds(
-        LatLngBounds(
-          southwest: LatLng(minLat, minLng),
-          northeast: LatLng(maxLat, maxLng),
-        ),
-        80.0,
-      ),
-    );
   }
 
   @override

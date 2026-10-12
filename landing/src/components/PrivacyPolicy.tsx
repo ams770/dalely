@@ -9,9 +9,10 @@ import {
   MapPin,
   Mail,
   Phone,
+  MessageCircle,
 } from 'lucide-react';
 import type { TranslationContent } from '../data/translations';
-import { CONTACT_EMAIL, CONTACT_PHONE } from '../data/translations';
+import { CONTACT_EMAIL, CONTACT_PHONE, WHATSAPP_URL } from '../data/translations';
 
 interface PrivacyPolicyProps {
   t: TranslationContent;
@@ -273,6 +274,24 @@ export const PrivacyPolicy: React.FC<PrivacyPolicyProps> = ({ t, lang, onBack })
               >
                 <Mail size={18} />
                 <span>{CONTACT_EMAIL}</span>
+              </a>
+
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontWeight: 800,
+                  fontSize: '1rem',
+                  color: 'var(--text-main)',
+                  direction: 'ltr',
+                }}
+              >
+                <MessageCircle size={18} color="#25D366" />
+                <span>WhatsApp: {CONTACT_PHONE}</span>
               </a>
 
               <a

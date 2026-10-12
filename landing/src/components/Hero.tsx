@@ -1,15 +1,13 @@
 import React from 'react';
-import { Shield } from 'lucide-react';
 import type { TranslationContent } from '../data/translations';
 import { GooglePlayButton } from './GooglePlayButton';
 
 interface HeroProps {
   t: TranslationContent;
   lang: 'en' | 'ar';
-  onNavigatePrivacy: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ t, lang, onNavigatePrivacy }) => {
+export const Hero: React.FC<HeroProps> = ({ t, lang }) => {
   return (
     <section
       style={{
@@ -102,31 +100,7 @@ export const Hero: React.FC<HeroProps> = ({ t, lang, onNavigatePrivacy }) => {
                 largeText={t.hero.googlePlaySub}
               />
 
-              <button
-                onClick={onNavigatePrivacy}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  fontSize: '0.92rem',
-                  fontWeight: 600,
-                  padding: '12px 16px',
-                  borderRadius: '16px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
-                  transition: 'background-color 0.2s',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.22)')
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.12)')
-                }
-              >
-                <Shield size={16} />
-                <span>{t.hero.readPrivacy}</span>
-              </button>
+
             </div>
 
             {/* Package Name note */}

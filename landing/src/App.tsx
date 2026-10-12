@@ -90,7 +90,7 @@ export function App() {
       <main style={{ flex: 1 }}>
         {view === 'home' ? (
           <>
-            <Hero t={t} lang={lang} onNavigatePrivacy={navigateToPrivacy} />
+            <Hero t={t} lang={lang} />
             <OnboardingFeatures t={t} />
             <SpotActionsSection t={t} />
             <CategoriesGrid t={t} />

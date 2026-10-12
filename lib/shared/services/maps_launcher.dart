@@ -1,5 +1,8 @@
 import 'dart:io';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../constants/app_links.dart';
 
 class MapsLauncher {
   const MapsLauncher();
@@ -50,9 +53,39 @@ class MapsLauncher {
   /// Opens an external web URL or mailto.
   Future<bool> openUrl(String url) async {
     final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      return launchUrl(uri, mode: LaunchMode.externalApplication);
+    try {
+      if (await canLaunchUrl(uri)) {
+        return await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+      return await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      return false;
     }
-    return false;
+  }
+
+  /// Opens the store listing or in-app review to rate the app.
+  Future<void> openStoreReview() async {
+    final inAppReview = InAppReview.instance;
+    try {
+      if (Platform.isAndroid) {
+        await inAppReview.openStoreListing();
+        return;
+      } else if (Platform.isIOS) {
+        if (await inAppReview.isAvailable()) {
+          await inAppReview.requestReview();
+          return;
+        }
+      } else {
+        await inAppReview.openStoreListing();
+        return;
+      }
+    } catch (_) {
+      // Fall through to launcher fallback
+    }
+
+    final launchedMarket = await openUrl(AppLinks.playStoreMarket);
+    if (!launchedMarket) {
+      await openUrl(AppLinks.playStore);
+    }
   }
 }

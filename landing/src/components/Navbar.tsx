@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Globe, Sun, Moon, Menu, X, ShieldCheck } from 'lucide-react';
 import type { TranslationContent } from '../data/translations';
-import { PLAY_STORE_URL } from '../data/translations';
 
 interface NavbarProps {
   t: TranslationContent;
@@ -233,35 +232,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
           </button>
 
-          {/* Google Play CTA Button */}
-          <a
-            href={PLAY_STORE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="desktop-cta"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              backgroundColor: 'var(--primary)',
-              color: '#FFFFFF',
-              fontWeight: 700,
-              fontSize: '0.88rem',
-              padding: '9px 18px',
-              borderRadius: '9999px',
-              boxShadow: '0 4px 14px var(--primary-glow)',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            <svg viewBox="0 0 512 512" width="16" height="16">
-              <path fill="#FFFFFF" d="M47.7 13.9C39.6 22.5 35 35.8 35 52.3v407.4c0 16.5 4.6 29.8 12.7 38.4l2.1 2.1 228.1-228.1v-5.4L49.8 11.8l-2.1 2.1z"/>
-              <path fill="#FFFFFF" opacity="0.9" d="M352.8 328.7l-74.9-74.9v-5.4l74.9-74.9 1.7 1 88.8 50.5c25.4 14.4 25.4 38.1 0 52.6l-88.8 50.1-1.7 1.1z"/>
-              <path fill="#FFFFFF" opacity="0.8" d="M354.5 327.6L277.9 251 49.8 479.1c8.3 8.8 22.1 9.9 37.6 1.1l267.1-152.6z"/>
-              <path fill="#FFFFFF" opacity="0.85" d="M354.5 184.4L87.4 31.8c-15.5-8.8-29.3-7.7-37.6 1.1L277.9 261l76.6-76.6z"/>
-            </svg>
-            <span>{t.nav.getGooglePlay}</span>
-          </a>
-
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -359,25 +329,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <ShieldCheck size={18} />
             {t.nav.privacyPolicy}
           </button>
-          <a
-            href={PLAY_STORE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              marginTop: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              backgroundColor: 'var(--primary)',
-              color: '#FFFFFF',
-              padding: '12px',
-              borderRadius: '14px',
-              fontWeight: 700,
-            }}
-          >
-            {t.nav.getGooglePlay}
-          </a>
+
         </div>
       )}
 

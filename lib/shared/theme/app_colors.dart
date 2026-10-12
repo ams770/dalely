@@ -50,6 +50,7 @@ abstract final class AppColors {
   static const Color darkSurfaceSecondary = Color(0xFF1E293B);
   static const Color darkBottomSheet = Color(0xFF0B131F);
   static const Color darkBorder = Color(0xFF223D5F);
+  static const Color darkMapBackground = Color(0xFF151C2C);
 
   static const Color darkTextPrimary = Color(0xFFF8FAFC);
   static const Color darkTextSecondary = Color(0xFF94A3B8);

@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 class CarProximityState {
   const CarProximityState({
     this.hasMovedAway = false,
-    this.targetThresholdMeters = 5.0,
+    this.targetThresholdMeters = 20.0,
     this.isDialogVisible = false,
     this.shouldShowDialog = false,
     this.hasShownArrivalNotification = false,

@@ -1,7 +1,7 @@
 import React from 'react';
-import { ShieldCheck, Heart, Mail, Phone } from 'lucide-react';
+import { ShieldCheck, Heart, Mail, Phone, MessageCircle } from 'lucide-react';
 import type { TranslationContent } from '../data/translations';
-import { PLAY_STORE_URL, CONTACT_EMAIL, CONTACT_PHONE } from '../data/translations';
+import { PLAY_STORE_URL, CONTACT_EMAIL, CONTACT_PHONE, WHATSAPP_URL } from '../data/translations';
 
 interface FooterProps {
   t: TranslationContent;
@@ -208,6 +208,24 @@ export const Footer: React.FC<FooterProps> = ({
                 >
                   <Mail size={15} color="var(--primary)" />
                   <span>{CONTACT_EMAIL}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: 'var(--text-main)',
+                    fontWeight: 600,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    direction: 'ltr',
+                  }}
+                >
+                  <MessageCircle size={15} color="#25D366" />
+                  <span>{CONTACT_PHONE}</span>
                 </a>
               </li>
               <li>

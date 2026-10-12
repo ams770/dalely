@@ -35,7 +35,7 @@ abstract final class AppDimens {
   // Minimum Touch Targets & Sizes
   static const double minTouchTarget = 48.0;
   static const double primaryButtonHeight = 56.0;
-  static const double iconButtonSize = 44.0;
+  static const double iconButtonSize = 54.0;
   static const double categoryBadgeSize = 44.0;
   static const double mapPreviewHeight = 140.0;
 
@@ -46,7 +46,7 @@ abstract final class AppDimens {
   // Icon Sizes
   static const double iconSmall = 18.0;
   static const double iconMedium = 22.0;
-  static const double iconLarge = 28.0;
+  static const double iconLarge = 26.0;
 
   // Animations
   static const Duration animDurationShort = Duration(milliseconds: 250);

@@ -14,6 +14,7 @@ class SaveSpotScreen extends StatelessWidget {
     return SpotsMapScreen(
       initialMode: SpotsMapMode.addSpot,
       onClose: onClose,
+      
     );
   }
 }

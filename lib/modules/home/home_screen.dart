@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../shared/constants/app_assets.dart';
 import '../../shared/cubits/adaptive_nav/adaptive_nav_cubit.dart';
 import '../../shared/cubits/adaptive_nav/adaptive_nav_state.dart';
 import '../../shared/cubits/spots/spots_cubit.dart';
@@ -195,6 +196,7 @@ class _SavedSpotsSliverList extends StatelessWidget {
         if (state.spots.isEmpty) {
           return SliverToBoxAdapter(
             child: EmptyState(
+              lottieAsset: AppAssets.locationLottie,
               title: context.l10n.emptySpotsTitle,
               message: context.l10n.emptySpotsMessage,
             ),

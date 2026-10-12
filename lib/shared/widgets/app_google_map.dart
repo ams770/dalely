@@ -1,9 +1,10 @@
+import '../theme/map_styles.dart';
+import '../utils/context_ext.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-import '../theme/map_styles.dart';
 
 /// A wrapper around [GoogleMap] applying Dalely's custom map styling,
 /// gesture defaults, and theme integration.
@@ -57,9 +58,6 @@ class AppGoogleMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final style = isDark ? MapStyles.dark : MapStyles.light;
-
     return GoogleMap(
       initialCameraPosition: initialCameraPosition,
       onMapCreated: onMapCreated,
@@ -82,7 +80,7 @@ class AppGoogleMap extends StatelessWidget {
       tiltGesturesEnabled: liteModeEnabled ? false : tiltGesturesEnabled,
       gestureRecognizers: gestureRecognizers,
       padding: padding,
-      style: style,
+      style: context.isDarkMode ? MapStyles.dark : null,
     );
   }
 }
