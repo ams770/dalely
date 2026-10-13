@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,6 +41,12 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
            initialMode: initialMode,
          ),
        ) {
+    _currentCameraTarget = state.initialTarget;
+    if (initialMode == SpotsMapMode.addSpot ||
+        initialTarget != null ||
+        initialSelectedSpotId != null) {
+      _hasCenteredOnUser = true;
+    }
     _init();
   }
 
@@ -82,6 +89,41 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   bool _styleLoaded = false;
   bool _isRebuildingMarkers = false;
   bool _needsRebuildMarkers = false;
+  LatLng? _currentCameraTarget;
+  double _topPadding = 0;
+  double _bottomPadding = 0;
+  double _screenWidth = 0;
+  double _screenHeight = 0;
+
+  void updatePinScreenMetrics({
+    required double topPadding,
+    required double bottomPadding,
+    required double screenWidth,
+    required double screenHeight,
+  }) {
+    _topPadding = topPadding;
+    _bottomPadding = bottomPadding;
+    _screenWidth = screenWidth;
+    _screenHeight = screenHeight;
+  }
+
+  Point<double> get pinScreenPoint {
+    final x = _screenWidth > 0 ? _screenWidth / 2 : 200.0;
+    final y = _screenHeight > 0
+        ? _topPadding + (_screenHeight - _topPadding - _bottomPadding) / 2
+        : 300.0;
+    return Point<double>(x, y);
+  }
+
+  Point<double> get screenCenterPoint {
+    final x = _screenWidth > 0 ? _screenWidth / 2 : 200.0;
+    final y = _screenHeight > 0 ? _screenHeight / 2 : 400.0;
+    return Point<double>(x, y);
+  }
+
+  double get pinCenterOffsetDy {
+    return screenCenterPoint.y - pinScreenPoint.y;
+  }
 
   static SpotsMapState _computeInitialState({
     required SpotsCubit spotsCubit,
@@ -195,13 +237,13 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     if (controller.isDisposed || isClosed) return;
 
     if (state.isAddingSpot) {
+      _hasCenteredOnUser = true;
       final target = initialTarget ?? locationCubit.state.latLng;
       if (target != null && !controller.isDisposed) {
-        controller.animateCamera(
-          CameraUpdate.newLatLngZoom(target, defaultZoom),
-        );
+        await _animateTargetToPin(target, zoom: defaultZoom);
       }
     } else if (initialSelectedSpotId != null) {
+      _hasCenteredOnUser = true;
       selectSpotById(initialSelectedSpotId!);
     } else {
       final userPos = locationCubit.state.latLng;
@@ -223,32 +265,90 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   }
 
   void onCameraMoveStarted() {
+    _hasCenteredOnUser = true;
     if (!state.isCameraMoving && !isClosed) {
       emit(state.copyWith(isCameraMoving: true));
     }
   }
 
   void onCameraMove(CameraPosition position) {
+    _currentCameraTarget = position.target;
+    _hasCenteredOnUser = true;
     if (state.isAddingSpot) {
-      emit(
-        state.copyWith(
-          isCameraMoving: true,
-          currentZoom: position.zoom,
-          pickedLocation: position.target,
-        ),
-      );
+      if (position.zoom != state.currentZoom || !state.isCameraMoving) {
+        emit(
+          state.copyWith(
+            isCameraMoving: true,
+            currentZoom: position.zoom,
+          ),
+        );
+      }
+    } else {
+      if (position.zoom != state.currentZoom) {
+        emit(state.copyWith(currentZoom: position.zoom));
+      }
     }
   }
 
-  void onCameraIdle() {
+  Future<void> onCameraIdle() async {
     if (!isClosed && state.isCameraMoving) {
       emit(state.copyWith(isCameraMoving: false));
     }
+    final controller = _mapController;
+    if (state.isAddingSpot && controller != null && !controller.isDisposed) {
+      try {
+        final loc = await controller.toLatLng(pinScreenPoint);
+        if (!isClosed && state.isAddingSpot) {
+          emit(state.copyWith(pickedLocation: loc));
+        }
+      } catch (_) {}
+    }
   }
 
-  void enterAddSpotMode({LatLng? initialTarget}) {
-    final target =
-        initialTarget ?? locationCubit.state.latLng ?? state.pickedLocation;
+  Future<void> _animateTargetToPin(
+    LatLng target, {
+    Point<double>? screenPoint,
+    double? zoom,
+  }) async {
+    final controller = _mapController;
+    if (controller == null || controller.isDisposed || isClosed) return;
+    try {
+      Point<num> touchPoint;
+      if (screenPoint != null) {
+        touchPoint = screenPoint;
+      } else {
+        touchPoint = await controller.toScreenLocation(target);
+      }
+      final targetScreenPoint = Point<double>(
+        touchPoint.x.toDouble(),
+        touchPoint.y.toDouble() + pinCenterOffsetDy,
+      );
+      final targetCameraCenter = await controller.toLatLng(targetScreenPoint);
+      if (!controller.isDisposed && !isClosed) {
+        final update = zoom != null
+            ? CameraUpdate.newLatLngZoom(targetCameraCenter, zoom)
+            : CameraUpdate.newLatLng(targetCameraCenter);
+        await controller.animateCamera(update);
+      }
+    } catch (_) {
+      if (!controller.isDisposed && !isClosed) {
+        final update = zoom != null
+            ? CameraUpdate.newLatLngZoom(target, zoom)
+            : CameraUpdate.newLatLng(target);
+        await controller.animateCamera(update);
+      }
+    }
+  }
+
+  void enterAddSpotMode({
+    LatLng? initialTarget,
+    Point<double>? touchScreenPoint,
+  }) {
+    _hasCenteredOnUser = true;
+    final target = initialTarget ??
+        _currentCameraTarget ??
+        _mapController?.cameraPosition?.target ??
+        state.pickedLocation;
     nameController.clear();
     emit(
       state.copyWith(
@@ -261,22 +361,36 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
         isCameraMoving: false,
       ),
     );
-    final controller = _mapController;
-    if (controller != null && !controller.isDisposed) {
-      final targetZoom =
-          state.currentZoom > defaultZoom ? state.currentZoom : defaultZoom;
-      controller.animateCamera(
-        CameraUpdate.newLatLngZoom(target, targetZoom),
-      );
+
+    // If an explicit target was provided (e.g. from onMapLongClick),
+    // smoothly scroll it to the pin center.
+    // If initialTarget was null (e.g. clicking the "Add spot" button),
+    // DO NOT animate camera: keep current camera position and query pin coordinates.
+    if (initialTarget != null) {
+      final controller = _mapController;
+      if (controller != null && !controller.isDisposed) {
+        _animateTargetToPin(initialTarget, screenPoint: touchScreenPoint);
+      }
+    } else {
+      final controller = _mapController;
+      if (controller != null && !controller.isDisposed) {
+        controller.toLatLng(pinScreenPoint).then((loc) {
+          if (!isClosed && state.isAddingSpot) {
+            emit(state.copyWith(pickedLocation: loc));
+          }
+        }).catchError((_) {});
+      }
     }
   }
 
-  void onMapLongClick(LatLng coords) {
-    enterAddSpotMode(initialTarget: coords);
+  void onMapLongClick(LatLng coords, {Point<double>? screenPoint}) {
+    _hasCenteredOnUser = true;
+    enterAddSpotMode(initialTarget: coords, touchScreenPoint: screenPoint);
   }
 
   void exitAddSpotMode() {
     nameController.clear();
+    _hasCenteredOnUser = true;
     emit(
       state.copyWith(
         mode: SpotsMapMode.viewing,
@@ -304,9 +418,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       emit(state.copyWith(pickedLocation: pos));
       final controller = _mapController;
       if (controller != null && !controller.isDisposed) {
-        controller.animateCamera(
-          CameraUpdate.newLatLngZoom(pos, defaultZoom),
-        );
+        await _animateTargetToPin(pos, zoom: defaultZoom);
       }
     }
   }
@@ -314,13 +426,21 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   Future<Spot?> saveCurrentSpot() async {
     if (!state.canSave) return null;
 
-    emit(state.copyWith(isSaving: true));
+    final controller = _mapController;
+    LatLng saveLocation = state.pickedLocation;
+    if (controller != null && !controller.isDisposed) {
+      try {
+        saveLocation = await controller.toLatLng(pinScreenPoint);
+      } catch (_) {}
+    }
+
+    emit(state.copyWith(isSaving: true, pickedLocation: saveLocation));
     try {
       final spot = await spotsCubit.saveSpot(
         name: state.spotName.trim(),
         category: state.category,
-        latitude: state.pickedLocation.latitude,
-        longitude: state.pickedLocation.longitude,
+        latitude: saveLocation.latitude,
+        longitude: saveLocation.longitude,
       );
 
       if (!isClosed) {

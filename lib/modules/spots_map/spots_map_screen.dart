@@ -81,6 +81,18 @@ class _SpotsMapView extends StatelessWidget {
     // Explicitly listen to theme brightness so entire view rebuilds on theme changes
     final _ = context.isDarkMode;
 
+    final mediaQuery = MediaQuery.of(context);
+    final topPadding = mediaQuery.padding.top + 64.0;
+    final bottomAddPadding = 280.0 + mediaQuery.padding.bottom;
+    final size = mediaQuery.size;
+
+    context.read<SpotsMapCubit>().updatePinScreenMetrics(
+      topPadding: topPadding,
+      bottomPadding: bottomAddPadding,
+      screenWidth: size.width,
+      screenHeight: size.height,
+    );
+
     final view = Scaffold(
       resizeToAvoidBottomInset: true,
       body: Stack(
@@ -130,7 +142,6 @@ class _SpotsMapView extends StatelessWidget {
               cubit.selectSpotById(navState.selectedSpotId!);
             } else {
               cubit.selectSpot(null);
-              cubit.recenterOnUser();
             }
           }
         },
@@ -174,7 +185,7 @@ class _MapLayer extends StatelessWidget {
             },
             onMapLongClick: (point, coords) {
               FocusScope.of(context).unfocus();
-              cubit.onMapLongClick(coords);
+              cubit.onMapLongClick(coords, screenPoint: point);
             },
             onCameraMove: cubit.onCameraMove,
             onCameraIdle: cubit.onCameraIdle,

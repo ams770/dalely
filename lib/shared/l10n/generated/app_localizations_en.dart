@@ -80,6 +80,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showOnMap => 'Show on map';
 
   @override
+  String get openMap => 'open map';
+
+  @override
   String get whereMyCarTitle => 'find my car';
 
   @override

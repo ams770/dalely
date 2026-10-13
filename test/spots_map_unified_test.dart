@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:feen/modules/spots_map/cubit/spots_map_cubit.dart';
 import 'package:feen/modules/spots_map/cubit/spots_map_state.dart';
 import 'package:feen/shared/constants/spot_categories.dart';
@@ -184,6 +186,149 @@ void main() {
       expect(cubit.state.isAddingSpot, isTrue);
       expect(cubit.state.pickedLocation.latitude, closeTo(29.98, 0.0001));
       expect(cubit.state.pickedLocation.longitude, closeTo(31.25, 0.0001));
+
+      cubit.close();
+    });
+
+    test('updatePinScreenMetrics correctly computes pinScreenPoint and pinCenterOffsetDy', () {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+      );
+
+      // Suppose screen is 400x800, topPadding is 100, bottomPadding is 300
+      cubit.updatePinScreenMetrics(
+        topPadding: 100,
+        bottomPadding: 300,
+        screenWidth: 400,
+        screenHeight: 800,
+      );
+
+      // Pin center y = 100 + (800 - 100 - 300) / 2 = 100 + 200 = 300
+      // Pin center x = 400 / 2 = 200
+      expect(cubit.pinScreenPoint, const Point<double>(200, 300));
+
+      // Screen center is (200, 400)
+      expect(cubit.screenCenterPoint, const Point<double>(200, 400));
+
+      // Offset dy = 400 - 300 = 100
+      expect(cubit.pinCenterOffsetDy, 100.0);
+
+      cubit.close();
+    });
+
+    test('onMapLongClick with screenPoint forwards touch coordinates', () {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+      );
+
+      cubit.onMapLongClick(
+        const LatLng(30.05, 31.25),
+        screenPoint: const Point<double>(150, 450),
+      );
+
+      expect(cubit.state.mode, SpotsMapMode.addSpot);
+      expect(cubit.state.isAddingSpot, isTrue);
+      expect(cubit.state.pickedLocation.latitude, closeTo(30.05, 0.0001));
+      expect(cubit.state.pickedLocation.longitude, closeTo(31.25, 0.0001));
+
+      cubit.close();
+    });
+
+    test('onMapLongClick while already in addSpot mode updates picked location to newly clicked point', () {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+      );
+
+      // First long click
+      cubit.onMapLongClick(const LatLng(30.0, 31.0));
+      expect(cubit.state.isAddingSpot, isTrue);
+      expect(cubit.state.pickedLocation.latitude, closeTo(30.0, 0.0001));
+      expect(cubit.state.pickedLocation.longitude, closeTo(31.0, 0.0001));
+
+      // Second long click on a different point while addSpot mode is open
+      cubit.onMapLongClick(
+        const LatLng(30.5, 31.5),
+        screenPoint: const Point<double>(210, 520),
+      );
+      expect(cubit.state.isAddingSpot, isTrue);
+      expect(cubit.state.pickedLocation.latitude, closeTo(30.5, 0.0001));
+      expect(cubit.state.pickedLocation.longitude, closeTo(31.5, 0.0001));
+
+      cubit.close();
+    });
+
+    test('enterAddSpotMode with null initialTarget uses current camera center and does not reset to user location', () {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+      );
+
+      // Simulate user panning the camera to a custom location while viewing
+      cubit.onCameraMove(const CameraPosition(
+        target: LatLng(31.2001, 29.9187), // Alexandria
+        zoom: 15.0,
+      ));
+
+      // User clicks "Add spot" button (initialTarget is null)
+      cubit.enterAddSpotMode();
+
+      expect(cubit.state.mode, SpotsMapMode.addSpot);
+      expect(cubit.state.isAddingSpot, isTrue);
+      // Pin is placed at the current camera center, NOT the user's GPS location (30.0444, 31.2357)
+      expect(cubit.state.pickedLocation.latitude, closeTo(31.2001, 0.0001));
+      expect(cubit.state.pickedLocation.longitude, closeTo(29.9187, 0.0001));
+
+      cubit.close();
+    });
+
+    test('cancelling addSpot mode preserves camera position and prevents unwanted auto-center on subsequent location updates', () {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+      );
+
+      // Long click at custom point
+      cubit.onMapLongClick(const LatLng(29.98, 31.25));
+      expect(cubit.state.isAddingSpot, isTrue);
+
+      // User cancels / exits add spot mode
+      cubit.exitAddSpotMode();
+      expect(cubit.state.mode, SpotsMapMode.viewing);
+      expect(cubit.state.isAddingSpot, isFalse);
+
+      // Emit new location updates
+      fakeLocationCubit.emit(LocationState(
+        access: LocationAccess.granted,
+        position: Position(
+          latitude: 30.0500,
+          longitude: 31.2400,
+          timestamp: DateTime.now(),
+          accuracy: 5.0,
+          altitude: 0.0,
+          altitudeAccuracy: 0.0,
+          heading: 0.0,
+          headingAccuracy: 0.0,
+          speed: 0.0,
+          speedAccuracy: 0.0,
+        ),
+      ));
+
+      // State remains in viewing mode without forced selection or disruption
+      expect(cubit.state.isAddingSpot, isFalse);
+      expect(cubit.state.selectedSpot, isNull);
 
       cubit.close();
     });

@@ -271,7 +271,7 @@ class _ActiveCarContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             PillButton(
-              label: l10n.whereMyCarTitle,
+              label: l10n.openMap,
               icon: Icons.navigation_rounded,
               backgroundColor: primary,
               foregroundColor: colors.onPrimary,
@@ -279,7 +279,7 @@ class _ActiveCarContent extends StatelessWidget {
             ),
             const SizedBox(height: AppDimens.space6),
             PillButton(
-              label: l10n.foundMyCar,
+              label: ' ${l10n.foundMyCar}  ',
               icon: Icons.check_circle_outline_rounded,
               backgroundColor: AppColors.greenLight,
               foregroundColor: AppColors.greenDark,
@@ -406,14 +406,14 @@ class _EmptyCarContent extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(
-                height: 48,
+                height: 52,
                 child: Image(
                   image: AssetProvider.carImage,
                   fit: BoxFit.contain,
                   alignment: Alignment.center,
                 ),
               ),
-              const SizedBox(height: AppDimens.space6),
+              const SizedBox(height: AppDimens.space8),
               Text(
                 l10n.noCarMessage,
                 maxLines: 1,
@@ -427,7 +427,7 @@ class _EmptyCarContent extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: AppDimens.space12),
+        const SizedBox(height: AppDimens.space8),
         PillButton(
           label: l10n.parkHere,
           icon: Icons.local_parking_rounded,

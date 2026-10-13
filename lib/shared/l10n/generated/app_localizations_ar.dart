@@ -83,6 +83,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get showOnMap => 'على الخريطة';
 
   @override
+  String get openMap => 'افتح الخريطة';
+
+  @override
   String get whereMyCarTitle => 'وين سيارتى؟';
 
   @override
@@ -671,6 +674,9 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
   String get showOnMap => 'على الخريطة';
 
   @override
+  String get openMap => 'افتح الخريطة';
+
+  @override
   String get whereMyCarTitle => 'عربيتي فين؟';
 
   @override
@@ -1182,6 +1188,9 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
 
   @override
   String get showOnMap => 'على الخريطة';
+
+  @override
+  String get openMap => 'افتح الخريطة';
 
   @override
   String get whereMyCarTitle => 'وين سيارتى؟';

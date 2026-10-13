@@ -61,7 +61,11 @@ class CenterPin extends StatelessWidget {
           // Animated Pin
           AnimatedContainer(
             duration: const Duration(milliseconds: 150),
-            transform: Matrix4.translationValues(0, isCameraMoving ? -14 : 0, 0),
+            transform: Matrix4.translationValues(
+              0,
+              isCameraMoving ? -14 : 0,
+              0,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -81,11 +85,7 @@ class CenterPin extends StatelessWidget {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: Icon(
-                    category.icon,
-                    color: Colors.white,
-                    size: 29,
-                  ),
+                  child: Icon(category.icon, color: Colors.white, size: 29),
                 ),
                 // Pointer tip
                 CustomPaint(

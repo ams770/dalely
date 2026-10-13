@@ -214,6 +214,12 @@ abstract class AppLocalizations {
   /// **'Show on map'**
   String get showOnMap;
 
+  /// No description provided for @openMap.
+  ///
+  /// In en, this message translates to:
+  /// **'open map'**
+  String get openMap;
+
   /// No description provided for @whereMyCarTitle.
   ///
   /// In en, this message translates to:
