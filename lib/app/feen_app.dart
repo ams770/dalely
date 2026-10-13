@@ -13,6 +13,7 @@ import '../shared/cubits/spots/spots_state.dart';
 import '../shared/l10n/generated/app_localizations.dart';
 import '../shared/services/notification_service.dart';
 import '../shared/theme/app_theme.dart';
+import '../shared/utils/app_snack_bar.dart';
 import 'app_router.dart';
 import 'bootstrap.dart';
 import 'notification_action_router.dart';
@@ -99,6 +100,77 @@ class DalelyApp extends StatelessWidget {
       ),
     );
   }
+
+  static Locale resolveAppLocale({
+    required Locale? userOverride,
+    List<Locale>? preferredLocales,
+    Locale? deviceLocale,
+    required Iterable<Locale> supportedLocales,
+  }) {
+    // 1. User manual override from settings
+    if (userOverride != null) {
+      return userOverride;
+    }
+
+    // 2. Check preferred locales list from the system
+    if (preferredLocales != null && preferredLocales.isNotEmpty) {
+      for (final locale in preferredLocales) {
+        final match = _matchSupportedLocale(locale, supportedLocales);
+        if (match != null) {
+          return match;
+        }
+      }
+    }
+
+    // 3. Check single device locale
+    if (deviceLocale != null) {
+      final match = _matchSupportedLocale(deviceLocale, supportedLocales);
+      if (match != null) {
+        return match;
+      }
+    }
+
+    // 4. Default fallback to English
+    return const Locale('en');
+  }
+
+  static Locale? _matchSupportedLocale(
+    Locale locale,
+    Iterable<Locale> supportedLocales,
+  ) {
+    final country = locale.countryCode?.toUpperCase();
+
+    // Arabic handling
+    if (locale.languageCode == 'ar') {
+      if (country != null) {
+        // Exact match with supported locales (e.g. ar_EG or ar_SA)
+        for (final supported in supportedLocales) {
+          if (supported.languageCode == 'ar' &&
+              supported.countryCode?.toUpperCase() == country) {
+            return supported;
+          }
+        }
+        // Egyptian dialect match
+        if (country == 'EG') {
+          return const Locale('ar', 'EG');
+        }
+        // Saudi / Gulf Arabic dialect match
+        if (const ['SA', 'AE', 'KW', 'QA', 'BH', 'OM'].contains(country)) {
+          return const Locale('ar', 'SA');
+        }
+      }
+      // General Arabic fallback
+      return const Locale('ar', 'EG');
+    }
+
+    // English handling
+    if (locale.languageCode == 'en') {
+      return const Locale('en');
+    }
+
+    // Unsupported language
+    return null;
+  }
 }
 
 class _DalelyMaterialApp extends StatelessWidget {
@@ -132,11 +204,11 @@ class _DalelyMaterialApp extends StatelessWidget {
       child: BlocBuilder<SettingsCubit, SettingsState>(
         buildWhen: (prev, curr) =>
             prev.themeMode != curr.themeMode ||
-            prev.localeCode != curr.localeCode ||
-            prev.hasCompletedOnboarding != curr.hasCompletedOnboarding,
+            prev.localeCode != curr.localeCode,
         builder: (context, settings) {
           return MaterialApp(
             navigatorKey: appNavigatorKey,
+            scaffoldMessengerKey: mainScaffoldMessengerKey,
             navigatorObservers: [appRouteObserver],
             debugShowCheckedModeBanner: false,
             onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
@@ -151,47 +223,21 @@ class _DalelyMaterialApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
+            localeListResolutionCallback: (locales, supportedLocales) {
+              return DalelyApp.resolveAppLocale(
+                userOverride: settings.locale,
+                preferredLocales: locales,
+                deviceLocale: locales?.firstOrNull,
+                supportedLocales: supportedLocales,
+              );
+            },
             localeResolutionCallback: (deviceLocale, supportedLocales) {
-              if (settings.locale != null) {
-                return settings.locale;
-              }
-              if (deviceLocale != null) {
-                // 1. Exact match with country code (e.g. ar_EG or ar_SA)
-                for (final supported in supportedLocales) {
-                  if (supported.languageCode == deviceLocale.languageCode &&
-                      supported.countryCode != null &&
-                      supported.countryCode == deviceLocale.countryCode) {
-                    return supported;
-                  }
-                }
-                // 2. Egyptian match
-                if (deviceLocale.countryCode == 'EG') {
-                  return const Locale('ar', 'EG');
-                }
-                // 3. Saudi / Gulf Arabic
-                if (deviceLocale.languageCode == 'ar' &&
-                    const [
-                      'SA',
-                      'AE',
-                      'KW',
-                      'QA',
-                      'BH',
-                      'OM',
-                    ].contains(deviceLocale.countryCode)) {
-                  return const Locale('ar', 'SA');
-                }
-                // 4. General Arabic fallback
-                if (deviceLocale.languageCode == 'ar') {
-                  return const Locale('ar', 'EG');
-                }
-                // 5. English or other language
-                for (final supported in supportedLocales) {
-                  if (supported.languageCode == deviceLocale.languageCode) {
-                    return supported;
-                  }
-                }
-              }
-              return const Locale('en');
+              return DalelyApp.resolveAppLocale(
+                userOverride: settings.locale,
+                preferredLocales: null,
+                deviceLocale: deviceLocale,
+                supportedLocales: supportedLocales,
+              );
             },
             initialRoute: settings.hasCompletedOnboarding
                 ? AppRouter.home

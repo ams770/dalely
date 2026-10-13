@@ -4,8 +4,6 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 import '../constants/app_assets.dart';
 import '../constants/spot_categories.dart';
 
@@ -37,13 +35,13 @@ enum MarkerZoomTier {
   }
 }
 
-/// Pre-renders and caches custom Google Map markers.
+/// Pre-renders and caches custom map marker icons as PNG byte arrays.
 class MarkerIconCache {
   MarkerIconCache._internal();
   static final MarkerIconCache _instance = MarkerIconCache._internal();
   factory MarkerIconCache() => _instance;
 
-  final Map<String, BitmapDescriptor> _cache = {};
+  final Map<String, Uint8List> _cache = {};
   ui.Image? _cachedCarImage;
 
   Future<ui.Image> _getCarImage() async {
@@ -59,7 +57,7 @@ class MarkerIconCache {
   Offset carMarkerAnchor(MarkerZoomTier tier) => tier.anchor;
 
   /// Retrieves or creates a custom car pin marker with assets/images/car.png inside.
-  Future<BitmapDescriptor> getCarMarker({
+  Future<Uint8List> getCarMarker({
     Color color = const Color(0xFFFF8A65),
     bool isSelected = false,
     MarkerZoomTier tier = MarkerZoomTier.high,
@@ -74,13 +72,8 @@ class MarkerIconCache {
         isSelected: isSelected,
         tier: tier,
       );
-      final descriptor = BitmapDescriptor.bytes(
-        bytes,
-        width: tier.pinSize,
-        bitmapScaling: MapBitmapScaling.auto,
-      );
-      _cache[key] = descriptor;
-      return descriptor;
+      _cache[key] = bytes;
+      return bytes;
     } catch (_) {
       final bytes = await _renderCategoryPin(
         icon: SpotCategory.car.icon,
@@ -88,18 +81,13 @@ class MarkerIconCache {
         isSelected: isSelected,
         tier: tier,
       );
-      final descriptor = BitmapDescriptor.bytes(
-        bytes,
-        width: tier.pinSize,
-        bitmapScaling: MapBitmapScaling.auto,
-      );
-      _cache[key] = descriptor;
-      return descriptor;
+      _cache[key] = bytes;
+      return bytes;
     }
   }
 
   /// Retrieves or creates a category marker pin adapted for the given zoom tier.
-  Future<BitmapDescriptor> getCategoryMarker({
+  Future<Uint8List> getCategoryMarker({
     required SpotCategory category,
     required Color color,
     bool isSelected = false,
@@ -120,18 +108,12 @@ class MarkerIconCache {
       isSelected: isSelected,
       tier: tier,
     );
-
-    final descriptor = BitmapDescriptor.bytes(
-      bytes,
-      width: tier.pinSize,
-      bitmapScaling: MapBitmapScaling.auto,
-    );
-    _cache[key] = descriptor;
-    return descriptor;
+    _cache[key] = bytes;
+    return bytes;
   }
 
   /// Retrieves or creates a custom user location marker (blue dot + direction cone).
-  Future<BitmapDescriptor> getUserLocationMarker({
+  Future<Uint8List> getUserLocationMarker({
     required double heading,
   }) async {
     // Quantize heading to 5 degree buckets to avoid cache explosion
@@ -145,13 +127,8 @@ class MarkerIconCache {
       size: size,
       heading: bucket.toDouble(),
     );
-    final descriptor = BitmapDescriptor.bytes(
-      bytes,
-      width: size,
-      bitmapScaling: MapBitmapScaling.auto,
-    );
-    _cache[key] = descriptor;
-    return descriptor;
+    _cache[key] = bytes;
+    return bytes;
   }
 
   Future<Uint8List> _renderCategoryPin({

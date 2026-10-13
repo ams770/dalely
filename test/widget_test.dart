@@ -54,10 +54,10 @@ void main() {
       expect(MarkerZoomTier.low.pinSize, 38.0);
     });
 
-    test('getCarMarker returns a BitmapDescriptor without throwing', () async {
+    test('getCarMarker returns PNG bytes without throwing', () async {
       final cache = MarkerIconCache();
       final marker = await cache.getCarMarker();
-      expect(marker, isNotNull);
+      expect(marker, isNotEmpty);
     });
   });
 

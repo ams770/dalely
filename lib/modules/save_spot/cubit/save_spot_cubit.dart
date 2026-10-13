@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../shared/constants/spot_categories.dart';
 import '../../../shared/cubits/location/location_cubit.dart';
@@ -35,7 +35,7 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
   final TextEditingController nameController;
   final TextEditingController searchController;
 
-  GoogleMapController? _mapController;
+  MapLibreMapController? _mapController;
   Timer? _searchDebounce;
 
   void _init() {
@@ -60,7 +60,7 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
     }
   }
 
-  void onMapCreated(GoogleMapController controller) {
+  void onMapCreated(MapLibreMapController controller) {
     _mapController = controller;
     final userPos = locationCubit.state.latLng;
     if (userPos != null) {

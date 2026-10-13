@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../shared/cubits/adaptive_nav/adaptive_nav_cubit.dart';
 import '../../shared/cubits/adaptive_nav/adaptive_nav_state.dart';
@@ -11,9 +10,10 @@ import '../../shared/services/marker_icon_cache.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../shared/theme/app_dimens.dart';
 import '../../shared/utils/context_ext.dart';
-import '../../shared/widgets/app_google_map.dart';
+import '../../shared/widgets/app_map.dart';
 import '../../shared/widgets/center_pin.dart';
 import '../../shared/widgets/circle_icon_button.dart';
+import '../../shared/widgets/pill_button.dart';
 import 'cubit/spots_map_cubit.dart';
 import 'cubit/spots_map_state.dart';
 import 'widgets/save_spot_bottom_panel.dart';
@@ -82,7 +82,7 @@ class _SpotsMapView extends StatelessWidget {
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
-          // 1. Fullscreen Google Map
+          // 1. Fullscreen Map
           const _MapLayer(),
 
           // 2. Dark Map Loading Mask (masks native map during dark theme initialization)
@@ -145,40 +145,31 @@ class _MapLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<SpotsMapCubit>();
-    final mediaQuery = MediaQuery.of(context);
-    final topPadding = mediaQuery.padding.top + 64.0;
-    final bottomAddPadding = 280.0 + mediaQuery.padding.bottom;
 
     return BlocBuilder<SpotsMapCubit, SpotsMapState>(
       buildWhen: (prev, curr) =>
-          prev.markers != curr.markers ||
           prev.isAddingSpot != curr.isAddingSpot,
       builder: (context, state) {
         return RepaintBoundary(
-          child: AppGoogleMap(
+          child: AppMap(
             initialCameraPosition: CameraPosition(
               target: state.initialTarget,
               zoom: state.initialZoom,
             ),
             onMapCreated: cubit.onMapCreated,
-            markers: state.markers,
-            onTap: (_) {
+            onStyleLoadedCallback: cubit.onStyleLoaded,
+            onMapClick: (point, coords) {
               FocusScope.of(context).unfocus();
               if (!state.isAddingSpot) {
                 cubit.selectSpot(null);
               }
             },
-            onCameraMoveStarted: cubit.onCameraMoveStarted,
             onCameraMove: cubit.onCameraMove,
             onCameraIdle: cubit.onCameraIdle,
             zoomGesturesEnabled: true,
             scrollGesturesEnabled: true,
             rotateGesturesEnabled: true,
             tiltGesturesEnabled: true,
-            padding: EdgeInsets.only(
-              top: topPadding,
-              bottom: state.isAddingSpot ? bottomAddPadding : 120.0,
-            ),
           ),
         );
       },
@@ -315,19 +306,37 @@ class _TopControlsLayer extends StatelessWidget {
                     )
                   else
                     const SizedBox.shrink(),
-                  CircleIconButton(
-                    icon: const Icon(CupertinoIcons.add),
-                    tooltip: l10n.saveThisSpot,
-                    foregroundColor: AppColors.lightSurface,
-                    onPressed: cubit.enterAddSpotMode,
-                    backgroundColor: AppColors.lightPrimary,
-                  ),
+
+                  if (!isEmbedded)
+                    _AddSpotHeaderButton(onPressed: cubit.enterAddSpotMode),
                 ],
               );
             },
           ),
         ),
       ),
+    );
+  }
+}
+
+class _AddSpotHeaderButton extends StatelessWidget {
+  const _AddSpotHeaderButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colorScheme;
+
+    return PillButton(
+      label: context.l10n.addSpot,
+      icon: Icons.add_rounded,
+      backgroundColor: colors.primary,
+      foregroundColor: colors.onPrimary,
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: AppDimens.space16,
+      ),
+      onPressed: onPressed,
     );
   }
 }

@@ -20,11 +20,6 @@
             android:name=".CarTrackingReceiver"
             android:exported="false" />
 
-        <!-- Google Maps Android API Key -->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCn28rpLlFBLIVY8yM31OacJ3cwyYO8q60" />
-
         <activity
             android:name=".MainActivity"
             android:exported="true"

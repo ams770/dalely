@@ -14,7 +14,7 @@ import '../shared/services/home_widget_service.dart';
 import '../shared/services/notification_service.dart';
 import '../shared/utils/geo_uri_parser.dart';
 
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 
 import 'app_router.dart';
 

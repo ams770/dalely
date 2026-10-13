@@ -11,7 +11,7 @@
 A simple, friendly, **local-only** Flutter app for saving places you need to find again (car, market, home, pharmacy…).
 
 - No account, no sign-up, no backend, no analytics. Data stays on the phone (Hive).
-- The app **does not navigate**. It shows spots on an in-app **Google Map** and hands off to Google Maps / the default maps app for directions.
+- The app **does not navigate**. It shows spots on an in-app map (**MapLibre GL** with free CARTO vector styles) and hands off to Google Maps / the default maps app for directions.
 - The **car** is a special single spot that is overwritten every time the user parks.
 - Every spot has 3 actions: **On map**, **Open in Maps**, **Share**.
 - Share one spot or all spots as text: `Name - https://maps.google.com/?q=lat,lng`.
@@ -28,13 +28,13 @@ Screens: **Home**, **All spots on map**, **Save a spot**, **Search**, **Settings
 
 1. **Architecture is `app/` + `shared/` + `modules/`.** No `features/`, no `domain/data/presentation` layers, no clean-architecture use cases, no modular monolith packages.
 2. **No function widgets.** Never write methods/functions that return a `Widget` (`_buildHeader()`, `Widget card() => …`). Every UI piece is its own `class X extends StatelessWidget`.
-3. **StatelessWidget only.** Do not create `StatefulWidget`s. Controllers (`GoogleMapController`, `TextEditingController`, `ScrollController`, lifecycle listeners, timers, subscriptions) live **inside cubits** and are disposed in `close()`.
+3. **StatelessWidget only.** Do not create `StatefulWidget`s. Controllers (`MapLibreMapController`, `TextEditingController`, `ScrollController`, lifecycle listeners, timers, subscriptions) live **inside cubits** and are disposed in `close()`.
 4. **State = Cubits (`flutter_bloc`). No `freezed`, no `equatable`, no code-gen for state.** States are plain Dart classes (see §5).
 5. **All component styling lives in the theme.** Buttons, inputs, chips, cards, segmented buttons, sheets, dialogs, snackbars, list tiles, icon buttons are styled in `shared/theme/app_theme.dart`. Widgets never hardcode colors, radii, font sizes, or paddings that belong to the theme.
 6. **Never repeat a component.** If a UI piece is used in 2+ places it **must** live in `shared/widgets/`. Before creating a widget, search `shared/widgets/` first and reuse/extend.
 7. **Every user-visible string is localized** (ARB, en + ar). No hardcoded text in widgets.
 8. **RTL-safe always.** Use directional APIs only (see §7).
-9. **Google Maps only** (`google_maps_flutter`). No `flutter_map`, no OSM, no Mapbox.
+9. **MapLibre GL with free vector tiles** (`maplibre_gl`). CARTO Voyager (vibrant & colorful) & Dark Matter vector styles (no Google Maps API key required).
 10. **Local only (Hive).** Never add network backends, auth, Firebase, analytics, or crash reporters without explicit approval.
 11. **Location stream runs while the app is in the foreground** and pauses in the background (see §9).
 12. **No new packages without asking** (see §13).
@@ -121,7 +121,7 @@ lib/
 
 ### Existing shared widgets (reuse, don't recreate)
 
-`AppGoogleMap`, `CategoryBadge`, `InfoPill` / `DistancePill`, `SpotCard`, `SpotActionsRow`, `CircleIconButton`, `PrimaryBottomButton`, `SectionHeader`, `SettingsGroup`, `SettingsTile`, `CategoryChips`, `LocationPermissionBanner`, `EmptyState`, `CenterPin`, `PillButton`.
+`AppMap` (`AppGoogleMap`), `CategoryBadge`, `InfoPill` / `DistancePill`, `SpotCard`, `SpotActionsRow`, `CircleIconButton`, `PrimaryBottomButton`, `SectionHeader`, `SettingsGroup`, `SettingsTile`, `CategoryChips`, `LocationPermissionBanner`, `EmptyState`, `CenterPin`, `PillButton`.
 Keep this list updated when adding shared widgets.
 
 ---
@@ -231,15 +231,14 @@ Nullable fields in `copyWith` that must be clearable use a `ValueGetter<T?>?` pa
 
 ## 10. Maps
 
-- Always render maps through `shared/widgets/app_google_map.dart` (applies theme style, cached markers, gesture config).
-- Marker bitmaps are generated once and cached in `marker_icon_cache.dart` — never generate per build. The parked car spot uses `assets/images/car.png` rendered inside a dedicated pin marker component with a white inner badge matching standard pin geometry and zoom tiers.
+- Always render maps through `shared/widgets/app_map.dart` (applies simple normal vector styles with subtle blue theme tint, cached marker images, gesture config).
+- Marker bitmaps are generated once and cached in `marker_icon_cache.dart` as raw PNG byte buffers and registered with the MapLibre controller via `addImage` — never regenerate per build. The parked car spot uses `assets/images/car.png` rendered inside a dedicated pin marker component with a white inner badge matching standard pin geometry and zoom tiers.
 - Buttons across the entire app are strictly flat solid color with no gradients (`filledButtonTheme`, `primary_bottom_button.dart`).
-- Home preview map is non-interactive (Android `liteModeEnabled`).
 - Opening external maps goes through `shared/services/maps_launcher.dart` only:
   - Android: Google Maps directions URL, fallback `geo:` URI.
   - iOS: `comgooglemaps://` if available, else Apple Maps URL.
 - Share text is built only by `shared/utils/spot_link_builder.dart`: `"$name - https://maps.google.com/?q=$lat,$lng"`.
-- The Google Maps API key is configured natively (`AndroidManifest.xml` meta-data, iOS `AppDelegate.swift`). Never put it in Dart code. Don't duplicate it elsewhere.
+- Free vector styles require no native API keys in `AndroidManifest.xml` or `AppDelegate.swift`.
 
 ## 11. Native widgets (home / lock screen)
 
@@ -264,9 +263,9 @@ Nullable fields in `copyWith` that must be clearable use a `ValueGetter<T?>?` pa
 
 ## 13. Packages
 
-Approved: `flutter_bloc`, `hive_ce`, `hive_ce_flutter`, `google_maps_flutter`, `geolocator`, `flutter_compass`, `url_launcher`, `share_plus`, `home_widget`, `package_info_plus`, `in_app_review`, `flutter_localizations`, `intl`, `flutter_local_notifications`, `flutter_launcher_icons`, `flutter_native_splash`, `lottie`, place-search package per decisions log.
+Approved: `flutter_bloc`, `hive_ce`, `hive_ce_flutter`, `maplibre_gl`, `geolocator`, `flutter_compass`, `url_launcher`, `share_plus`, `home_widget`, `package_info_plus`, `in_app_review`, `flutter_localizations`, `intl`, `flutter_local_notifications`, `flutter_launcher_icons`, `flutter_native_splash`, `lottie`, place-search package per decisions log.
 
-Not allowed: `freezed`, `equatable`, `get_it`, `provider` (directly), `riverpod`, `getx`, `go_router` (plain `onGenerateRoute` is used), `flutter_map`, `google_fonts` (fonts are bundled), any backend/analytics SDK.
+Not allowed: `google_maps_flutter`, `freezed`, `equatable`, `get_it`, `provider` (directly), `riverpod`, `getx`, `go_router` (plain `onGenerateRoute` is used), `flutter_map`, `google_fonts` (fonts are bundled), any backend/analytics SDK.
 
 Adding anything else → ask first, then add it to this list.
 
@@ -298,11 +297,11 @@ Adding anything else → ask first, then add it to this list.
 
 | # | Topic | Decision |
 |---|---|---|
-| 1 | Map provider | Google Maps only |
+| 1 | Map provider | MapLibre GL (`maplibre_gl`) with CARTO Positron & Dark Matter vector styles (free, no API key) |
 | 2 | Storage | Hive (`hive_ce`), manual adapters |
 | 3 | State | Cubits, plain Dart state classes |
 | 4 | Languages | en, ar; device locale → fallback en |
-| 5 | Maps API key | Provided; configured natively (Android manifest + iOS AppDelegate) |
+| 5 | Maps API key | None needed (free CARTO vector styles) |
 | 6 | Place search | _Pending: native geocoder vs Google Places_ |
 | 7 | Widget "Park" | _Pending: open app briefly vs background save_ |
 | 8 | Bundle ID / App Group | _Pending (currently `com.dalely.app`)_ |

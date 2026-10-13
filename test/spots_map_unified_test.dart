@@ -12,7 +12,7 @@ import 'package:feen/shared/theme/app_theme_extension.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 
 class _FakeSpotsCubit extends Cubit<SpotsState> implements SpotsCubit {
   _FakeSpotsCubit(List<Spot> initialSpots, {Spot? car})
@@ -106,8 +106,8 @@ void main() {
       expect(cubit.state.isAddingSpot, isFalse);
       expect(cubit.state.category, SpotCategory.other);
       // Confirms camera target centers on user position when no spot is selected
-      expect(cubit.state.initialTarget.latitude, 30.0444);
-      expect(cubit.state.initialTarget.longitude, 31.2357);
+      expect(cubit.state.initialTarget.latitude, closeTo(30.0444, 0.0001));
+      expect(cubit.state.initialTarget.longitude, closeTo(31.2357, 0.0001));
       cubit.close();
     });
 
@@ -136,8 +136,8 @@ void main() {
 
       expect(cubit.state.mode, SpotsMapMode.addSpot);
       expect(cubit.state.isAddingSpot, isTrue);
-      expect(cubit.state.pickedLocation.latitude, 30.0444);
-      expect(cubit.state.pickedLocation.longitude, 31.2357);
+      expect(cubit.state.pickedLocation.latitude, closeTo(30.0444, 0.0001));
+      expect(cubit.state.pickedLocation.longitude, closeTo(31.2357, 0.0001));
       cubit.close();
     });
 
@@ -154,8 +154,8 @@ void main() {
       cubit.enterAddSpotMode(initialTarget: const LatLng(30.1, 31.3));
       expect(cubit.state.mode, SpotsMapMode.addSpot);
       expect(cubit.state.isAddingSpot, isTrue);
-      expect(cubit.state.pickedLocation.latitude, 30.1);
-      expect(cubit.state.pickedLocation.longitude, 31.3);
+      expect(cubit.state.pickedLocation.latitude, closeTo(30.1, 0.0001));
+      expect(cubit.state.pickedLocation.longitude, closeTo(31.3, 0.0001));
 
       cubit.exitAddSpotMode();
       expect(cubit.state.mode, SpotsMapMode.viewing);

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -242,11 +243,20 @@ class SpotsCubit extends Cubit<SpotsState> {
     notificationService.cancelParkingNotification();
 
     final pos = userPosition ?? locationCubit?.state.position;
+    final bool isArabic;
+    if (settings.localeCode != null) {
+      isArabic = settings.localeCode!.startsWith('ar');
+    } else {
+      final deviceLanguage =
+          WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+      isArabic = deviceLanguage == 'ar';
+    }
+
     carTrackingCubit?.startCarTracking(
       car: car,
       currentLat: pos?.latitude,
       currentLng: pos?.longitude,
-      isArabic: settings.localeCode == 'ar',
+      isArabic: isArabic,
     );
   }
 

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../shared/constants/spot_categories.dart';
 import '../../../shared/cubits/location/location_cubit.dart';
@@ -14,7 +14,7 @@ import '../../../shared/theme/app_theme_extension.dart';
 import 'spots_map_state.dart';
 
 class SpotsMapCubit extends Cubit<SpotsMapState> {
-  static const double defaultZoom = 20.0;
+  static const double defaultZoom = 17.0;
 
   SpotsMapCubit({
     required this.spotsCubit,
@@ -53,10 +53,11 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   final bool _isDarkMode;
   bool get isDarkMode => _isDarkMode;
 
-  GoogleMapController? _mapController;
+  MapLibreMapController? _mapController;
   StreamSubscription? _spotsSubscription;
   StreamSubscription? _locationSubscription;
   bool _hasCenteredOnUser = false;
+  bool _styleLoaded = false;
 
   static SpotsMapState _computeInitialState({
     required SpotsCubit spotsCubit,
@@ -90,8 +91,6 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       if (selectedSpot != null) {
         target = selectedSpot.latLng;
       } else if (locationCubit.state.hasLocation) {
-        // When opening map without a specific spot (e.g. from Home or on big page),
-        // prioritize current user position!
         target = locationCubit.state.latLng!;
       } else if (spotsCubit.state.car != null) {
         target = spotsCubit.state.car!.latLng;
@@ -142,15 +141,19 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     });
   }
 
-  Future<void> onMapCreated(GoogleMapController controller) async {
+  void onMapCreated(MapLibreMapController controller) {
     _mapController = controller;
-    if (_isDarkMode) {
-      // Give the native map engine a moment to swap in dark tiles
-      await Future<void>.delayed(const Duration(milliseconds: 150));
-    }
+    _mapController?.onSymbolTapped.add(_handleSymbolTapped);
+  }
+
+  Future<void> onStyleLoaded() async {
+    _styleLoaded = true;
     if (!isClosed) {
       emit(state.copyWith(isMapReady: true));
     }
+    await _registerMarkerImages();
+    await _rebuildMarkers();
+
     if (state.isAddingSpot) {
       final target = initialTarget ?? locationCubit.state.latLng;
       if (target != null) {
@@ -171,6 +174,13 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     }
   }
 
+  void _handleSymbolTapped(Symbol symbol) {
+    final spotId = symbol.data?['spotId'] as String?;
+    if (spotId != null && !state.isAddingSpot) {
+      selectSpotById(spotId);
+    }
+  }
+
   void onCameraMoveStarted() {
     if (!state.isCameraMoving && !isClosed) {
       emit(state.copyWith(isCameraMoving: true));
@@ -181,6 +191,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     if (state.isAddingSpot) {
       emit(
         state.copyWith(
+          isCameraMoving: true,
           currentZoom: position.zoom,
           pickedLocation: position.target,
         ),
@@ -282,66 +293,92 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     }
   }
 
+  Future<void> _registerMarkerImages() async {
+    final controller = _mapController;
+    if (controller == null) return;
+
+    try {
+      // 1. Car marker
+      final carBytes = await markerIconCache.getCarMarker(isSelected: false);
+      await controller.addImage('car_pin', carBytes);
+
+      final carSelectedBytes = await markerIconCache.getCarMarker(isSelected: true);
+      await controller.addImage('car_pin_selected', carSelectedBytes);
+
+      // 2. Categories
+      for (final cat in SpotCategory.values) {
+        if (cat == SpotCategory.car) continue;
+        final color = themeExtension.categoryColor(cat);
+        final unselected = await markerIconCache.getCategoryMarker(
+          category: cat,
+          color: color,
+          isSelected: false,
+        );
+        await controller.addImage('category_${cat.name}', unselected);
+
+        final selected = await markerIconCache.getCategoryMarker(
+          category: cat,
+          color: color,
+          isSelected: true,
+        );
+        await controller.addImage('category_${cat.name}_selected', selected);
+      }
+
+      // 3. User location
+      final userBytes = await markerIconCache.getUserLocationMarker(heading: 0.0);
+      await controller.addImage('user_location', userBytes);
+    } catch (_) {
+      // Ignore if engine is tearing down
+    }
+  }
+
   Future<void> _rebuildMarkers() async {
+    final controller = _mapController;
+    if (controller == null || !_styleLoaded) return;
+
     final spots = spotsCubit.state.allSpots;
     final locState = locationCubit.state;
     final selected = state.selectedSpot;
-    const tier = MarkerZoomTier.high;
 
-    final markers = <Marker>{};
+    try {
+      await controller.clearSymbols();
 
-    // 1. Spot markers
-    for (final spot in spots) {
-      final isSelected = selected?.id == spot.id;
-      final BitmapDescriptor icon;
-      if (spot.isCar) {
-        icon = await markerIconCache.getCarMarker(
-          isSelected: isSelected,
-          tier: tier,
-        );
-      } else {
-        final color = themeExtension.categoryColor(spot.category);
-        icon = await markerIconCache.getCategoryMarker(
-          category: spot.category,
-          color: color,
-          isSelected: isSelected,
-          tier: tier,
+      // 1. Spot markers
+      for (final spot in spots) {
+        final isSelected = selected?.id == spot.id;
+        final imageName = spot.isCar
+            ? (isSelected ? 'car_pin_selected' : 'car_pin')
+            : (isSelected ? 'category_${spot.category.name}_selected' : 'category_${spot.category.name}');
+
+        await controller.addSymbol(
+          SymbolOptions(
+            geometry: spot.latLng,
+            iconImage: imageName,
+            iconSize: isSelected ? 0.65 : 0.52,
+            iconAnchor: 'bottom',
+            zIndex: isSelected ? 10 : (spot.isCar ? 8 : 2),
+          ),
+          {'spotId': spot.id},
         );
       }
 
-      markers.add(
-        Marker(
-          markerId: MarkerId('spot_${spot.id}'),
-          position: spot.latLng,
-          icon: icon,
-          anchor: tier.anchor,
-          zIndexInt: isSelected ? 10 : (spot.isCar ? 8 : 2),
-          onTap: state.isAddingSpot ? null : () => selectSpot(spot),
-        ),
-      );
-    }
-
-    // 2. User location custom marker (with direction cone)
-    if (locState.hasLocation) {
-      final userPos = locState.latLng!;
-      final userIcon = await markerIconCache.getUserLocationMarker(
-        heading: locState.heading,
-      );
-
-      markers.add(
-        Marker(
-          markerId: const MarkerId('user_location'),
-          position: userPos,
-          icon: userIcon,
-          anchor: const Offset(0.5, 0.5),
-          flat: true,
-          zIndexInt: 5,
-        ),
-      );
-    }
-
-    if (!isClosed) {
-      emit(state.copyWith(markers: markers));
+      // 2. User location custom marker
+      if (locState.hasLocation) {
+        final userPos = locState.latLng!;
+        await controller.addSymbol(
+          SymbolOptions(
+            geometry: userPos,
+            iconImage: 'user_location',
+            iconSize: 0.48,
+            iconAnchor: 'center',
+            iconRotate: locState.heading,
+            zIndex: 5,
+          ),
+          {'type': 'user_location'},
+        );
+      }
+    } catch (_) {
+      // Style might be reloading during theme changes
     }
   }
 
@@ -390,7 +427,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     _spotsSubscription?.cancel();
     _locationSubscription?.cancel();
     nameController.dispose();
+    _mapController?.onSymbolTapped.remove(_handleSymbolTapped);
     _mapController?.dispose();
     return super.close();
   }
 }
+

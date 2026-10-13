@@ -1,4 +1,4 @@
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../shared/constants/spot_categories.dart';
 import '../../../shared/models/spot.dart';
@@ -10,10 +10,9 @@ class SpotsMapState {
   const SpotsMapState({
     this.mode = SpotsMapMode.viewing,
     this.selectedSpot,
-    this.markers = const <Marker>{},
     this.initialTarget = const LatLng(30.0444, 31.2357),
-    this.initialZoom = 20.0,
-    this.currentZoom = 20.0,
+    this.initialZoom = 17.0,
+    this.currentZoom = 17.0,
     this.pickedLocation = const LatLng(30.0444, 31.2357),
     this.spotName = '',
     this.category = SpotCategory.other,
@@ -23,10 +22,8 @@ class SpotsMapState {
   });
 
   final bool isMapReady;
-
   final SpotsMapMode mode;
   final Spot? selectedSpot;
-  final Set<Marker> markers;
   final LatLng initialTarget;
   final double initialZoom;
   final double currentZoom;
@@ -44,7 +41,6 @@ class SpotsMapState {
     SpotsMapMode? mode,
     Spot? selectedSpot,
     bool clearSelected = false,
-    Set<Marker>? markers,
     LatLng? initialTarget,
     double? initialZoom,
     double? currentZoom,
@@ -58,7 +54,6 @@ class SpotsMapState {
     return SpotsMapState(
       mode: mode ?? this.mode,
       selectedSpot: clearSelected ? null : (selectedSpot ?? this.selectedSpot),
-      markers: markers ?? this.markers,
       initialTarget: initialTarget ?? this.initialTarget,
       initialZoom: initialZoom ?? this.initialZoom,
       currentZoom: currentZoom ?? this.currentZoom,
@@ -85,8 +80,7 @@ class SpotsMapState {
           other.category == category &&
           other.isCameraMoving == isCameraMoving &&
           other.isSaving == isSaving &&
-          other.isMapReady == isMapReady &&
-          _setEquals(other.markers, markers);
+          other.isMapReady == isMapReady;
 
   @override
   int get hashCode => Object.hash(
@@ -101,15 +95,5 @@ class SpotsMapState {
     isCameraMoving,
     isSaving,
     isMapReady,
-    Object.hashAll(markers),
   );
-
-  static bool _setEquals(Set<Marker> a, Set<Marker> b) {
-    if (identical(a, b)) return true;
-    if (a.length != b.length) return false;
-    for (final item in a) {
-      if (!b.contains(item)) return false;
-    }
-    return true;
-  }
 }

@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../shared/cubits/spots/spots_cubit.dart';
-import '../../../shared/cubits/spots/spots_state.dart';
 import '../../../shared/theme/app_dimens.dart';
 import '../../../shared/utils/adaptive_navigation.dart';
 import '../../../shared/utils/context_ext.dart';
@@ -15,39 +12,32 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SpotsCubit, SpotsState>(
-      buildWhen: (prev, curr) => prev.spots.isNotEmpty != curr.spots.isNotEmpty,
-      builder: (context, state) {
-        final hasSpots = state.spots.isNotEmpty;
-
-        return Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(
-            AppDimens.space16,
-            AppDimens.space16,
-            AppDimens.space16,
-            AppDimens.space8,
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppDimens.space16,
+        AppDimens.space16,
+        AppDimens.space16,
+        AppDimens.space8,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          CircleIconButton(
+            icon: const Icon(Icons.tune_rounded),
+            tooltip: context.l10n.settingsTooltip,
+            onPressed: () {
+              AdaptiveNavigation.openSettings(context);
+            },
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CircleIconButton(
-                icon: const Icon(Icons.tune_rounded),
-                tooltip: context.l10n.settingsTooltip,
-                onPressed: () {
-                  AdaptiveNavigation.openSettings(context);
-                },
-              ),
-              const Spacer(),
-              if (hasSpots)
-                _AddSpotHeaderButton(
-                  onPressed: () {
-                    AdaptiveNavigation.openSaveSpot(context);
-                  },
-                ),
-            ],
+          const Spacer(),
+          // if (hasSpots || isEmbedded)
+          _AddSpotHeaderButton(
+            onPressed: () {
+              AdaptiveNavigation.openSaveSpot(context);
+            },
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

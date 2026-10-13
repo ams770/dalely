@@ -14,7 +14,7 @@ import 'package:feen/shared/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 
 class _FakeSpotsCubit extends Cubit<SpotsState> implements SpotsCubit {
   _FakeSpotsCubit() : super(const SpotsState());
@@ -127,8 +127,8 @@ void main() {
       expect(find.byType(SpotsMapScreen), findsOneWidget);
       final mapScreen = tester.widget<SpotsMapScreen>(find.byType(SpotsMapScreen));
       expect(mapScreen.initialMode, SpotsMapMode.addSpot);
-      expect(mapScreen.initialTarget?.latitude, 30.0444);
-      expect(mapScreen.initialTarget?.longitude, 31.2357);
+      expect(mapScreen.initialTarget?.latitude, closeTo(30.0444, 0.0001));
+      expect(mapScreen.initialTarget?.longitude, closeTo(31.2357, 0.0001));
       expect(mapScreen.initialSpotName, 'Central Market');
     });
 
@@ -160,8 +160,8 @@ void main() {
 
       expect(find.byType(SpotsMapScreen), findsOneWidget);
       final mapScreen = tester.widget<SpotsMapScreen>(find.byType(SpotsMapScreen));
-      expect(mapScreen.initialTarget?.latitude, 25.2048);
-      expect(mapScreen.initialTarget?.longitude, 55.2708);
+      expect(mapScreen.initialTarget?.latitude, closeTo(25.2048, 0.0001));
+      expect(mapScreen.initialTarget?.longitude, closeTo(55.2708, 0.0001));
     });
 
     testWidgets('OPEN_LOCATION action with text-only payload pre-fills name and opens saveSpot',

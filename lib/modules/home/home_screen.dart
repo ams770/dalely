@@ -191,44 +191,41 @@ class _HomePane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScaffoldMessenger(
-      key: mainScaffoldMessengerKey,
-      child: Scaffold(
-        body: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              const HomeHeader(),
-              Expanded(
-                child: CustomScrollView(
-                  physics: const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics(),
-                  ),
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(
-                        AppDimens.space16,
-                        AppDimens.space8,
-                        AppDimens.space16,
-                        AppDimens.space16,
-                      ),
-                      sliver: SliverList(
-                        delegate: SliverChildListDelegate.fixed([
-                          const LocationPermissionBanner(),
-                          const _HomeCardsGrid(),
-                          const SizedBox(height: AppDimens.space24),
-                          const _SavedSpotsSectionHeader(),
-                        ]),
-                      ),
-                    ),
-                    const _SavedSpotsSliverList(),
-                    const _BottomListSpacer(),
-                  ],
+    return Scaffold(
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            const HomeHeader(),
+            Expanded(
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
                 ),
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                      AppDimens.space16,
+                      AppDimens.space8,
+                      AppDimens.space16,
+                      AppDimens.space16,
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate.fixed([
+                        const LocationPermissionBanner(),
+                        const _HomeCardsGrid(),
+                        const SizedBox(height: AppDimens.space24),
+                        const _SavedSpotsSectionHeader(),
+                      ]),
+                    ),
+                  ),
+                  const _SavedSpotsSliverList(),
+                  const _BottomListSpacer(),
+                ],
               ),
-              const _BottomSaveButton(),
-            ],
-          ),
+            ),
+            const _BottomSaveButton(),
+          ],
         ),
       ),
     );

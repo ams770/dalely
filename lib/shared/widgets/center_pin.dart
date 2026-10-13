@@ -66,16 +66,16 @@ class CenterPin extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 52,
-                  height: 52,
+                  width: 58,
+                  height: 58,
                   decoration: BoxDecoration(
                     color: color,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3),
+                    border: Border.all(color: Colors.white, width: 3.5),
                     boxShadow: [
                       BoxShadow(
                         color: color.withAlpha(90),
-                        blurRadius: 12,
+                        blurRadius: 14,
                         offset: const Offset(0, 4),
                       ),
                     ],
@@ -84,12 +84,12 @@ class CenterPin extends StatelessWidget {
                   child: Icon(
                     category.icon,
                     color: Colors.white,
-                    size: 26,
+                    size: 29,
                   ),
                 ),
                 // Pointer tip
                 CustomPaint(
-                  size: const Size(14, 10),
+                  size: const Size(16, 11),
                   painter: _PinTipPainter(color: color),
                 ),
               ],
@@ -99,7 +99,7 @@ class CenterPin extends StatelessWidget {
           // Shadow on ground
           AnimatedContainer(
             duration: const Duration(milliseconds: 150),
-            width: isCameraMoving ? 16 : 24,
+            width: isCameraMoving ? 18 : 28,
             height: isCameraMoving ? 6 : 8,
             decoration: BoxDecoration(
               color: Colors.black.withAlpha(isCameraMoving ? 30 : 60),

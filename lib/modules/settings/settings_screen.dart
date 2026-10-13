@@ -5,10 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../shared/constants/app_links.dart';
 import '../../shared/cubits/settings/settings_cubit.dart';
 import '../../shared/cubits/settings/settings_state.dart';
-import '../../shared/cubits/spots/spots_cubit.dart';
-import '../../shared/cubits/spots/spots_state.dart';
 import '../../shared/services/maps_launcher.dart';
-import '../../shared/services/share_service.dart';
 import '../../shared/theme/app_dimens.dart';
 import '../../shared/utils/context_ext.dart';
 import '../../shared/widgets/circle_icon_button.dart';
@@ -36,8 +33,6 @@ class SettingsScreen extends StatelessWidget {
                   _AppearanceSection(),
                   SizedBox(height: AppDimens.space24),
                   _CarTrackingSection(),
-                  SizedBox(height: AppDimens.space24),
-                  _YourSpotsSection(),
                   SizedBox(height: AppDimens.space24),
                   _AboutSection(),
                   SizedBox(height: AppDimens.space32),
@@ -70,21 +65,11 @@ class _SettingsHeader extends StatelessWidget {
         AppDimens.space8,
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           CircleIconButton(
             icon: const BackButtonIcon(),
             tooltip: l10n.backTooltip,
             onPressed: onClose ?? () => Navigator.of(context).pop(),
-          ),
-          const SizedBox(width: AppDimens.space16),
-          Expanded(
-            child: Text(
-              l10n.settingsTitle,
-              style: context.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
           ),
         ],
       ),
@@ -216,38 +201,6 @@ class _CarTrackingSection extends StatelessWidget {
               value: state.carDistanceNotificationEnabled,
               onChanged: (enabled) {
                 cubit.setCarDistanceNotificationEnabled(enabled);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _YourSpotsSection extends StatelessWidget {
-  const _YourSpotsSection();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
-    return BlocBuilder<SpotsCubit, SpotsState>(
-      builder: (context, spotsState) {
-        return SettingsGroup(
-          title: l10n.yourSpots,
-          children: [
-            SettingsTile(
-              leading: const Icon(Icons.share_outlined),
-              title: l10n.shareAllAsText,
-              onTap: () {
-                if (spotsState.allSpots.isEmpty) {
-                  return;
-                }
-                const ShareService().shareAllSpots(
-                  spotsState.allSpots,
-                  l10n: l10n,
-                );
               },
             ),
           ],
