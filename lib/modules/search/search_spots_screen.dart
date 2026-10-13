@@ -71,22 +71,28 @@ class _CategoryFilterRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsetsDirectional.only(
-        top: AppDimens.space4,
-        bottom: AppDimens.space8,
-      ),
-      child: BlocSelector<SearchSpotsCubit, SearchSpotsState, dynamic>(
-        selector: (state) => state.selectedCategory,
-        builder: (context, selectedCategory) {
-          return CategoryChips(
-            selectedCategory: selectedCategory,
+    return BlocBuilder<SearchSpotsCubit, SearchSpotsState>(
+      buildWhen: (prev, curr) =>
+          prev.availableCategories != curr.availableCategories ||
+          prev.selectedCategory != curr.selectedCategory,
+      builder: (context, state) {
+        if (state.availableCategories.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return Padding(
+          padding: const EdgeInsetsDirectional.only(
+            top: AppDimens.space4,
+            bottom: AppDimens.space8,
+          ),
+          child: CategoryChips(
+            categories: state.availableCategories,
+            selectedCategory: state.selectedCategory,
             onCategorySelected: (category) {
               context.read<SearchSpotsCubit>().toggleCategory(category);
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

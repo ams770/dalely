@@ -4,12 +4,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../shared/constants/spot_categories.dart';
 import '../../../shared/cubits/spots/spots_cubit.dart';
+import '../../../shared/models/spot.dart';
 import 'search_spots_state.dart';
 
 class SearchSpotsCubit extends Cubit<SearchSpotsState> {
   SearchSpotsCubit({
     required this.spotsCubit,
-  }) : super(SearchSpotsState(matchingSpots: spotsCubit.state.allSpots)) {
+  }) : super(
+          SearchSpotsState(
+            matchingSpots: spotsCubit.state.allSpots,
+            availableCategories:
+                _computeAvailableCategories(spotsCubit.state.allSpots),
+          ),
+        ) {
     textController.addListener(_onControllerChanged);
     _spotsSubscription = spotsCubit.stream.listen((_) {
       if (!isClosed) {
@@ -21,6 +28,13 @@ class SearchSpotsCubit extends Cubit<SearchSpotsState> {
   final SpotsCubit spotsCubit;
   final TextEditingController textController = TextEditingController();
   StreamSubscription<dynamic>? _spotsSubscription;
+
+  static List<SpotCategory> _computeAvailableCategories(List<Spot> spots) {
+    final presentCategories = spots.map((s) => s.category).toSet();
+    return SpotCategory.values
+        .where((cat) => presentCategories.contains(cat))
+        .toList();
+  }
 
   void _onControllerChanged() {
     final newQuery = textController.text;
@@ -51,8 +65,13 @@ class SearchSpotsCubit extends Cubit<SearchSpotsState> {
 
   void _applyFilter() {
     final allSpots = spotsCubit.state.allSpots;
+    final availableCategories = _computeAvailableCategories(allSpots);
     final normalizedQuery = _normalize(state.query.trim());
-    final selectedCat = state.selectedCategory;
+    var selectedCat = state.selectedCategory;
+
+    if (selectedCat != null && !availableCategories.contains(selectedCat)) {
+      selectedCat = null;
+    }
 
     final filtered = allSpots.where((spot) {
       if (selectedCat != null && spot.category != selectedCat) {
@@ -70,7 +89,11 @@ class SearchSpotsCubit extends Cubit<SearchSpotsState> {
           normalizedCategoryName.contains(normalizedQuery);
     }).toList();
 
-    emit(state.copyWith(matchingSpots: filtered));
+    emit(state.copyWith(
+      matchingSpots: filtered,
+      availableCategories: availableCategories,
+      selectedCategory: () => selectedCat,
+    ));
   }
 
   static String _normalize(String input) {

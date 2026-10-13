@@ -18,6 +18,7 @@ class AppMap extends StatelessWidget {
     this.onMapCreated,
     this.onStyleLoadedCallback,
     this.onMapClick,
+    this.onMapLongClick,
     this.onCameraMove,
     this.onCameraIdle,
     this.trackCameraPosition = true,
@@ -36,6 +37,7 @@ class AppMap extends StatelessWidget {
   final void Function(MapLibreMapController controller)? onMapCreated;
   final VoidCallback? onStyleLoadedCallback;
   final void Function(Point<double> point, LatLng coordinates)? onMapClick;
+  final void Function(Point<double> point, LatLng coordinates)? onMapLongClick;
   final void Function(CameraPosition position)? onCameraMove;
   final VoidCallback? onCameraIdle;
   final bool trackCameraPosition;
@@ -65,6 +67,7 @@ class AppMap extends StatelessWidget {
       onMapCreated: onMapCreated,
       onStyleLoadedCallback: onStyleLoadedCallback,
       onMapClick: onMapClick,
+      onMapLongClick: onMapLongClick,
       onCameraMove: onCameraMove,
       onCameraIdle: onCameraIdle,
       trackCameraPosition: trackCameraPosition,

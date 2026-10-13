@@ -276,6 +276,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get categoryFuel => 'محطة وقود';
 
   @override
+  String get categoryPark => 'حديقة';
+
+  @override
+  String get categoryClub => 'نادي';
+
+  @override
+  String get categoryBeautyCenter => 'مركز تجميل';
+
+  @override
   String get categoryOther => 'بدون';
 
   @override
@@ -855,6 +864,15 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
   String get categoryFuel => 'بنزينة';
 
   @override
+  String get categoryPark => 'حديقة';
+
+  @override
+  String get categoryClub => 'نادي';
+
+  @override
+  String get categoryBeautyCenter => 'بيوتي سنتر';
+
+  @override
   String get categoryOther => 'بدون';
 
   @override
@@ -1357,6 +1375,15 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
 
   @override
   String get categoryFuel => 'محطة وقود';
+
+  @override
+  String get categoryPark => 'حديقة';
+
+  @override
+  String get categoryClub => 'نادي';
+
+  @override
+  String get categoryBeautyCenter => 'مركز تجميل';
 
   @override
   String get categoryOther => 'بدون';

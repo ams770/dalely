@@ -93,6 +93,15 @@ abstract final class AppColors {
   static const Color catFuelLight = Color(0xFFD97706); // Orange-Amber
   static const Color catFuelDark = Color(0xFFF59E0B);
 
+  static const Color catParkLight = Color(0xFF16A34A); // Emerald/Green
+  static const Color catParkDark = Color(0xFF4ADE80);
+
+  static const Color catClubLight = Color(0xFF6366F1); // Indigo
+  static const Color catClubDark = Color(0xFF818CF8);
+
+  static const Color catBeautyCenterLight = Color(0xFFE11D48); // Rose
+  static const Color catBeautyCenterDark = Color(0xFFFB7185);
+
   static const Color catOtherLight = Color(0xFF3C79F3); // Light blue
   static const Color catOtherDark = Color(0xFF38BDF8);
 }

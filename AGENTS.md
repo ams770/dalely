@@ -217,7 +217,7 @@ Nullable fields in `copyWith` that must be clearable use a `ValueGetter<T?>?` pa
 
 ### Category lookup
 
-`shared/constants/spot_categories.dart` holds `enum SpotCategory` (car, market, home, pharmacy, work, restaurant, hospital, school, gym, mosque, fuel, other) with its icon. Color comes from the theme extension, label from l10n. To add a category: add the enum value + icon, add the color token (light/dark), add en/ar labels. Never hardcode category icons elsewhere.
+`shared/constants/spot_categories.dart` holds `enum SpotCategory` (car, market, home, pharmacy, work, restaurant, hospital, school, gym, mosque, fuel, park, club, beautyCenter, other) with its icon. Color comes from the theme extension, label from l10n. To add a category: add the enum value + icon, add the color token (light/dark), add en/ar labels. Never hardcode category icons elsewhere.
 
 ---
 

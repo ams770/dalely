@@ -255,6 +255,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryFuel => 'Fuel';
 
   @override
+  String get categoryPark => 'Park';
+
+  @override
+  String get categoryClub => 'Club';
+
+  @override
+  String get categoryBeautyCenter => 'Beauty Center';
+
+  @override
   String get categoryOther => 'None';
 
   @override

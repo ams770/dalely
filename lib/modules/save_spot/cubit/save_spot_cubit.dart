@@ -63,8 +63,8 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
   void onMapCreated(MapLibreMapController controller) {
     _mapController = controller;
     final userPos = locationCubit.state.latLng;
-    if (userPos != null) {
-      _mapController?.animateCamera(
+    if (userPos != null && !controller.isDisposed) {
+      controller.animateCamera(
         CameraUpdate.newLatLngZoom(userPos, 16.0),
       );
     }
@@ -134,9 +134,12 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
       ),
     );
 
-    _mapController?.animateCamera(
-      CameraUpdate.newLatLngZoom(result.latLng, 16.0),
-    );
+    final controller = _mapController;
+    if (controller != null && !controller.isDisposed) {
+      controller.animateCamera(
+        CameraUpdate.newLatLngZoom(result.latLng, 16.0),
+      );
+    }
   }
 
   void clearSearch() {
@@ -166,9 +169,12 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
 
     if (pos != null) {
       emit(state.copyWith(target: pos));
-      _mapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(pos, 16.5),
-      );
+      final controller = _mapController;
+      if (controller != null && !controller.isDisposed) {
+        controller.animateCamera(
+          CameraUpdate.newLatLngZoom(pos, 16.5),
+        );
+      }
     }
   }
 
@@ -207,7 +213,7 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
     _searchDebounce?.cancel();
     nameController.dispose();
     searchController.dispose();
-    _mapController?.dispose();
+    _mapController = null;
     return super.close();
   }
 }

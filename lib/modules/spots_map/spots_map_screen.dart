@@ -78,6 +78,9 @@ class _SpotsMapView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Explicitly listen to theme brightness so entire view rebuilds on theme changes
+    final _ = context.isDarkMode;
+
     final view = Scaffold(
       resizeToAvoidBottomInset: true,
       body: Stack(
@@ -145,6 +148,10 @@ class _MapLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<SpotsMapCubit>();
+    final isDark = context.isDarkMode;
+    final themeTokens = context.tokens;
+
+    cubit.updateTheme(isDarkMode: isDark, themeExtension: themeTokens);
 
     return BlocBuilder<SpotsMapCubit, SpotsMapState>(
       buildWhen: (prev, curr) =>
@@ -152,6 +159,7 @@ class _MapLayer extends StatelessWidget {
       builder: (context, state) {
         return RepaintBoundary(
           child: AppMap(
+            key: ValueKey('app_map_${isDark ? "dark" : "light"}'),
             initialCameraPosition: CameraPosition(
               target: state.initialTarget,
               zoom: state.initialZoom,
@@ -163,6 +171,10 @@ class _MapLayer extends StatelessWidget {
               if (!state.isAddingSpot) {
                 cubit.selectSpot(null);
               }
+            },
+            onMapLongClick: (point, coords) {
+              FocusScope.of(context).unfocus();
+              cubit.onMapLongClick(coords);
             },
             onCameraMove: cubit.onCameraMove,
             onCameraIdle: cubit.onCameraIdle,

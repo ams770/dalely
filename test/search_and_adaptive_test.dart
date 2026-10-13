@@ -210,6 +210,20 @@ void main() {
 
       searchCubit.close();
     });
+
+    test('availableCategories contains only categories of existing spots', () {
+      // spots have pharmacy and home
+      final spotsCubit = _FakeSpotsCubit([spot1, spot3]);
+      final searchCubit = SearchSpotsCubit(spotsCubit: spotsCubit);
+
+      expect(searchCubit.state.availableCategories, contains(SpotCategory.pharmacy));
+      expect(searchCubit.state.availableCategories, contains(SpotCategory.home));
+      expect(searchCubit.state.availableCategories.contains(SpotCategory.gym), isFalse);
+      expect(searchCubit.state.availableCategories.contains(SpotCategory.fuel), isFalse);
+      expect(searchCubit.state.availableCategories.length, 2);
+
+      searchCubit.close();
+    });
   });
 
   group('SearchSpotsScreen Widget', () {
@@ -245,6 +259,43 @@ void main() {
       expect(find.byType(TextField), findsOneWidget);
       expect(find.text('صيدلية العزبي'), findsOneWidget);
       expect(find.byType(BackButtonIcon), findsOneWidget);
+    });
+
+    testWidgets('renders category filter chips only for categories with existing spots',
+        (tester) async {
+      final now = DateTime(2026, 10, 11);
+      final spotPark = Spot(
+        id: '1',
+        name: 'Central Park',
+        category: SpotCategory.park,
+        latitude: 30.0,
+        longitude: 31.0,
+        savedAt: now,
+      );
+      final fakeSpotsCubit = _FakeSpotsCubit([spotPark]);
+
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<SpotsCubit>.value(value: fakeSpotsCubit),
+            BlocProvider<LocationCubit>.value(value: _FakeLocationCubit()),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const SearchSpotsScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Category chip for Park should be visible
+      expect(find.text('Park'), findsOneWidget);
+      // Other categories with no spots should NOT be visible
+      expect(find.text('Gym'), findsNothing);
+      expect(find.text('Mosque'), findsNothing);
+      expect(find.text('Fuel'), findsNothing);
     });
   });
 }

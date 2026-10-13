@@ -83,6 +83,9 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
       SpotCategory.gym: AppColors.catGymLight,
       SpotCategory.mosque: AppColors.catMosqueLight,
       SpotCategory.fuel: AppColors.catFuelLight,
+      SpotCategory.park: AppColors.catParkLight,
+      SpotCategory.club: AppColors.catClubLight,
+      SpotCategory.beautyCenter: AppColors.catBeautyCenterLight,
       SpotCategory.other: AppColors.catOtherLight,
     },
   );
@@ -117,6 +120,9 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
       SpotCategory.gym: AppColors.catGymDark,
       SpotCategory.mosque: AppColors.catMosqueDark,
       SpotCategory.fuel: AppColors.catFuelDark,
+      SpotCategory.park: AppColors.catParkDark,
+      SpotCategory.club: AppColors.catClubDark,
+      SpotCategory.beautyCenter: AppColors.catBeautyCenterDark,
       SpotCategory.other: AppColors.catOtherDark,
     },
   );

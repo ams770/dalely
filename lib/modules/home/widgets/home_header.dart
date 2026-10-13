@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../shared/cubits/spots/spots_cubit.dart';
 import '../../../shared/theme/app_dimens.dart';
 import '../../../shared/utils/adaptive_navigation.dart';
 import '../../../shared/utils/context_ext.dart';
@@ -12,6 +14,10 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasSpots = context.select<SpotsCubit, bool>(
+      (cubit) => cubit.state.totalSavedCount > 0,
+    );
+
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(
         AppDimens.space16,
@@ -30,12 +36,12 @@ class HomeHeader extends StatelessWidget {
             },
           ),
           const Spacer(),
-          // if (hasSpots || isEmbedded)
-          _AddSpotHeaderButton(
-            onPressed: () {
-              AdaptiveNavigation.openSaveSpot(context);
-            },
-          ),
+          if (hasSpots)
+            _AddSpotHeaderButton(
+              onPressed: () {
+                AdaptiveNavigation.openSaveSpot(context);
+              },
+            ),
         ],
       ),
     );

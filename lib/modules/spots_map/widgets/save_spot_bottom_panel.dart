@@ -180,6 +180,12 @@ class SaveSpotBottomPanel extends StatelessWidget {
         return l10n.categoryMosque;
       case SpotCategory.fuel:
         return l10n.categoryFuel;
+      case SpotCategory.park:
+        return l10n.categoryPark;
+      case SpotCategory.club:
+        return l10n.categoryClub;
+      case SpotCategory.beautyCenter:
+        return l10n.categoryBeautyCenter;
       case SpotCategory.other:
         return '';
     }

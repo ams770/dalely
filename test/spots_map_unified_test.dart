@@ -14,6 +14,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
+class _FakeMapLibrePlatform extends MapLibrePlatform {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 class _FakeSpotsCubit extends Cubit<SpotsState> implements SpotsCubit {
   _FakeSpotsCubit(List<Spot> initialSpots, {Spot? car})
       : super(SpotsState(spots: initialSpots, car: car));
@@ -164,6 +169,25 @@ void main() {
       cubit.close();
     });
 
+    test('onMapLongClick enters addSpot mode with clicked location', () {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+      );
+
+      expect(cubit.state.isAddingSpot, isFalse);
+
+      cubit.onMapLongClick(const LatLng(29.98, 31.25));
+      expect(cubit.state.mode, SpotsMapMode.addSpot);
+      expect(cubit.state.isAddingSpot, isTrue);
+      expect(cubit.state.pickedLocation.latitude, closeTo(29.98, 0.0001));
+      expect(cubit.state.pickedLocation.longitude, closeTo(31.25, 0.0001));
+
+      cubit.close();
+    });
+
     test('saves spot, updates SpotsCubit, exits addSpot mode and selects new spot on same map', () async {
       final cubit = SpotsMapCubit(
         spotsCubit: fakeSpotsCubit,
@@ -236,6 +260,48 @@ void main() {
 
       expect(cubit.state.isMapReady, isFalse);
       cubit.close();
+    });
+
+    test('updateTheme updates theme state and dark mode status', () {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+        isDarkMode: false,
+      );
+
+      expect(cubit.isDarkMode, isFalse);
+
+      const darkThemeExtension = AppThemeExtension.dark;
+      cubit.updateTheme(isDarkMode: true, themeExtension: darkThemeExtension);
+
+      expect(cubit.isDarkMode, isTrue);
+      expect(cubit.themeExtension, darkThemeExtension);
+
+      cubit.close();
+    });
+
+    test('close completes safely without exception even if MapLibreMapController was already disposed', () {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+      );
+
+      final controller = MapLibreMapController(
+        maplibrePlatform: _FakeMapLibrePlatform(),
+        annotationOrder: const [],
+        annotationConsumeTapEvents: const [],
+      );
+
+      cubit.onMapCreated(controller);
+      // Simulate widget tree unmounting and MapLibreMap disposing its controller
+      controller.dispose();
+
+      // Now when BlocProvider unmounts and calls cubit.close(), it should NOT throw
+      expect(() => cubit.close(), returnsNormally);
     });
   });
 }

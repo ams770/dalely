@@ -17,6 +17,9 @@ enum SpotCategory {
   work(Icons.work_rounded),
   hospital(Icons.local_hospital_rounded),
   school(Icons.school_rounded),
+  park(Icons.park_rounded),
+  club(Icons.sports_soccer_rounded),
+  beautyCenter(Icons.spa_rounded),
   car(Icons.directions_car_rounded);
 
   const SpotCategory(this.icon);
@@ -38,6 +41,9 @@ enum SpotCategory {
     SpotCategory.work,
     SpotCategory.hospital,
     SpotCategory.school,
+    SpotCategory.park,
+    SpotCategory.club,
+    SpotCategory.beautyCenter,
   ];
 
   /// Resolves a stored name, falling back to [other] for unknown values.

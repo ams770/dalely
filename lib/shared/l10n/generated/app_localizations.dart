@@ -454,6 +454,24 @@ abstract class AppLocalizations {
   /// **'Fuel'**
   String get categoryFuel;
 
+  /// No description provided for @categoryPark.
+  ///
+  /// In en, this message translates to:
+  /// **'Park'**
+  String get categoryPark;
+
+  /// No description provided for @categoryClub.
+  ///
+  /// In en, this message translates to:
+  /// **'Club'**
+  String get categoryClub;
+
+  /// No description provided for @categoryBeautyCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Beauty Center'**
+  String get categoryBeautyCenter;
+
   /// No description provided for @categoryOther.
   ///
   /// In en, this message translates to:
