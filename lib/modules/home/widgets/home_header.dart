@@ -1,3 +1,4 @@
+import 'package:feen/shared/utils/adaptive_layout_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -36,7 +37,7 @@ class HomeHeader extends StatelessWidget {
             },
           ),
           const Spacer(),
-          if (hasSpots)
+          if (hasSpots || context.isFoldableDevice)
             _AddSpotHeaderButton(
               onPressed: () {
                 AdaptiveNavigation.openSaveSpot(context);
