@@ -68,6 +68,7 @@
   "spotDeleted": "تم حذف {name}",
   "undo": "تراجع",
   "delete": "حذف",
+  "myMap": "خريطتى",
   "rename": "إعادة تسمية",
   "cancel": "إلغاء",
   "save": "حفظ",

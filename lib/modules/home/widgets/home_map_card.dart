@@ -72,10 +72,10 @@ class HomeMapCard extends StatelessWidget {
                 const SizedBox(height: AppDimens.space8),
                 Spacer(),
                 PillButton(
-                  label: l10n.showOnMap,
+                  label: l10n.myMap,
                   icon: Icons.explore_rounded,
                   backgroundColor: colors.primary.withAlpha(18),
-                  foregroundColor: colors.primary,
+                  foregroundColor: Colors.blueAccent,
                   onPressed: () => AdaptiveNavigation.openMap(context),
                 ),
               ],

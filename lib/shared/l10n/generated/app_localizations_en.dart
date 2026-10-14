@@ -59,7 +59,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openInMaps => 'Open in Maps';
 
   @override
-  String get parkHere => 'Park here';
+  String get parkHere => 'park here';
 
   @override
   String get onMap => 'On map';
@@ -78,6 +78,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get showOnMap => 'Show on map';
+
+  @override
+  String get myMap => 'my map';
 
   @override
   String get openMap => 'open map';

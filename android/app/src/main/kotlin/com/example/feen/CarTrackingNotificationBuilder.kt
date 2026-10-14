@@ -120,13 +120,13 @@ object CarTrackingNotificationBuilder {
         val parkedAgoText = formatParkedAgo(carSavedAt, isArabic)
 
         val displayDistance = if (isWaiting) {
-            if (isArabic) "جارٍ التحديد..." else "Locating..."
+            if (isArabic) "0 متر" else "0 m"
         } else {
             distanceFormatted
         }
 
         val displayDetail = if (isWaiting) {
-            if (isArabic) "في انتظار GPS" else "Looking for location"
+            if (isArabic) "..." else "..."
         } else if (isArrived) {
             if (isArabic) "أنت على بعد أقل من 15 م" else "You are within 15 m"
         } else {

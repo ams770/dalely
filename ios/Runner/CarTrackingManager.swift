@@ -206,7 +206,7 @@ import Foundation
 
     var initialState = DalelyTrackingAttributes.ContentState(
       state: "waitingForGps",
-      distanceText: isArabic ? "جارٍ التحديد..." : "Locating...",
+      distanceText: isArabic ? "0 متر" : "0 m",
       detailText: isArabic ? "في انتظار GPS" : "Looking for location",
       parkedText: parkedText,
       progress: 0.0,

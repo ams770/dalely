@@ -175,7 +175,7 @@ abstract class AppLocalizations {
   /// No description provided for @parkHere.
   ///
   /// In en, this message translates to:
-  /// **'Park here'**
+  /// **'park here'**
   String get parkHere;
 
   /// No description provided for @onMap.
@@ -213,6 +213,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show on map'**
   String get showOnMap;
+
+  /// No description provided for @myMap.
+  ///
+  /// In en, this message translates to:
+  /// **'my map'**
+  String get myMap;
 
   /// No description provided for @openMap.
   ///

@@ -60,7 +60,7 @@ abstract final class AppTheme {
     return _buildTheme(
       colorScheme: colorScheme,
       scaffoldBg: AppColors.darkBackground,
-      extension: AppThemeExtension.dark,
+      extension: .dark,
     );
   }
 
@@ -128,6 +128,7 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
+     
         titleTextStyle: textTheme.titleLarge?.copyWith(
           color: colorScheme.onSurface,
         ),
