@@ -1,6 +1,9 @@
 import 'package:feen/modules/search/cubit/search_spots_cubit.dart';
 import 'package:feen/modules/search/search_spots_screen.dart';
+import 'package:feen/modules/spots_map/cubit/spots_map_state.dart';
+import 'package:feen/modules/spots_map/spots_map_screen.dart';
 import 'package:feen/shared/constants/spot_categories.dart';
+import 'package:feen/shared/widgets/center_pin.dart';
 import 'package:feen/shared/cubits/adaptive_nav/adaptive_nav_cubit.dart';
 import 'package:feen/shared/cubits/adaptive_nav/adaptive_nav_state.dart';
 import 'package:feen/shared/cubits/location/location_cubit.dart';
@@ -120,6 +123,55 @@ void main() {
       expect(isWide, isTrue);
       expect(isFoldable, isFalse);
       expect(isTablet, isTrue);
+    });
+
+    testWidgets(
+        'SpotsMapScreen centers pin within map pane width, not window width on wide screens',
+        (tester) async {
+      // Wide screen: 1000 x 800
+      tester.view.physicalSize = const Size(1000 * 2.0, 800 * 2.0);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final fakeSpotsCubit = _FakeSpotsCubit([]);
+      final fakeLocationCubit = _FakeLocationCubit();
+
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<SpotsCubit>.value(value: fakeSpotsCubit),
+            BlocProvider<LocationCubit>.value(value: fakeLocationCubit),
+            BlocProvider<AdaptiveNavCubit>.value(value: AdaptiveNavCubit()),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const Scaffold(
+              body: Row(
+                children: [
+                  SizedBox(width: 400),
+                  Expanded(
+                    child: SpotsMapScreen(
+                      initialMode: SpotsMapMode.addSpot,
+                      isEmbedded: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // The right pane has width 1000 - 400 = 600.
+      // The CenterPin's horizontal center must be at 400 + 600 / 2 = 700,
+      // NOT (1000 / 2 = 500) which would be off towards the pane's left edge (500 - 400 = 100).
+      expect(find.byType(CenterPin), findsOneWidget);
+      final centerPinCenter = tester.getCenter(find.byType(CenterPin));
+      expect(centerPinCenter.dx, closeTo(700.0, 1.0));
     });
   });
 

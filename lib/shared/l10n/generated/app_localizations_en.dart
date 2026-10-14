@@ -48,11 +48,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noCarTitle => 'Where did you park?';
 
   @override
-  String get noCarMessage => 'Not parked';
+  String get noCarMessage => 'not parked';
 
   @override
   String distanceAway(String distance) {
-    return '$distance away';
+    return '$distance';
   }
 
   @override
@@ -573,4 +573,102 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportSubject => 'Dalely spots';
+
+  @override
+  String get editSpot => 'Edit spot';
+
+  @override
+  String get spotUpdated => 'Spot updated';
+
+  @override
+  String get sortBy => 'Sort by';
+
+  @override
+  String get sortByDateDesc => 'Date created';
+
+  @override
+  String get sortByNearest => 'Nearest';
+
+  @override
+  String get sortByCategory => 'Category';
+
+  @override
+  String get sortByName => 'Name';
+
+  @override
+  String get parkingHistory => 'Parking history';
+
+  @override
+  String get noParkingHistoryTitle => 'No parking history yet';
+
+  @override
+  String get noParkingHistoryMessage =>
+      'Your past parking spots will appear here after you find your car.';
+
+  @override
+  String get parkingStatusFound => 'Found';
+
+  @override
+  String parkingWaitingTime(String time) {
+    return 'Waiting time: $time';
+  }
+
+  @override
+  String get clearHistory => 'Clear history';
+
+  @override
+  String get clearHistoryConfirm =>
+      'Are you sure you want to clear all parking history?';
+
+  @override
+  String get parkingHistoryCleared => 'Parking history cleared';
+
+  @override
+  String get durationLessThanMinute => 'Less than a minute';
+
+  @override
+  String durationMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours',
+      one: '1 hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHoursAndMinutes(String hours, String minutes) {
+    return '$hours, $minutes';
+  }
+
+  @override
+  String durationDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationDaysAndHours(String days, String hours) {
+    return '$days, $hours';
+  }
+
+  @override
+  String get fullscreen => 'Full screen';
 }

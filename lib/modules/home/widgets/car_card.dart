@@ -240,10 +240,22 @@ class _ActiveCarContent extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppDimens.space4),
-            _CarMiniActionButton(
-              icon: Icons.share_outlined,
-              tooltip: l10n.share,
-              onPressed: onShare,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _CarMiniActionButton(
+                  icon: Icons.history_rounded,
+                  tooltip: l10n.parkingHistory,
+                  onPressed: () =>
+                      AdaptiveNavigation.openParkingHistory(context),
+                ),
+                const SizedBox(width: AppDimens.space4),
+                _CarMiniActionButton(
+                  icon: Icons.share_outlined,
+                  tooltip: l10n.share,
+                  onPressed: onShare,
+                ),
+              ],
             ),
           ],
         ),
@@ -397,6 +409,12 @@ class _EmptyCarContent extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
+            ),
+            _CarMiniActionButton(
+              icon: Icons.history_rounded,
+              tooltip: l10n.parkingHistory,
+              onPressed: () =>
+                  AdaptiveNavigation.openParkingHistory(context),
             ),
           ],
         ),

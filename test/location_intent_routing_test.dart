@@ -66,6 +66,41 @@ void main() {
       expect(mapScreen.initialTarget, target);
       expect(mapScreen.initialSpotName, 'Downtown Pharmacy');
     });
+
+    testWidgets('spotsMap route parses SpotsMapArgs and creates full-page SpotsMapScreen',
+        (tester) async {
+      const target = LatLng(30.0444, 31.2357);
+      const args = SpotsMapArgs(spotId: 'spot_123', initialTarget: target);
+
+      final route = AppRouter.onGenerateRoute(
+        const RouteSettings(name: AppRouter.spotsMap, arguments: args),
+      );
+
+      expect(route, isA<MaterialPageRoute>());
+      final pageRoute = route as MaterialPageRoute;
+
+      late Widget builtWidget;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: Builder(
+            builder: (context) {
+              builtWidget = pageRoute.builder(context);
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(builtWidget, isA<SpotsMapScreen>());
+      final mapScreen = builtWidget as SpotsMapScreen;
+      expect(mapScreen.isEmbedded, isFalse);
+      expect(mapScreen.initialSpotId, 'spot_123');
+      expect(mapScreen.initialTarget, target);
+    });
   });
 
   group('Location Intent Routing - SpotsMapCubit', () {

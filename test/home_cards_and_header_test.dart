@@ -208,7 +208,7 @@ void main() {
 
       // HomeMapCard displays Map title and affordances
       expect(find.text('Map'), findsOneWidget);
-      expect(find.text('Show on map'), findsOneWidget);
+      expect(find.text('my map'), findsOneWidget);
     });
 
     testWidgets('tapping HomeMapCard invokes map navigation', (tester) async {

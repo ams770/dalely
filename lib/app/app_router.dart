@@ -3,16 +3,25 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../modules/home/home_screen.dart';
 import '../modules/onboarding/onboarding_screen.dart';
+import '../modules/parking_history/parking_history_screen.dart';
 import '../modules/search/search_spots_screen.dart';
 import '../modules/settings/settings_screen.dart';
 import '../modules/spots_map/cubit/spots_map_state.dart';
 import '../modules/spots_map/spots_map_screen.dart';
+import '../shared/models/spot.dart';
 import '../shared/utils/geo_uri_parser.dart';
 
+class SpotsMapArgs {
+  const SpotsMapArgs({this.spotId, this.initialTarget});
+  final String? spotId;
+  final LatLng? initialTarget;
+}
+
 class SaveSpotArgs {
-  const SaveSpotArgs({this.target, this.name});
+  const SaveSpotArgs({this.target, this.name, this.editingSpot});
   final LatLng? target;
   final String? name;
+  final Spot? editingSpot;
 }
 
 abstract final class AppRouter {
@@ -23,6 +32,7 @@ abstract final class AppRouter {
   static const String saveSpot = '/save-spot';
   static const String search = '/search';
   static const String settings = '/settings';
+  static const String parkingHistory = '/parking-history';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     final uri = Uri.tryParse(settings.name ?? '');
@@ -43,21 +53,38 @@ abstract final class AppRouter {
 
       case map:
       case spotsMap:
-        final spotFromArg = settings.arguments as String?;
+        String? initialSpotId;
+        LatLng? initialTarget;
+        final args = settings.arguments;
+        if (args is SpotsMapArgs) {
+          initialSpotId = args.spotId;
+          initialTarget = args.initialTarget;
+        } else if (args is String) {
+          initialSpotId = args;
+        }
         final spotFromQuery = uri?.queryParameters['spot'];
-        final initialSpotId = spotFromArg ?? spotFromQuery;
+        initialSpotId ??= spotFromQuery;
         return MaterialPageRoute<void>(
-          builder: (_) => SpotsMapScreen(initialSpotId: initialSpotId),
+          builder: (_) => SpotsMapScreen(
+            initialSpotId: initialSpotId,
+            initialTarget: initialTarget,
+          ),
           settings: settings,
         );
 
       case saveSpot:
         LatLng? initialTarget;
         String? initialSpotName;
+        Spot? editingSpot;
         final args = settings.arguments;
         if (args is SaveSpotArgs) {
           initialTarget = args.target;
           initialSpotName = args.name;
+          editingSpot = args.editingSpot;
+        } else if (args is Spot) {
+          initialTarget = args.latLng;
+          initialSpotName = args.name;
+          editingSpot = args;
         } else if (args is LatLng) {
           initialTarget = args;
         } else if (uri != null && uri.queryParameters.containsKey('lat')) {
@@ -82,6 +109,7 @@ abstract final class AppRouter {
             initialMode: SpotsMapMode.addSpot,
             initialTarget: initialTarget,
             initialSpotName: initialSpotName,
+            editingSpot: editingSpot,
           ),
           settings: settings,
         );
@@ -95,6 +123,12 @@ abstract final class AppRouter {
       case AppRouter.settings:
         return MaterialPageRoute<void>(
           builder: (_) => const SettingsScreen(),
+          settings: settings,
+        );
+
+      case parkingHistory:
+        return MaterialPageRoute<void>(
+          builder: (_) => const ParkingHistoryScreen(),
           settings: settings,
         );
 

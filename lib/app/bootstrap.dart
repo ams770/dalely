@@ -42,6 +42,17 @@ class BootstrapDependencies {
 Future<BootstrapDependencies> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Color(0x00000000),
+      systemStatusBarContrastEnforced: false,
+      systemNavigationBarColor: Color(0x00000000),
+      systemNavigationBarDividerColor: Color(0x00000000),
+      systemNavigationBarContrastEnforced: false,
+    ),
+  );
+
   final view = WidgetsBinding.instance.platformDispatcher.views.firstOrNull;
   if (view != null && view.devicePixelRatio > 0) {
     final widthDp = view.physicalSize.width / view.devicePixelRatio;

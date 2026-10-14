@@ -70,6 +70,11 @@ class SpotsCubit extends Cubit<SpotsState> {
             }
           }
         }
+        if (!isClosed && state.sortOrder == SpotSortOrder.nearest) {
+          final sorted = List<Spot>.from(state.spots);
+          _sortSpots(sorted, SpotSortOrder.nearest);
+          emit(state.copyWith(spots: sorted));
+        }
       });
     }
   }
@@ -78,17 +83,22 @@ class SpotsCubit extends Cubit<SpotsState> {
     final all = spotsRepository.getAll();
     Spot? car;
     final spots = <Spot>[];
+    final parkingHistory = <Spot>[];
 
     for (final spot in all) {
-      if (spot.isCar) {
+      if (spot.id == StorageKeys.carId && spot.status != SpotStatus.found) {
         car = spot;
+      } else if (spot.status == SpotStatus.found ||
+          (spot.category == SpotCategory.car &&
+              spot.id != StorageKeys.carId)) {
+        parkingHistory.add(spot);
       } else {
         spots.add(spot);
       }
     }
 
-    // Sort newest spots first
-    spots.sort((a, b) => b.savedAt.compareTo(a.savedAt));
+    _sortSpots(spots, state.sortOrder);
+    parkingHistory.sort((a, b) => b.savedAt.compareTo(a.savedAt));
 
     final favId = favoriteSpotId ?? state.favoriteSpotId;
 
@@ -98,12 +108,59 @@ class SpotsCubit extends Cubit<SpotsState> {
         car: car,
         clearCar: car == null,
         spots: spots,
+        parkingHistory: parkingHistory,
         favoriteSpotId: favId,
       ),
     );
 
     _syncWidgets();
     _syncParkingNotification(showBannerOnIos: false);
+  }
+
+  void _sortSpots(List<Spot> list, SpotSortOrder order) {
+    switch (order) {
+      case SpotSortOrder.dateDesc:
+        list.sort((a, b) => b.savedAt.compareTo(a.savedAt));
+        break;
+      case SpotSortOrder.name:
+        list.sort(
+          (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+        );
+        break;
+      case SpotSortOrder.category:
+        list.sort((a, b) {
+          final cmp = a.category.name.compareTo(b.category.name);
+          return cmp != 0
+              ? cmp
+              : a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        });
+        break;
+      case SpotSortOrder.nearest:
+        final pos = locationCubit?.state.position;
+        if (pos != null) {
+          double dist(Spot s) => DistanceFormatter.calculateDistance(
+                startLatitude: pos.latitude,
+                startLongitude: pos.longitude,
+                endLatitude: s.latitude,
+                endLongitude: s.longitude,
+              );
+          list.sort((a, b) => dist(a).compareTo(dist(b)));
+        } else {
+          list.sort((a, b) => b.savedAt.compareTo(a.savedAt));
+        }
+        break;
+    }
+  }
+
+  void setSortOrder(SpotSortOrder order) {
+    if (order == state.sortOrder) return;
+    if (order == SpotSortOrder.nearest &&
+        (locationCubit == null || !locationCubit!.state.hasLocation)) {
+      locationCubit?.requestPermission();
+    }
+    final sorted = List<Spot>.from(state.spots);
+    _sortSpots(sorted, order);
+    emit(state.copyWith(sortOrder: order, spots: sorted));
   }
 
   Future<void> parkCar({
@@ -126,12 +183,31 @@ class SpotsCubit extends Cubit<SpotsState> {
 
   Future<void> clearCar() async {
     _lastNotifiedDistance = null;
-    await spotsRepository.delete(StorageKeys.carId);
-    if (isClosed) return;
+    final currentCar = state.car;
     emit(state.copyWith(clearCar: true));
+    if (currentCar != null) {
+      final now = DateTime.now();
+      final duration = now.difference(currentCar.savedAt);
+      final historyId =
+          'car_history_${currentCar.savedAt.millisecondsSinceEpoch}_${now.millisecondsSinceEpoch}';
+      final foundCar = currentCar.copyWith(
+        id: historyId,
+        status: SpotStatus.found,
+        parkedDuration: duration,
+      );
+      await spotsRepository.delete(StorageKeys.carId);
+      await spotsRepository.save(foundCar);
+    }
+    if (isClosed) return;
     _syncWidgets();
     await carTrackingCubit?.stopCarTracking();
     unawaited(notificationService.cancelParkingNotification());
+  }
+
+  Future<void> clearParkingHistory() async {
+    for (final spot in state.parkingHistory) {
+      await spotsRepository.delete(spot.id);
+    }
   }
 
   Future<Spot> saveSpot({
@@ -200,10 +276,17 @@ class SpotsCubit extends Cubit<SpotsState> {
   }
 
   Future<void> restoreSpot(Spot spot) async {
-    await spotsRepository.save(spot);
     if (spot.isCar) {
+      await spotsRepository.delete(spot.id);
+      final activeCar = spot.copyWith(
+        id: StorageKeys.carId,
+        status: SpotStatus.parking,
+      );
+      await spotsRepository.save(activeCar);
       _lastNotifiedDistance = null;
       _syncParkingNotification(showBannerOnIos: true);
+    } else {
+      await spotsRepository.save(spot);
     }
   }
 
@@ -226,7 +309,7 @@ class SpotsCubit extends Cubit<SpotsState> {
     bool showBannerOnIos = false,
   }) {
     final car = state.car;
-    if (car == null) {
+    if (car == null || car.status == SpotStatus.found) {
       notificationService.cancelParkingNotification();
       carTrackingCubit?.stopCarTracking();
       return;

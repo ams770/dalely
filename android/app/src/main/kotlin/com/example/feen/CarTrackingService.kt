@@ -113,6 +113,32 @@ class CarTrackingService : Service() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         CarTrackingNotificationBuilder.createNotificationChannel(this)
+
+        val initialNotification = CarTrackingNotificationBuilder.buildNotification(
+            context = this,
+            state = "waitingForGps",
+            distanceMeters = null,
+            walkMinutes = null,
+            progress = 0.0,
+            isArabic = false,
+            carSavedAt = System.currentTimeMillis()
+        )
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    CarTrackingNotificationBuilder.NOTIFICATION_ID,
+                    initialNotification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+                )
+            } else {
+                startForeground(CarTrackingNotificationBuilder.NOTIFICATION_ID, initialNotification)
+            }
+        } catch (_: Exception) {
+            try {
+                startForeground(CarTrackingNotificationBuilder.NOTIFICATION_ID, initialNotification)
+            } catch (_: Exception) {}
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -137,14 +163,20 @@ class CarTrackingService : Service() {
             carSavedAt = carSavedAt
         )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(
-                CarTrackingNotificationBuilder.NOTIFICATION_ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
-            )
-        } else {
-            startForeground(CarTrackingNotificationBuilder.NOTIFICATION_ID, notification)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    CarTrackingNotificationBuilder.NOTIFICATION_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+                )
+            } else {
+                startForeground(CarTrackingNotificationBuilder.NOTIFICATION_ID, notification)
+            }
+        } catch (_: Exception) {
+            try {
+                notificationManager.notify(CarTrackingNotificationBuilder.NOTIFICATION_ID, notification)
+            } catch (_: Exception) {}
         }
 
         // If initial user location was passed, immediately calculate distance and update notification

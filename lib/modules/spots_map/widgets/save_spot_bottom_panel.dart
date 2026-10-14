@@ -57,11 +57,16 @@ class SaveSpotBottomPanel extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      l10n.saveThisSpot,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                    BlocSelector<SpotsMapCubit, SpotsMapState, bool>(
+                      selector: (state) => state.isEditingSpot,
+                      builder: (context, isEditing) {
+                        return Text(
+                          isEditing ? l10n.editSpot : l10n.saveThisSpot,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        );
+                      },
                     ),
                     IconButton(
                       icon: const Icon(Icons.close_rounded),

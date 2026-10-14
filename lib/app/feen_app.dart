@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -245,7 +246,11 @@ class _DalelyMaterialApp extends StatelessWidget {
             onGenerateRoute: AppRouter.onGenerateRoute,
             builder: (context, child) {
               actionRouter.init(notificationService: notificationService);
-              return child ?? const SizedBox.shrink();
+              final isDark = Theme.of(context).brightness == Brightness.dark;
+              return AnnotatedRegion<SystemUiOverlayStyle>(
+                value: AppTheme.systemOverlayStyle(isDark: isDark),
+                child: child ?? const SizedBox.shrink(),
+              );
             },
           );
         },

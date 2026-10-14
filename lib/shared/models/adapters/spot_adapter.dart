@@ -8,7 +8,7 @@ import '../spot.dart';
 /// Layout: field count, then fields in this exact order. New fields are only
 /// ever appended and read with a default when the stored count is smaller.
 class SpotAdapter extends TypeAdapter<Spot> {
-  static const int _fieldCount = 6;
+  static const int _fieldCount = 8;
 
   @override
   final int typeId = 0;
@@ -22,6 +22,14 @@ class SpotAdapter extends TypeAdapter<Spot> {
     final latitude = reader.readDouble();
     final longitude = reader.readDouble();
     final savedAt = DateTime.fromMillisecondsSinceEpoch(reader.readInt());
+    final status = count > 6
+        ? SpotStatus.fromName(reader.readString())
+        : SpotStatus.none;
+    final parkedDurationMs = count > 7 ? reader.readInt() : null;
+    final parkedDuration = parkedDurationMs != null && parkedDurationMs >= 0
+        ? Duration(milliseconds: parkedDurationMs)
+        : null;
+
     // Skip fields written by newer app versions.
     for (var i = _fieldCount; i < count; i++) {
       reader.read();
@@ -33,6 +41,8 @@ class SpotAdapter extends TypeAdapter<Spot> {
       latitude: latitude,
       longitude: longitude,
       savedAt: savedAt,
+      status: status,
+      parkedDuration: parkedDuration,
     );
   }
 
@@ -45,6 +55,8 @@ class SpotAdapter extends TypeAdapter<Spot> {
       ..writeString(obj.category.name)
       ..writeDouble(obj.latitude)
       ..writeDouble(obj.longitude)
-      ..writeInt(obj.savedAt.millisecondsSinceEpoch);
+      ..writeInt(obj.savedAt.millisecondsSinceEpoch)
+      ..writeString(obj.status.name)
+      ..writeInt(obj.parkedDuration?.inMilliseconds ?? -1);
   }
 }

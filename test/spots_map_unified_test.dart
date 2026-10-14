@@ -448,5 +448,30 @@ void main() {
       // Now when BlocProvider unmounts and calls cubit.close(), it should NOT throw
       expect(() => cubit.close(), returnsNormally);
     });
+
+    test('updatePinScreenMetrics updates metrics and computes accurate pinScreenPoint', () {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+      );
+
+      cubit.updatePinScreenMetrics(
+        topPadding: 80.0,
+        bottomPadding: 300.0,
+        screenWidth: 400.0,
+        screenHeight: 800.0,
+        devicePixelRatio: 2.5,
+      );
+
+      // x = screenWidth / 2 = 200.0
+      // y = topPadding + (screenHeight - topPadding - bottomPadding) / 2 = 80 + (800 - 80 - 300) / 2 = 80 + 210 = 290.0
+      expect(cubit.pinScreenPoint, const Point<double>(200.0, 290.0));
+      expect(cubit.screenCenterPoint, const Point<double>(200.0, 400.0));
+      expect(cubit.pinCenterOffsetDy, 400.0 - 290.0);
+
+      cubit.close();
+    });
   });
 }

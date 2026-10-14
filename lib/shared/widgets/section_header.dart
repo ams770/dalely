@@ -26,14 +26,20 @@ class SectionHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          title,
-          style: context.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
-        if (trailing != null)
-          trailing!
+        if (trailing != null) ...[
+          const SizedBox(width: AppDimens.space8),
+          trailing!,
+        ]
         else if (actionLabel != null && onAction != null)
           TextButton(
             onPressed: onAction,

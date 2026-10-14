@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_colors.dart';
 import 'app_dimens.dart';
@@ -7,6 +8,22 @@ import 'app_theme_extension.dart';
 /// Configures light and dark [ThemeData] with comprehensive component themes.
 abstract final class AppTheme {
   static const String fontFamily = 'ReadexPro';
+
+  /// Returns [SystemUiOverlayStyle] with transparent status/nav bars
+  /// and contrast enforcement disabled on Android to eliminate the gray status bar shadow.
+  static SystemUiOverlayStyle systemOverlayStyle({required bool isDark}) {
+    return SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+      statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+      systemStatusBarContrastEnforced: false,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemNavigationBarIconBrightness:
+          isDark ? Brightness.light : Brightness.dark,
+      systemNavigationBarContrastEnforced: false,
+    );
+  }
 
   static ThemeData light() {
     final colorScheme = ColorScheme(
@@ -128,7 +145,7 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
-     
+        systemOverlayStyle: systemOverlayStyle(isDark: isDark),
         titleTextStyle: textTheme.titleLarge?.copyWith(
           color: colorScheme.onSurface,
         ),

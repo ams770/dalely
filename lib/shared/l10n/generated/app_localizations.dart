@@ -157,13 +157,13 @@ abstract class AppLocalizations {
   /// No description provided for @noCarMessage.
   ///
   /// In en, this message translates to:
-  /// **'Not parked'**
+  /// **'not parked'**
   String get noCarMessage;
 
   /// No description provided for @distanceAway.
   ///
   /// In en, this message translates to:
-  /// **'{distance} away'**
+  /// **'{distance}'**
   String distanceAway(String distance);
 
   /// No description provided for @openInMaps.
@@ -1041,6 +1041,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dalely spots'**
   String get exportSubject;
+
+  /// No description provided for @editSpot.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit spot'**
+  String get editSpot;
+
+  /// No description provided for @spotUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot updated'**
+  String get spotUpdated;
+
+  /// No description provided for @sortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get sortBy;
+
+  /// No description provided for @sortByDateDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Date created'**
+  String get sortByDateDesc;
+
+  /// No description provided for @sortByNearest.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearest'**
+  String get sortByNearest;
+
+  /// No description provided for @sortByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get sortByCategory;
+
+  /// No description provided for @sortByName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get sortByName;
+
+  /// No description provided for @parkingHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking history'**
+  String get parkingHistory;
+
+  /// No description provided for @noParkingHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No parking history yet'**
+  String get noParkingHistoryTitle;
+
+  /// No description provided for @noParkingHistoryMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your past parking spots will appear here after you find your car.'**
+  String get noParkingHistoryMessage;
+
+  /// No description provided for @parkingStatusFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Found'**
+  String get parkingStatusFound;
+
+  /// No description provided for @parkingWaitingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting time: {time}'**
+  String parkingWaitingTime(String time);
+
+  /// No description provided for @clearHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear history'**
+  String get clearHistory;
+
+  /// No description provided for @clearHistoryConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to clear all parking history?'**
+  String get clearHistoryConfirm;
+
+  /// No description provided for @parkingHistoryCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking history cleared'**
+  String get parkingHistoryCleared;
+
+  /// No description provided for @durationLessThanMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than a minute'**
+  String get durationLessThanMinute;
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 minute} other{{count} minutes}}'**
+  String durationMinutes(int count);
+
+  /// No description provided for @durationHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 hour} other{{count} hours}}'**
+  String durationHours(int count);
+
+  /// No description provided for @durationHoursAndMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}, {minutes}'**
+  String durationHoursAndMinutes(String hours, String minutes);
+
+  /// No description provided for @durationDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String durationDays(int count);
+
+  /// No description provided for @durationDaysAndHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}, {hours}'**
+  String durationDaysAndHours(String days, String hours);
+
+  /// No description provided for @fullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Full screen'**
+  String get fullscreen;
 }
 
 class _AppLocalizationsDelegate

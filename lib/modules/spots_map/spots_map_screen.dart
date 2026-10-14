@@ -1,11 +1,15 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
+import '../../app/app_router.dart';
 import '../../shared/cubits/adaptive_nav/adaptive_nav_cubit.dart';
 import '../../shared/cubits/adaptive_nav/adaptive_nav_state.dart';
 import '../../shared/cubits/location/location_cubit.dart';
 import '../../shared/cubits/spots/spots_cubit.dart';
+import '../../shared/models/spot.dart';
 import '../../shared/services/marker_icon_cache.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../shared/theme/app_dimens.dart';
@@ -26,6 +30,7 @@ class SpotsMapScreen extends StatelessWidget {
     this.initialMode = SpotsMapMode.viewing,
     this.initialTarget,
     this.initialSpotName,
+    this.editingSpot,
     this.isEmbedded = false,
     this.onClose,
   });
@@ -34,6 +39,7 @@ class SpotsMapScreen extends StatelessWidget {
   final SpotsMapMode initialMode;
   final LatLng? initialTarget;
   final String? initialSpotName;
+  final Spot? editingSpot;
   final bool isEmbedded;
   final VoidCallback? onClose;
 
@@ -44,6 +50,9 @@ class SpotsMapScreen extends StatelessWidget {
     final themeTokens = context.tokens;
     final isDarkMode = context.isDarkMode;
 
+    final effectiveMode =
+        editingSpot != null ? SpotsMapMode.addSpot : initialMode;
+
     return BlocProvider<SpotsMapCubit>(
       create: (_) => SpotsMapCubit(
         spotsCubit: spotsCubit,
@@ -52,12 +61,13 @@ class SpotsMapScreen extends StatelessWidget {
         themeExtension: themeTokens,
         isDarkMode: isDarkMode,
         initialSelectedSpotId: initialSpotId,
-        initialTarget: initialTarget,
-        initialSpotName: initialSpotName,
-        initialMode: initialMode,
+        initialTarget: editingSpot?.latLng ?? initialTarget,
+        initialSpotName: editingSpot?.name ?? initialSpotName,
+        editingSpot: editingSpot,
+        initialMode: effectiveMode,
       ),
       child: _SpotsMapView(
-        initialMode: initialMode,
+        initialMode: effectiveMode,
         isEmbedded: isEmbedded,
         onClose: onClose,
       ),
@@ -84,46 +94,54 @@ class _SpotsMapView extends StatelessWidget {
     final mediaQuery = MediaQuery.of(context);
     final topPadding = mediaQuery.padding.top + 64.0;
     final bottomAddPadding = 280.0 + mediaQuery.padding.bottom;
-    final size = mediaQuery.size;
 
-    context.read<SpotsMapCubit>().updatePinScreenMetrics(
-      topPadding: topPadding,
-      bottomPadding: bottomAddPadding,
-      screenWidth: size.width,
-      screenHeight: size.height,
-    );
+    final view = LayoutBuilder(
+      builder: (context, constraints) {
+        final mapWidth = constraints.maxWidth;
+        final mapHeight = constraints.maxHeight;
 
-    final view = Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: Stack(
-        children: [
-          // 1. Fullscreen Map
-          const _MapLayer(),
+        final cubit = context.read<SpotsMapCubit>();
+        cubit.updatePinScreenMetrics(
+          topPadding: topPadding,
+          bottomPadding: bottomAddPadding,
+          screenWidth: mapWidth,
+          screenHeight: mapHeight,
+          devicePixelRatio: mediaQuery.devicePixelRatio,
+        );
 
-          // 2. Dark Map Loading Mask (masks native map during dark theme initialization)
-          const _DarkMapLoadingMask(),
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Stack(
+            children: [
+              // 1. Fullscreen Map
+              const _MapLayer(),
 
-          // 3. Center Pin (only when adding a spot)
-          const _CenterPinLayer(),
+              // 2. Dark Map Loading Mask (masks native map during dark theme initialization)
+              const _DarkMapLoadingMask(),
 
-          // 4. Top Floating Navigation Controls
-          _TopControlsLayer(
-            initialMode: initialMode,
-            isEmbedded: isEmbedded,
-            onClose: onClose,
+              // 3. Center Pin (only when adding a spot)
+              _CenterPinLayer(pinPoint: cubit.pinScreenPoint),
+
+              // 4. Top Floating Navigation Controls
+              _TopControlsLayer(
+                initialMode: initialMode,
+                isEmbedded: isEmbedded,
+                onClose: onClose,
+              ),
+
+              // 5. Recenter / My Location FAB
+              const _RecenterButtonLayer(),
+
+              // 6. Bottom Overlay: SelectedSpotCard or SaveSpotBottomPanel
+              _BottomOverlayLayer(
+                initialMode: initialMode,
+                isEmbedded: isEmbedded,
+                onClose: onClose,
+              ),
+            ],
           ),
-
-          // 5. Recenter / My Location FAB
-          const _RecenterButtonLayer(),
-
-          // 6. Bottom Overlay: SelectedSpotCard or SaveSpotBottomPanel
-          _BottomOverlayLayer(
-            initialMode: initialMode,
-            isEmbedded: isEmbedded,
-            onClose: onClose,
-          ),
-        ],
-      ),
+        );
+      },
     );
 
     if (isEmbedded) {
@@ -131,7 +149,9 @@ class _SpotsMapView extends StatelessWidget {
         listener: (context, navState) {
           final cubit = context.read<SpotsMapCubit>();
           if (navState.detailPane == DetailPaneType.saveSpot) {
-            if (!cubit.state.isAddingSpot) {
+            if (navState.editingSpot != null) {
+              cubit.enterEditSpotMode(navState.editingSpot!);
+            } else if (!cubit.state.isAddingSpot) {
               cubit.enterAddSpotMode();
             }
           } else if (navState.detailPane == DetailPaneType.map) {
@@ -228,14 +248,12 @@ class _DarkMapLoadingMask extends StatelessWidget {
 }
 
 class _CenterPinLayer extends StatelessWidget {
-  const _CenterPinLayer();
+  const _CenterPinLayer({required this.pinPoint});
+
+  final Point<double> pinPoint;
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final topPadding = mediaQuery.padding.top + 64.0;
-    final bottomAddPadding = 280.0 + mediaQuery.padding.bottom;
-
     return BlocBuilder<SpotsMapCubit, SpotsMapState>(
       buildWhen: (prev, curr) =>
           prev.mode != curr.mode ||
@@ -244,16 +262,15 @@ class _CenterPinLayer extends StatelessWidget {
       builder: (context, state) {
         if (!state.isAddingSpot) return const SizedBox.shrink();
 
-        return PositionedDirectional(
-          top: topPadding,
-          bottom: bottomAddPadding,
-          start: 0,
-          end: 0,
-          child: Center(
-            child: CenterPin(
-              category: state.category,
-              isCameraMoving: state.isCameraMoving,
-            ),
+        // Physical left is used because MapLibre coordinates (x, y) are physical Cartesian pixels within the map view.
+        return Positioned(
+          top: pinPoint.y,
+          left: pinPoint.x,
+          width: 0,
+          height: 0,
+          child: CenterPin(
+            category: state.category,
+            isCameraMoving: state.isCameraMoving,
           ),
         );
       },
@@ -271,6 +288,19 @@ class _TopControlsLayer extends StatelessWidget {
   final SpotsMapMode initialMode;
   final bool isEmbedded;
   final VoidCallback? onClose;
+
+  void _openFullscreen(BuildContext context, SpotsMapCubit cubit) {
+    final selectedSpotId = cubit.state.selectedSpot?.id;
+    final cameraTarget =
+        cubit.currentCameraTarget ?? cubit.state.selectedSpot?.latLng;
+    Navigator.of(context).pushNamed(
+      AppRouter.spotsMap,
+      arguments: SpotsMapArgs(
+        spotId: selectedSpotId,
+        initialTarget: cameraTarget,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -314,6 +344,12 @@ class _TopControlsLayer extends StatelessWidget {
                         }
                       },
                     ),
+                    if (isEmbedded)
+                      CircleIconButton(
+                        icon: const Icon(Icons.fullscreen_rounded),
+                        tooltip: l10n.fullscreen,
+                        onPressed: () => _openFullscreen(context, cubit),
+                      ),
                   ],
                 );
               }
@@ -330,8 +366,19 @@ class _TopControlsLayer extends StatelessWidget {
                   else
                     const SizedBox.shrink(),
 
-                  if (!isEmbedded)
-                    _AddSpotHeaderButton(onPressed: cubit.enterAddSpotMode),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (!isEmbedded)
+                        _AddSpotHeaderButton(onPressed: cubit.enterAddSpotMode),
+                      if (isEmbedded)
+                        CircleIconButton(
+                          icon: const Icon(Icons.fullscreen_rounded),
+                          tooltip: l10n.fullscreen,
+                          onPressed: () => _openFullscreen(context, cubit),
+                        ),
+                    ],
+                  ),
                 ],
               );
             },
@@ -380,7 +427,9 @@ class _RecenterButtonLayer extends StatelessWidget {
       builder: (context, state) {
         if (state.isAddingSpot) {
           return PositionedDirectional(
-            bottom: bottomAddPadding + AppDimens.space16,
+            bottom: bottomAddPadding +
+                mediaQuery.viewInsets.bottom +
+                AppDimens.space16,
             end: AppDimens.space16,
             child: CircleIconButton(
               icon: Icon(
@@ -434,6 +483,7 @@ class _BottomOverlayLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<SpotsMapCubit>();
     final wasOpenedToAdd = initialMode == SpotsMapMode.addSpot;
+    final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
 
     return BlocBuilder<SpotsMapCubit, SpotsMapState>(
       buildWhen: (prev, curr) =>
@@ -441,7 +491,7 @@ class _BottomOverlayLayer extends StatelessWidget {
       builder: (context, state) {
         if (state.isAddingSpot) {
           return PositionedDirectional(
-            bottom: 0,
+            bottom: keyboardInset,
             start: 0,
             end: 0,
             child: SaveSpotBottomPanel(

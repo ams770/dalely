@@ -33,6 +33,7 @@ class SpotsRepository {
       latitude: latitude,
       longitude: longitude,
       savedAt: DateTime.now(),
+      status: SpotStatus.parking,
     );
     await _box.put(car.id, car);
     return car;

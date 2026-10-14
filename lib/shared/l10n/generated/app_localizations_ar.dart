@@ -55,7 +55,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String distanceAway(String distance) {
-    return 'على بُعد $distance';
+    return '$distance';
   }
 
   @override
@@ -597,6 +597,112 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get exportSubject => 'أماكن دليلى';
+
+  @override
+  String get editSpot => 'تعديل النقطة';
+
+  @override
+  String get spotUpdated => 'تم تحديث النقطة';
+
+  @override
+  String get sortBy => 'ترتيب حسب';
+
+  @override
+  String get sortByDateDesc => 'تاريخ الإضافة';
+
+  @override
+  String get sortByNearest => 'الأقرب';
+
+  @override
+  String get sortByCategory => 'الفئة';
+
+  @override
+  String get sortByName => 'الاسم';
+
+  @override
+  String get parkingHistory => 'سجل الركنات';
+
+  @override
+  String get noParkingHistoryTitle => 'لا يوجد سجل ركنات بعد';
+
+  @override
+  String get noParkingHistoryMessage =>
+      'ستظهر أماكن ركنتك السابقة هنا بعد العثور على سيارتك.';
+
+  @override
+  String get parkingStatusFound => 'تم العثور عليها';
+
+  @override
+  String parkingWaitingTime(String time) {
+    return 'مدة الانتظار: $time';
+  }
+
+  @override
+  String get clearHistory => 'مسح السجل';
+
+  @override
+  String get clearHistoryConfirm => 'هل أنت متأكد من مسح جميع سجلات الركن؟';
+
+  @override
+  String get parkingHistoryCleared => 'تم مسح سجل الركنات';
+
+  @override
+  String get durationLessThanMinute => 'أقل من دقيقة';
+
+  @override
+  String durationMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دقيقة',
+      many: '$count دقيقة',
+      few: '$count دقائق',
+      two: 'دقيقتين',
+      one: 'دقيقة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ساعة',
+      many: '$count ساعة',
+      few: '$count ساعات',
+      two: 'ساعتين',
+      one: 'ساعة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHoursAndMinutes(String hours, String minutes) {
+    return '$hours و$minutes';
+  }
+
+  @override
+  String durationDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count يوم',
+      many: '$count يوم',
+      few: '$count أيام',
+      two: 'يومين',
+      one: 'يوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationDaysAndHours(String days, String hours) {
+    return '$days و$hours';
+  }
+
+  @override
+  String get fullscreen => 'ملء الشاشة';
 }
 
 /// The translations for Arabic, as used in Egypt (`ar_EG`).
@@ -649,7 +755,7 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
 
   @override
   String distanceAway(String distance) {
-    return 'على بُعد $distance';
+    return '$distance';
   }
 
   @override
@@ -1116,6 +1222,112 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
 
   @override
   String get noSpotsFoundDesc => 'جرب تدور باسم أو فئة تانية';
+
+  @override
+  String get editSpot => 'تعديل النقطة';
+
+  @override
+  String get spotUpdated => 'تم تحديث النقطة';
+
+  @override
+  String get sortBy => 'ترتيب حسب';
+
+  @override
+  String get sortByDateDesc => 'تاريخ الإضافة';
+
+  @override
+  String get sortByNearest => 'الأقرب';
+
+  @override
+  String get sortByCategory => 'الفئة';
+
+  @override
+  String get sortByName => 'الاسم';
+
+  @override
+  String get parkingHistory => 'سجل الركنات';
+
+  @override
+  String get noParkingHistoryTitle => 'مفيش سجل ركنات لسه';
+
+  @override
+  String get noParkingHistoryMessage =>
+      'أماكن ركنتك السابقة هتظهر هنا بعد ما تلاقي عربيتك.';
+
+  @override
+  String get parkingStatusFound => 'لقيتها خلاص';
+
+  @override
+  String parkingWaitingTime(String time) {
+    return 'مدة الانتظار: $time';
+  }
+
+  @override
+  String get clearHistory => 'مسح السجل';
+
+  @override
+  String get clearHistoryConfirm => 'متأكد إنك عاوز تمسح كل سجل الركنات؟';
+
+  @override
+  String get parkingHistoryCleared => 'اتمسح سجل الركنات';
+
+  @override
+  String get durationLessThanMinute => 'أقل من دقيقة';
+
+  @override
+  String durationMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دقيقة',
+      many: '$count دقيقة',
+      few: '$count دقائق',
+      two: 'دقيقتين',
+      one: 'دقيقة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ساعة',
+      many: '$count ساعة',
+      few: '$count ساعات',
+      two: 'ساعتين',
+      one: 'ساعة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHoursAndMinutes(String hours, String minutes) {
+    return '$hours و$minutes';
+  }
+
+  @override
+  String durationDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count يوم',
+      many: '$count يوم',
+      few: '$count أيام',
+      two: 'يومين',
+      one: 'يوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationDaysAndHours(String days, String hours) {
+    return '$days و$hours';
+  }
+
+  @override
+  String get fullscreen => 'شاشة كاملة';
 }
 
 /// The translations for Arabic, as used in Saudi Arabia (`ar_SA`).
@@ -1168,7 +1380,7 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
 
   @override
   String distanceAway(String distance) {
-    return 'على بُعد $distance';
+    return '$distance';
   }
 
   @override
@@ -1635,4 +1847,110 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
 
   @override
   String get noSpotsFoundDesc => 'جرّب تبحث باسم أو تصنيف ثاني';
+
+  @override
+  String get editSpot => 'تعديل النقطة';
+
+  @override
+  String get spotUpdated => 'تم تحديث النقطة';
+
+  @override
+  String get sortBy => 'ترتيب حسب';
+
+  @override
+  String get sortByDateDesc => 'تاريخ الإضافة';
+
+  @override
+  String get sortByNearest => 'الأقرب';
+
+  @override
+  String get sortByCategory => 'الفئة';
+
+  @override
+  String get sortByName => 'الاسم';
+
+  @override
+  String get parkingHistory => 'سجل مواقف السيارة';
+
+  @override
+  String get noParkingHistoryTitle => 'لا يوجد سجل مواقف بعد';
+
+  @override
+  String get noParkingHistoryMessage =>
+      'ستظهر مواقف سيارتك السابقة هنا بعد العثور على سيارتك.';
+
+  @override
+  String get parkingStatusFound => 'تم العثور عليها';
+
+  @override
+  String parkingWaitingTime(String time) {
+    return 'مدة الانتظار: $time';
+  }
+
+  @override
+  String get clearHistory => 'مسح السجل';
+
+  @override
+  String get clearHistoryConfirm => 'هل أنت متأكد من مسح سجل المواقف بالكامل؟';
+
+  @override
+  String get parkingHistoryCleared => 'تم مسح سجل مواقف السيارة';
+
+  @override
+  String get durationLessThanMinute => 'أقل من دقيقة';
+
+  @override
+  String durationMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دقيقة',
+      many: '$count دقيقة',
+      few: '$count دقائق',
+      two: 'دقيقتين',
+      one: 'دقيقة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHours(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ساعة',
+      many: '$count ساعة',
+      few: '$count ساعات',
+      two: 'ساعتين',
+      one: 'ساعة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationHoursAndMinutes(String hours, String minutes) {
+    return '$hours و$minutes';
+  }
+
+  @override
+  String durationDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count يوم',
+      many: '$count يوم',
+      few: '$count أيام',
+      two: 'يومين',
+      one: 'يوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String durationDaysAndHours(String days, String hours) {
+    return '$days و$hours';
+  }
+
+  @override
+  String get fullscreen => 'ملء الشاشة';
 }

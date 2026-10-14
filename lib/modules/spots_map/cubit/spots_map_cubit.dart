@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -27,22 +28,27 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     this.initialSelectedSpotId,
     this.initialTarget,
     String? initialSpotName,
+    this.editingSpot,
     SpotsMapMode initialMode = SpotsMapMode.viewing,
   }) : _isDarkMode = isDarkMode,
-       nameController = TextEditingController(text: initialSpotName ?? ''),
+       nameController = TextEditingController(
+         text: editingSpot?.name ?? initialSpotName ?? '',
+       ),
        super(
          _computeInitialState(
            spotsCubit: spotsCubit,
            locationCubit: locationCubit,
            isDarkMode: isDarkMode,
            initialSelectedSpotId: initialSelectedSpotId,
-           initialTarget: initialTarget,
-           initialSpotName: initialSpotName,
-           initialMode: initialMode,
+           initialTarget: editingSpot?.latLng ?? initialTarget,
+           initialSpotName: editingSpot?.name ?? initialSpotName,
+           editingSpot: editingSpot,
+           initialMode: editingSpot != null ? SpotsMapMode.addSpot : initialMode,
          ),
        ) {
     _currentCameraTarget = state.initialTarget;
     if (initialMode == SpotsMapMode.addSpot ||
+        editingSpot != null ||
         initialTarget != null ||
         initialSelectedSpotId != null) {
       _hasCenteredOnUser = true;
@@ -55,6 +61,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   final MarkerIconCache markerIconCache;
   final String? initialSelectedSpotId;
   final LatLng? initialTarget;
+  final Spot? editingSpot;
   final TextEditingController nameController;
 
   AppThemeExtension themeExtension;
@@ -94,17 +101,20 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   double _bottomPadding = 0;
   double _screenWidth = 0;
   double _screenHeight = 0;
+  double _devicePixelRatio = 1.0;
 
   void updatePinScreenMetrics({
     required double topPadding,
     required double bottomPadding,
     required double screenWidth,
     required double screenHeight,
+    double devicePixelRatio = 1.0,
   }) {
     _topPadding = topPadding;
     _bottomPadding = bottomPadding;
     _screenWidth = screenWidth;
     _screenHeight = screenHeight;
+    _devicePixelRatio = devicePixelRatio;
   }
 
   Point<double> get pinScreenPoint {
@@ -125,6 +135,24 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     return screenCenterPoint.y - pinScreenPoint.y;
   }
 
+  LatLng? get currentCameraTarget => _currentCameraTarget;
+
+  Point<double> _toPlatformScreenPoint(Point<double> logicalPoint) {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      final ratio = _devicePixelRatio > 0 ? _devicePixelRatio : 1.0;
+      return Point<double>(logicalPoint.x * ratio, logicalPoint.y * ratio);
+    }
+    return logicalPoint;
+  }
+
+  Point<double> _fromPlatformScreenPoint(Point<num> platformPoint) {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      final ratio = _devicePixelRatio > 0 ? _devicePixelRatio : 1.0;
+      return Point<double>(platformPoint.x / ratio, platformPoint.y / ratio);
+    }
+    return Point<double>(platformPoint.x.toDouble(), platformPoint.y.toDouble());
+  }
+
   static SpotsMapState _computeInitialState({
     required SpotsCubit spotsCubit,
     required LocationCubit locationCubit,
@@ -132,6 +160,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     String? initialSelectedSpotId,
     LatLng? initialTarget,
     String? initialSpotName,
+    Spot? editingSpot,
     SpotsMapMode initialMode = SpotsMapMode.viewing,
   }) {
     Spot? selectedSpot;
@@ -145,7 +174,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     }
 
     LatLng target = const LatLng(30.0444, 31.2357);
-    if (initialMode == SpotsMapMode.addSpot) {
+    if (editingSpot != null) {
+      target = editingSpot.latLng;
+    } else if (initialMode == SpotsMapMode.addSpot) {
       if (initialTarget != null) {
         target = initialTarget;
       } else if (locationCubit.state.hasLocation) {
@@ -166,12 +197,13 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     }
 
     return SpotsMapState(
-      mode: initialMode,
+      mode: editingSpot != null ? SpotsMapMode.addSpot : initialMode,
       selectedSpot: selectedSpot,
+      editingSpot: editingSpot,
       initialTarget: target,
       pickedLocation: target,
-      spotName: initialSpotName ?? '',
-      category: SpotCategory.other,
+      spotName: editingSpot?.name ?? initialSpotName ?? '',
+      category: editingSpot?.category ?? SpotCategory.other,
       isMapReady: !isDarkMode,
     );
   }
@@ -297,7 +329,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     final controller = _mapController;
     if (state.isAddingSpot && controller != null && !controller.isDisposed) {
       try {
-        final loc = await controller.toLatLng(pinScreenPoint);
+        final loc = await controller.toLatLng(
+          _toPlatformScreenPoint(pinScreenPoint),
+        );
         if (!isClosed && state.isAddingSpot) {
           emit(state.copyWith(pickedLocation: loc));
         }
@@ -313,17 +347,20 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     final controller = _mapController;
     if (controller == null || controller.isDisposed || isClosed) return;
     try {
-      Point<num> touchPoint;
+      Point<double> touchLogicalPoint;
       if (screenPoint != null) {
-        touchPoint = screenPoint;
+        touchLogicalPoint = _fromPlatformScreenPoint(screenPoint);
       } else {
-        touchPoint = await controller.toScreenLocation(target);
+        final raw = await controller.toScreenLocation(target);
+        touchLogicalPoint = _fromPlatformScreenPoint(raw);
       }
-      final targetScreenPoint = Point<double>(
-        touchPoint.x.toDouble(),
-        touchPoint.y.toDouble() + pinCenterOffsetDy,
+      final targetLogicalPoint = Point<double>(
+        touchLogicalPoint.x,
+        touchLogicalPoint.y + pinCenterOffsetDy,
       );
-      final targetCameraCenter = await controller.toLatLng(targetScreenPoint);
+      final targetCameraCenter = await controller.toLatLng(
+        _toPlatformScreenPoint(targetLogicalPoint),
+      );
       if (!controller.isDisposed && !isClosed) {
         final update = zoom != null
             ? CameraUpdate.newLatLngZoom(targetCameraCenter, zoom)
@@ -354,6 +391,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       state.copyWith(
         mode: SpotsMapMode.addSpot,
         clearSelected: true,
+        clearEditingSpot: true,
         pickedLocation: target,
         spotName: '',
         category: SpotCategory.other,
@@ -374,12 +412,35 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     } else {
       final controller = _mapController;
       if (controller != null && !controller.isDisposed) {
-        controller.toLatLng(pinScreenPoint).then((loc) {
+        controller
+            .toLatLng(_toPlatformScreenPoint(pinScreenPoint))
+            .then((loc) {
           if (!isClosed && state.isAddingSpot) {
             emit(state.copyWith(pickedLocation: loc));
           }
         }).catchError((_) {});
       }
+    }
+  }
+
+  void enterEditSpotMode(Spot spot) {
+    _hasCenteredOnUser = true;
+    nameController.text = spot.name;
+    emit(
+      state.copyWith(
+        mode: SpotsMapMode.addSpot,
+        clearSelected: true,
+        editingSpot: spot,
+        pickedLocation: spot.latLng,
+        spotName: spot.name,
+        category: spot.category,
+        isSaving: false,
+        isCameraMoving: false,
+      ),
+    );
+    final controller = _mapController;
+    if (controller != null && !controller.isDisposed) {
+      _animateTargetToPin(spot.latLng, zoom: defaultZoom);
     }
   }
 
@@ -394,6 +455,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     emit(
       state.copyWith(
         mode: SpotsMapMode.viewing,
+        clearEditingSpot: true,
         spotName: '',
         isSaving: false,
         isCameraMoving: false,
@@ -430,18 +492,31 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     LatLng saveLocation = state.pickedLocation;
     if (controller != null && !controller.isDisposed) {
       try {
-        saveLocation = await controller.toLatLng(pinScreenPoint);
+        saveLocation = await controller.toLatLng(
+          _toPlatformScreenPoint(pinScreenPoint),
+        );
       } catch (_) {}
     }
 
     emit(state.copyWith(isSaving: true, pickedLocation: saveLocation));
     try {
-      final spot = await spotsCubit.saveSpot(
-        name: state.spotName.trim(),
-        category: state.category,
-        latitude: saveLocation.latitude,
-        longitude: saveLocation.longitude,
-      );
+      final Spot spot;
+      if (state.editingSpot != null) {
+        spot = state.editingSpot!.copyWith(
+          name: state.spotName.trim(),
+          category: state.category,
+          latitude: saveLocation.latitude,
+          longitude: saveLocation.longitude,
+        );
+        await spotsCubit.updateSpot(spot);
+      } else {
+        spot = await spotsCubit.saveSpot(
+          name: state.spotName.trim(),
+          category: state.category,
+          latitude: saveLocation.latitude,
+          longitude: saveLocation.longitude,
+        );
+      }
 
       if (!isClosed) {
         nameController.clear();
@@ -450,6 +525,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
             mode: SpotsMapMode.viewing,
             isSaving: false,
             selectedSpot: spot,
+            clearEditingSpot: true,
           ),
         );
         _rebuildMarkers();

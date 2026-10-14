@@ -19,11 +19,13 @@ class SpotsMapState {
     this.isCameraMoving = false,
     this.isSaving = false,
     this.isMapReady = false,
+    this.editingSpot,
   });
 
   final bool isMapReady;
   final SpotsMapMode mode;
   final Spot? selectedSpot;
+  final Spot? editingSpot;
   final LatLng initialTarget;
   final double initialZoom;
   final double currentZoom;
@@ -34,6 +36,7 @@ class SpotsMapState {
   final bool isSaving;
 
   bool get isAddingSpot => mode == SpotsMapMode.addSpot;
+  bool get isEditingSpot => editingSpot != null;
   bool get canSave => spotName.trim().isNotEmpty && !isSaving;
   MarkerZoomTier get zoomTier => MarkerZoomTier.fromZoom(currentZoom);
 
@@ -41,6 +44,8 @@ class SpotsMapState {
     SpotsMapMode? mode,
     Spot? selectedSpot,
     bool clearSelected = false,
+    Spot? editingSpot,
+    bool clearEditingSpot = false,
     LatLng? initialTarget,
     double? initialZoom,
     double? currentZoom,
@@ -54,6 +59,8 @@ class SpotsMapState {
     return SpotsMapState(
       mode: mode ?? this.mode,
       selectedSpot: clearSelected ? null : (selectedSpot ?? this.selectedSpot),
+      editingSpot:
+          clearEditingSpot ? null : (editingSpot ?? this.editingSpot),
       initialTarget: initialTarget ?? this.initialTarget,
       initialZoom: initialZoom ?? this.initialZoom,
       currentZoom: currentZoom ?? this.currentZoom,
@@ -72,6 +79,7 @@ class SpotsMapState {
       other is SpotsMapState &&
           other.mode == mode &&
           other.selectedSpot == selectedSpot &&
+          other.editingSpot == editingSpot &&
           other.initialTarget == initialTarget &&
           other.initialZoom == initialZoom &&
           other.currentZoom == currentZoom &&
@@ -86,6 +94,7 @@ class SpotsMapState {
   int get hashCode => Object.hash(
     mode,
     selectedSpot,
+    editingSpot,
     initialTarget,
     initialZoom,
     currentZoom,

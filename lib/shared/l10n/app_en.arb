@@ -19,8 +19,8 @@
     }
   },
   "noCarTitle": "Where did you park?",
-  "noCarMessage": "Not parked",
-  "distanceAway": "{distance} away",
+  "noCarMessage": "not parked",
+  "distanceAway": "{distance}",
   "@distanceAway": {
     "placeholders": {
       "distance": { "type": "String" }
@@ -251,5 +251,59 @@
   "exportAsExcelSubtitle": "Spreadsheet with coordinates & map links",
   "exportAsText": "Export as text",
   "exportAsTextSubtitle": "Formatted list with map links",
-  "exportSubject": "Dalely spots"
+  "exportSubject": "Dalely spots",
+  "editSpot": "Edit spot",
+  "spotUpdated": "Spot updated",
+  "sortBy": "Sort by",
+  "sortByDateDesc": "Date created",
+  "sortByNearest": "Nearest",
+  "sortByCategory": "Category",
+  "sortByName": "Name",
+  "parkingHistory": "Parking history",
+  "noParkingHistoryTitle": "No parking history yet",
+  "noParkingHistoryMessage": "Your past parking spots will appear here after you find your car.",
+  "parkingStatusFound": "Found",
+  "parkingWaitingTime": "Waiting time: {time}",
+  "@parkingWaitingTime": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "clearHistory": "Clear history",
+  "clearHistoryConfirm": "Are you sure you want to clear all parking history?",
+  "parkingHistoryCleared": "Parking history cleared",
+  "durationLessThanMinute": "Less than a minute",
+  "durationMinutes": "{count, plural, =1{1 minute} other{{count} minutes}}",
+  "@durationMinutes": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationHours": "{count, plural, =1{1 hour} other{{count} hours}}",
+  "@durationHours": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationHoursAndMinutes": "{hours}, {minutes}",
+  "@durationHoursAndMinutes": {
+    "placeholders": {
+      "hours": { "type": "String" },
+      "minutes": { "type": "String" }
+    }
+  },
+  "durationDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@durationDays": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "durationDaysAndHours": "{days}, {hours}",
+  "@durationDaysAndHours": {
+    "placeholders": {
+      "days": { "type": "String" },
+      "hours": { "type": "String" }
+    }
+  },
+  "fullscreen": "Full screen"
 }

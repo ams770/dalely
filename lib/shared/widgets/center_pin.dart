@@ -21,89 +21,102 @@ class CenterPin extends StatelessWidget {
     final color = context.tokens.categoryColor(category);
 
     return IgnorePointer(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
         children: [
-          // Hint Bubble
-          AnimatedOpacity(
-            duration: const Duration(milliseconds: 200),
-            opacity: isCameraMoving ? 0.0 : 1.0,
-            child: Container(
-              margin: const EdgeInsets.only(bottom: AppDimens.space8),
-              padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: AppDimens.space12,
-                vertical: AppDimens.space6,
-              ),
+          // Shadow on ground: centered at (0, 0)
+          Positioned(
+            top: -4,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              width: isCameraMoving ? 18 : 28,
+              height: isCameraMoving ? 6 : 8,
               decoration: BoxDecoration(
-                color: context.colorScheme.surface,
+                color: Colors.black.withAlpha(isCameraMoving ? 30 : 60),
                 borderRadius: AppDimens.borderRadiusFull,
-                border: Border.all(
-                  color: context.colorScheme.outline.withAlpha(120),
-                  width: 1,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(20),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Text(
-                context.l10n.movePinHint,
-                style: context.textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
               ),
             ),
           ),
 
-          // Animated Pin
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            transform: Matrix4.translationValues(
-              0,
-              isCameraMoving ? -14 : 0,
-              0,
-            ),
+          // Pin + Hint Bubble: extends upwards from (0, 0)
+          Positioned(
+            bottom: 0,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 58,
-                  height: 58,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 3.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: color.withAlpha(90),
-                        blurRadius: 14,
-                        offset: const Offset(0, 4),
+                // Hint Bubble
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: isCameraMoving ? 0.0 : 1.0,
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: AppDimens.space8),
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: AppDimens.space12,
+                      vertical: AppDimens.space6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: context.colorScheme.surface,
+                      borderRadius: AppDimens.borderRadiusFull,
+                      border: Border.all(
+                        color: context.colorScheme.outline.withAlpha(120),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(20),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      context.l10n.movePinHint,
+                      style: context.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Animated Pin (Lifts up when camera is moving)
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  transform: Matrix4.translationValues(
+                    0,
+                    isCameraMoving ? -14 : 0,
+                    0,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 58,
+                        height: 58,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3.5),
+                          boxShadow: [
+                            BoxShadow(
+                              color: color.withAlpha(90),
+                              blurRadius: 14,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(category.icon, color: Colors.white, size: 29),
+                      ),
+                      // Pointer tip (points straight down to 0)
+                      CustomPaint(
+                        size: const Size(16, 11),
+                        painter: _PinTipPainter(color: color),
                       ),
                     ],
                   ),
-                  alignment: Alignment.center,
-                  child: Icon(category.icon, color: Colors.white, size: 29),
-                ),
-                // Pointer tip
-                CustomPaint(
-                  size: const Size(16, 11),
-                  painter: _PinTipPainter(color: color),
                 ),
               ],
-            ),
-          ),
-
-          // Shadow on ground
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            width: isCameraMoving ? 18 : 28,
-            height: isCameraMoving ? 6 : 8,
-            decoration: BoxDecoration(
-              color: Colors.black.withAlpha(isCameraMoving ? 30 : 60),
-              borderRadius: AppDimens.borderRadiusFull,
             ),
           ),
         ],

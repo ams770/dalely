@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../models/spot.dart';
 import 'adaptive_nav_state.dart';
 
 class AdaptiveNavCubit extends Cubit<AdaptiveNavState> {
@@ -14,7 +15,18 @@ class AdaptiveNavCubit extends Cubit<AdaptiveNavState> {
   }
 
   void openSaveSpot() {
-    emit(state.copyWith(detailPane: DetailPaneType.saveSpot));
+    emit(state.copyWith(
+      detailPane: DetailPaneType.saveSpot,
+      editingSpot: () => null,
+    ));
+  }
+
+  void openEditSpot(Spot spot) {
+    emit(state.copyWith(
+      detailPane: DetailPaneType.saveSpot,
+      editingSpot: () => spot,
+      requestTimestamp: DateTime.now().microsecondsSinceEpoch,
+    ));
   }
 
   void openSettings() {
@@ -23,6 +35,10 @@ class AdaptiveNavCubit extends Cubit<AdaptiveNavState> {
 
   void openSearch() {
     emit(state.copyWith(detailPane: DetailPaneType.search));
+  }
+
+  void openParkingHistory() {
+    emit(state.copyWith(detailPane: DetailPaneType.parkingHistory));
   }
 
   void closeDetail() {

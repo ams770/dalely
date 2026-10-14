@@ -22,6 +22,7 @@ import '../../shared/widgets/location_permission_banner.dart';
 import '../../shared/widgets/primary_bottom_button.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/spot_card.dart';
+import '../parking_history/parking_history_screen.dart';
 import '../search/search_spots_screen.dart';
 import '../settings/settings_screen.dart';
 import '../spots_map/spots_map_screen.dart';
@@ -29,7 +30,6 @@ import 'widgets/car_card.dart';
 import 'widgets/export_spots_sheet.dart';
 import 'widgets/home_header.dart';
 import 'widgets/home_map_card.dart';
-import 'widgets/rename_spot_sheet.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -178,6 +178,11 @@ class _AdaptiveDetailPane extends StatelessWidget {
                   onClose: cubit.closeDetail,
                   onSpotSelected: (id) => cubit.showMap(spotId: id),
                 ),
+              )
+            // Parking history overlay
+            else if (state.detailPane == DetailPaneType.parkingHistory)
+              Positioned.fill(
+                child: ParkingHistoryScreen(onClose: cubit.closeDetail),
               ),
           ],
         );
@@ -315,6 +320,8 @@ class _SavedSpotsSectionHeader extends StatelessWidget {
             children: [
               _ExportSpotsButton(spots: state.allSpots),
               const SizedBox(width: AppDimens.space8),
+              const _SortSpotsButton(),
+              const SizedBox(width: AppDimens.space8),
               CircleIconButton(
                 icon: const Icon(Icons.search_rounded),
                 tooltip: context.l10n.searchSpots,
@@ -326,6 +333,108 @@ class _SavedSpotsSectionHeader extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _SortSpotsButton extends StatelessWidget {
+  const _SortSpotsButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final currentOrder = context.select<SpotsCubit, SpotSortOrder>(
+      (c) => c.state.sortOrder,
+    );
+
+    return CircleIconButton(
+      icon: const Icon(Icons.sort_rounded),
+      tooltip: l10n.sortBy,
+      onPressed: () async {
+        final box = context.findRenderObject() as RenderBox?;
+        final origin = (box != null && box.hasSize)
+            ? box.localToGlobal(Offset.zero) & box.size
+            : Rect.zero;
+
+        final selected = await showMenu<SpotSortOrder>(
+          context: context,
+          position: RelativeRect.fromLTRB(
+            origin.left,
+            origin.bottom + 8,
+            origin.right,
+            origin.bottom + 8,
+          ),
+          items: [
+            PopupMenuItem(
+              value: SpotSortOrder.dateDesc,
+              child: _SortMenuItem(
+                label: l10n.sortByDateDesc,
+                isSelected: currentOrder == SpotSortOrder.dateDesc,
+              ),
+            ),
+            PopupMenuItem(
+              value: SpotSortOrder.nearest,
+              child: _SortMenuItem(
+                label: l10n.sortByNearest,
+                isSelected: currentOrder == SpotSortOrder.nearest,
+              ),
+            ),
+            PopupMenuItem(
+              value: SpotSortOrder.category,
+              child: _SortMenuItem(
+                label: l10n.sortByCategory,
+                isSelected: currentOrder == SpotSortOrder.category,
+              ),
+            ),
+            PopupMenuItem(
+              value: SpotSortOrder.name,
+              child: _SortMenuItem(
+                label: l10n.sortByName,
+                isSelected: currentOrder == SpotSortOrder.name,
+              ),
+            ),
+          ],
+        );
+
+        if (selected != null && context.mounted) {
+          context.read<SpotsCubit>().setSortOrder(selected);
+        }
+      },
+    );
+  }
+}
+
+class _SortMenuItem extends StatelessWidget {
+  const _SortMenuItem({
+    required this.label,
+    required this.isSelected,
+  });
+
+  final String label;
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.theme;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            color: isSelected
+                ? theme.colorScheme.primary
+                : theme.colorScheme.onSurface,
+          ),
+        ),
+        if (isSelected)
+          Icon(
+            Icons.check_rounded,
+            size: AppDimens.iconMedium,
+            color: theme.colorScheme.primary,
+          ),
+      ],
     );
   }
 }
@@ -449,22 +558,7 @@ class _DismissibleSpotItem extends StatelessWidget {
           AdaptiveNavigation.openMap(context, spotId: spot.id);
         },
         onLongPress: () {
-          showModalBottomSheet<void>(
-            context: context,
-            isScrollControlled: true,
-            showDragHandle: false,
-            builder: (_) => RenameSpotSheet(
-              spot: spot,
-              isFavorite: isFavorite,
-              onRename: (newName) {
-                spotsCubit.renameSpot(id: spot.id, newName: newName);
-              },
-              onToggleFavorite: () {
-                final newFav = isFavorite ? null : spot.id;
-                spotsCubit.setFavoriteSpot(newFav);
-              },
-            ),
-          );
+          AdaptiveNavigation.openEditSpot(context, spot);
         },
       ),
     );
