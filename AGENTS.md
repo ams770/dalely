@@ -312,4 +312,5 @@ Adding anything else → ask first, then add it to this list.
 | 13 | App name localization | Android `values/strings.xml` ("Dalely") & `values-ar/strings.xml` ("دليلى"); iOS `en.lproj/InfoPlist.strings` & `ar.lproj/InfoPlist.strings` |
 | 14 | Car distance notification | Live Activity (ActivityKit / SwiftUI) on iOS; ongoing foreground service (`CarTrackingService`) on Android. Bridge via MethodChannel `feen/car_tracking` & EventChannel `feen/car_tracking/events`. |
 | 15 | Incoming location links & share sheet | Android intent-filters (`geo:`, Google Maps, Apple Maps, send intent) & iOS Share Extension (`DalelyShare`) + `geo:` scheme; App Group `group.com.dalely.app` persistence; parsed via `GeoUriParser` and routed to `saveSpot` (`SpotsMapScreen` in `addSpot` mode) with coordinates pinned and bottom panel active. |
+| 16 | Android compass provider | Native `EventChannel("feen/compass")` (`CompassPlugin.kt`) supporting `TYPE_ROTATION_VECTOR`, `TYPE_GEOMAGNETIC_ROTATION_VECTOR` and fallback to accelerometer + magnetometer / orientation with Android 11+ display rotation compatibility; iOS uses `flutter_compass` CoreLocation heading. |
 

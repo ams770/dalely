@@ -9,18 +9,21 @@ class SearchSpotsState {
     this.matchingSpots = const [],
     this.selectedCategory,
     this.availableCategories = const [],
+    this.visibleCount = 50,
   });
 
   final String query;
   final List<Spot> matchingSpots;
   final SpotCategory? selectedCategory;
   final List<SpotCategory> availableCategories;
+  final int visibleCount;
 
   SearchSpotsState copyWith({
     String? query,
     List<Spot>? matchingSpots,
     ValueGetter<SpotCategory?>? selectedCategory,
     List<SpotCategory>? availableCategories,
+    int? visibleCount,
   }) {
     return SearchSpotsState(
       query: query ?? this.query,
@@ -29,6 +32,7 @@ class SearchSpotsState {
           ? selectedCategory()
           : this.selectedCategory,
       availableCategories: availableCategories ?? this.availableCategories,
+      visibleCount: visibleCount ?? this.visibleCount,
     );
   }
 
@@ -38,6 +42,7 @@ class SearchSpotsState {
       other is SearchSpotsState &&
           other.query == query &&
           other.selectedCategory == selectedCategory &&
+          other.visibleCount == visibleCount &&
           listEquals(other.matchingSpots, matchingSpots) &&
           listEquals(other.availableCategories, availableCategories);
 
@@ -45,6 +50,7 @@ class SearchSpotsState {
   int get hashCode => Object.hash(
         query,
         selectedCategory,
+        visibleCount,
         Object.hashAll(matchingSpots),
         Object.hashAll(availableCategories),
       );

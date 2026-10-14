@@ -26,8 +26,10 @@ class LocationCubit extends Cubit<LocationState> {
 
   StreamSubscription? _positionSubscription;
   StreamSubscription? _headingSubscription;
+  bool _hasReceivedSensorHeading = false;
 
   Future<void> _init() async {
+    _startHeadingStream();
     final access = await locationService.checkPermission();
     if (isClosed) return;
     emit(state.copyWith(access: access));
@@ -37,7 +39,7 @@ class LocationCubit extends Cubit<LocationState> {
       if (!isClosed && last != null && state.position == null) {
         emit(state.copyWith(position: last));
       }
-      _startStreams();
+      _startPositionStream();
       unawaited(
         locationService.getCurrentPosition().then((pos) {
           if (!isClosed && pos != null) {
@@ -55,7 +57,7 @@ class LocationCubit extends Cubit<LocationState> {
 
     emit(state.copyWith(access: access, isLoading: false));
     if (access == LocationAccess.granted) {
-      _startStreams();
+      _startPositionStream();
       final last = await locationService.getLastKnownPosition();
       if (!isClosed && last != null && state.position == null) {
         emit(state.copyWith(position: last));
@@ -65,7 +67,8 @@ class LocationCubit extends Cubit<LocationState> {
         emit(state.copyWith(position: current));
       }
     } else {
-      _stopStreams();
+      _positionSubscription?.cancel();
+      _positionSubscription = null;
     }
     return access;
   }
@@ -117,26 +120,44 @@ class LocationCubit extends Cubit<LocationState> {
   }
 
   void _startStreams() {
-    if (state.access != LocationAccess.granted) return;
+    _startHeadingStream();
+    if (state.access == LocationAccess.granted) {
+      _startPositionStream();
+    }
+  }
 
-    _positionSubscription?.cancel();
-    _positionSubscription = locationService
-        .getPositionStream(distanceFilter: 5)
-        .listen((position) {
-      if (!isClosed) {
-        emit(state.copyWith(position: position));
-      }
-    });
-
+  void _startHeadingStream() {
     _headingSubscription?.cancel();
     final headingStream = headingService.events;
     if (headingStream != null) {
-      _headingSubscription = headingStream.listen((heading) {
-        if (!isClosed) {
-          emit(state.copyWith(heading: heading));
-        }
-      });
+      _headingSubscription = headingStream.listen(
+        (heading) {
+          if (!isClosed) {
+            _hasReceivedSensorHeading = true;
+            emit(state.copyWith(heading: heading));
+          }
+        },
+        onError: (_) {},
+      );
     }
+  }
+
+  void _startPositionStream() {
+    _positionSubscription?.cancel();
+    _positionSubscription = locationService
+        .getPositionStream(distanceFilter: 5)
+        .listen(
+      (position) {
+        if (!isClosed) {
+          if (!_hasReceivedSensorHeading && position.heading > 0.0) {
+            emit(state.copyWith(position: position, heading: position.heading));
+          } else {
+            emit(state.copyWith(position: position));
+          }
+        }
+      },
+      onError: (_) {},
+    );
   }
 
   void _stopStreams() {
@@ -144,6 +165,7 @@ class LocationCubit extends Cubit<LocationState> {
     _positionSubscription = null;
     _headingSubscription?.cancel();
     _headingSubscription = null;
+    _hasReceivedSensorHeading = false;
   }
 
   Future<void> openAppSettings() => locationService.openAppSettings();

@@ -26,6 +26,7 @@ import '../parking_history/parking_history_screen.dart';
 import '../search/search_spots_screen.dart';
 import '../settings/settings_screen.dart';
 import '../spots_map/spots_map_screen.dart';
+import 'cubit/home_cubit.dart';
 import 'widgets/car_card.dart';
 import 'widgets/export_spots_sheet.dart';
 import 'widgets/home_header.dart';
@@ -36,10 +37,15 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CarProximityListener(
-      child: context.isWideScreen
-          ? const _AdaptiveTwoPaneHome()
-          : const _HomePane(),
+    return BlocProvider<HomeCubit>(
+      create: (context) => HomeCubit(
+        spotsCubit: context.read<SpotsCubit>(),
+      ),
+      child: CarProximityListener(
+        child: context.isWideScreen
+            ? const _AdaptiveTwoPaneHome()
+            : const _HomePane(),
+      ),
     );
   }
 }
@@ -196,6 +202,8 @@ class _HomePane extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final homeCubit = context.read<HomeCubit>();
+
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -204,6 +212,7 @@ class _HomePane extends StatelessWidget {
             const HomeHeader(),
             Expanded(
               child: CustomScrollView(
+                controller: homeCubit.scrollController,
                 physics: const BouncingScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics(),
                 ),
@@ -472,6 +481,10 @@ class _SavedSpotsSliverList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final visibleCount = context.select<HomeCubit, int>(
+      (c) => c.state.visibleCount,
+    );
+
     return BlocBuilder<SpotsCubit, SpotsState>(
       buildWhen: (prev, curr) =>
           prev.spots != curr.spots ||
@@ -487,13 +500,15 @@ class _SavedSpotsSliverList extends StatelessWidget {
           );
         }
 
+        final displayedSpots = state.spots.take(visibleCount).toList();
+
         return SliverPadding(
           padding: const EdgeInsetsDirectional.symmetric(
             horizontal: AppDimens.space16,
           ),
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
-              final spot = state.spots[index];
+              final spot = displayedSpots[index];
               return Padding(
                 padding: const EdgeInsetsDirectional.only(
                   bottom: AppDimens.space12,
@@ -503,7 +518,7 @@ class _SavedSpotsSliverList extends StatelessWidget {
                   isFavorite: spot.id == state.favoriteSpotId,
                 ),
               );
-            }, childCount: state.spots.length),
+            }, childCount: displayedSpots.length),
           ),
         );
       },

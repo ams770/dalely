@@ -36,6 +36,7 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
         CarTrackingPlugin.registerWith(flutterEngine, this)
         NotificationActionPlugin.registerWith(flutterEngine, this)
+        CompassPlugin.registerWith(flutterEngine, this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -16,9 +16,26 @@ import '../../shared/utils/duration_formatter.dart';
 import '../../shared/widgets/circle_icon_button.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/info_pill.dart';
+import 'cubit/parking_history_cubit.dart';
 
 class ParkingHistoryScreen extends StatelessWidget {
   const ParkingHistoryScreen({super.key, this.onClose});
+
+  final VoidCallback? onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<ParkingHistoryCubit>(
+      create: (context) => ParkingHistoryCubit(
+        spotsCubit: context.read<SpotsCubit>(),
+      ),
+      child: _ParkingHistoryView(onClose: onClose),
+    );
+  }
+}
+
+class _ParkingHistoryView extends StatelessWidget {
+  const _ParkingHistoryView({this.onClose});
 
   final VoidCallback? onClose;
 
@@ -135,6 +152,11 @@ class _HistoryBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<ParkingHistoryCubit>();
+    final visibleCount = context.select<ParkingHistoryCubit, int>(
+      (c) => c.state.visibleCount,
+    );
+
     return BlocBuilder<SpotsCubit, SpotsState>(
       buildWhen: (prev, curr) => prev.parkingHistory != curr.parkingHistory,
       builder: (context, state) {
@@ -147,7 +169,10 @@ class _HistoryBody extends StatelessWidget {
           );
         }
 
+        final displayedSpots = history.take(visibleCount).toList();
+
         return ListView.builder(
+          controller: cubit.scrollController,
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsetsDirectional.fromSTEB(
             AppDimens.space16,
@@ -155,9 +180,9 @@ class _HistoryBody extends StatelessWidget {
             AppDimens.space16,
             AppDimens.space24,
           ),
-          itemCount: history.length,
+          itemCount: displayedSpots.length,
           itemBuilder: (context, index) {
-            final spot = history[index];
+            final spot = displayedSpots[index];
             return Padding(
               padding: const EdgeInsetsDirectional.only(
                 bottom: AppDimens.space12,

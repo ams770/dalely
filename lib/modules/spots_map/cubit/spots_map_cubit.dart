@@ -235,8 +235,26 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
     _locationSubscription = locationCubit.stream.listen((locState) {
       if (!isClosed) {
-        _rebuildMarkers();
         final controller = _mapController;
+        final sym = _userLocationSymbol;
+
+        if (sym != null &&
+            locState.hasLocation &&
+            controller != null &&
+            !controller.isDisposed) {
+          final bearing = _currentBearing;
+          final iconRotate = ((locState.heading - bearing) % 360 + 360) % 360;
+          controller.updateSymbol(
+            sym,
+            SymbolOptions(
+              geometry: locState.latLng!,
+              iconRotate: iconRotate,
+            ),
+          );
+        } else {
+          _rebuildMarkers();
+        }
+
         if (state.selectedSpot == null &&
             !state.isAddingSpot &&
             !_hasCenteredOnUser &&

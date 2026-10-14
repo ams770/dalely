@@ -105,9 +105,12 @@ class _SearchResultsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spotsState = context.watch<SpotsCubit>().state;
+    final cubit = context.read<SearchSpotsCubit>();
 
     return BlocBuilder<SearchSpotsCubit, SearchSpotsState>(
-      buildWhen: (prev, curr) => prev.matchingSpots != curr.matchingSpots,
+      buildWhen: (prev, curr) =>
+          prev.matchingSpots != curr.matchingSpots ||
+          prev.visibleCount != curr.visibleCount,
       builder: (context, state) {
         if (state.matchingSpots.isEmpty) {
           return EmptyState(
@@ -117,7 +120,11 @@ class _SearchResultsList extends StatelessWidget {
           );
         }
 
+        final displayedSpots =
+            state.matchingSpots.take(state.visibleCount).toList();
+
         return ListView.separated(
+          controller: cubit.scrollController,
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsetsDirectional.fromSTEB(
             AppDimens.space16,
@@ -125,10 +132,10 @@ class _SearchResultsList extends StatelessWidget {
             AppDimens.space16,
             AppDimens.space32,
           ),
-          itemCount: state.matchingSpots.length,
+          itemCount: displayedSpots.length,
           separatorBuilder: (_, _) => const SizedBox(height: AppDimens.space12),
           itemBuilder: (context, index) {
-            final spot = state.matchingSpots[index];
+            final spot = displayedSpots[index];
             final isFavorite = spot.id == spotsState.favoriteSpotId;
 
             return SpotCard(

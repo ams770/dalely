@@ -15,9 +15,11 @@ class SearchSpotsCubit extends Cubit<SearchSpotsState> {
             matchingSpots: spotsCubit.state.allSpots,
             availableCategories:
                 _computeAvailableCategories(spotsCubit.state.allSpots),
+            visibleCount: pageSize,
           ),
         ) {
     textController.addListener(_onControllerChanged);
+    scrollController.addListener(_onScroll);
     _spotsSubscription = spotsCubit.stream.listen((_) {
       if (!isClosed) {
         _applyFilter();
@@ -25,9 +27,13 @@ class SearchSpotsCubit extends Cubit<SearchSpotsState> {
     });
   }
 
+  static const int pageSize = 50;
+
   final SpotsCubit spotsCubit;
   final TextEditingController textController = TextEditingController();
+  final ScrollController scrollController = ScrollController();
   StreamSubscription<dynamic>? _spotsSubscription;
+  bool _isLoadingMore = false;
 
   static List<SpotCategory> _computeAvailableCategories(List<Spot> spots) {
     final presentCategories = spots.map((s) => s.category).toSet();
@@ -41,6 +47,28 @@ class SearchSpotsCubit extends Cubit<SearchSpotsState> {
     if (newQuery != state.query) {
       onQueryChanged(newQuery);
     }
+  }
+
+  void _onScroll() {
+    if (!scrollController.hasClients || _isLoadingMore) return;
+    final position = scrollController.position;
+    if (!position.hasContentDimensions) return;
+    if (position.maxScrollExtent > 0 &&
+        position.pixels >= position.maxScrollExtent - 200) {
+      _isLoadingMore = true;
+      loadMore();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!isClosed) {
+          _isLoadingMore = false;
+        }
+      });
+    }
+  }
+
+  void loadMore() {
+    final total = state.matchingSpots.length;
+    if (state.visibleCount >= total) return;
+    emit(state.copyWith(visibleCount: state.visibleCount + pageSize));
   }
 
   void onQueryChanged(String query) {
@@ -93,7 +121,12 @@ class SearchSpotsCubit extends Cubit<SearchSpotsState> {
       matchingSpots: filtered,
       availableCategories: availableCategories,
       selectedCategory: () => selectedCat,
+      visibleCount: pageSize,
     ));
+
+    if (scrollController.hasClients) {
+      scrollController.jumpTo(0);
+    }
   }
 
   static String _normalize(String input) {
@@ -115,6 +148,8 @@ class SearchSpotsCubit extends Cubit<SearchSpotsState> {
     _spotsSubscription?.cancel();
     textController.removeListener(_onControllerChanged);
     textController.dispose();
+    scrollController.removeListener(_onScroll);
+    scrollController.dispose();
     return super.close();
   }
 }
