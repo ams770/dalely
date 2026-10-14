@@ -6,10 +6,11 @@ import 'adaptive_nav_state.dart';
 class AdaptiveNavCubit extends Cubit<AdaptiveNavState> {
   AdaptiveNavCubit() : super(const AdaptiveNavState());
 
-  void showMap({String? spotId}) {
+  void showMap({String? spotId, bool onlyShowSpot = false}) {
     emit(state.copyWith(
       detailPane: DetailPaneType.map,
       selectedSpotId: () => spotId,
+      onlyShowSpot: onlyShowSpot,
       requestTimestamp: DateTime.now().microsecondsSinceEpoch,
     ));
   }

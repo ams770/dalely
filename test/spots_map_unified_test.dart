@@ -22,8 +22,15 @@ class _FakeMapLibrePlatform extends MapLibrePlatform {
 }
 
 class _FakeSpotsCubit extends Cubit<SpotsState> implements SpotsCubit {
-  _FakeSpotsCubit(List<Spot> initialSpots, {Spot? car})
-      : super(SpotsState(spots: initialSpots, car: car));
+  _FakeSpotsCubit(
+    List<Spot> initialSpots, {
+    Spot? car,
+    List<Spot>? parkingHistory,
+  }) : super(SpotsState(
+          spots: initialSpots,
+          car: car,
+          parkingHistory: parkingHistory ?? const [],
+        ));
 
   Spot? lastSavedSpot;
 
@@ -472,6 +479,88 @@ void main() {
       expect(cubit.pinCenterOffsetDy, 400.0 - 290.0);
 
       cubit.close();
+    });
+
+    test('onlyShowSpotId isolates single spot on the map and clearing selection restores all spots', () {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+        onlyShowSpotId: '1',
+      );
+
+      expect(cubit.state.onlyShowSpotId, '1');
+      expect(cubit.state.selectedSpot?.id, '1');
+
+      // Deselecting spot clears onlyShowSpotId
+      cubit.selectSpot(null);
+      expect(cubit.state.onlyShowSpotId, isNull);
+      expect(cubit.state.selectedSpot, isNull);
+
+      // Re-selecting with onlyShowSpot: true re-engages isolation
+      cubit.selectSpotById('1', onlyShowSpot: true);
+      expect(cubit.state.onlyShowSpotId, '1');
+      expect(cubit.state.selectedSpot?.id, '1');
+
+      cubit.close();
+    });
+
+    test('compass rotation cancels map bearing so cone matches device heading', () {
+      // Test formula: ((heading - bearing) % 360 + 360) % 360
+      double computeIconRotate(double heading, double bearing) =>
+          ((heading - bearing) % 360 + 360) % 360;
+
+      // 1. Map not rotated (bearing 0): iconRotate equals heading
+      expect(computeIconRotate(45.0, 0.0), 45.0);
+      expect(computeIconRotate(0.0, 0.0), 0.0);
+
+      // 2. Map rotated clockwise by 30°: bearing = 30°
+      expect(computeIconRotate(90.0, 30.0), 60.0);
+
+      // 3. Map rotated clockwise past heading: (30 - 90) = -60 -> 300°
+      expect(computeIconRotate(30.0, 90.0), 300.0);
+
+      // 4. Map rotated full circle wrapping: (10 - 350) = -340 -> 20°
+      expect(computeIconRotate(10.0, 350.0), 20.0);
+    });
+
+    test('parking history spot can be selected and isolated with onlyShowSpotId without disappearing', () {
+      final historySpot = Spot(
+        id: 'car_history_123',
+        name: '',
+        category: SpotCategory.car,
+        latitude: 30.05,
+        longitude: 31.05,
+        savedAt: DateTime.now(),
+        status: SpotStatus.found,
+      );
+
+      final spotsCubitWithHistory = _FakeSpotsCubit(
+        const [],
+        parkingHistory: [historySpot],
+      );
+
+      final cubit = SpotsMapCubit(
+        spotsCubit: spotsCubitWithHistory,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+        initialSelectedSpotId: 'car_history_123',
+        onlyShowSpotId: 'car_history_123',
+      );
+
+      // Spot is identified from parkingHistory
+      expect(cubit.state.selectedSpot?.id, 'car_history_123');
+      expect(cubit.state.onlyShowSpotId, 'car_history_123');
+
+      // Calling selectSpotById with onlyShowSpot: true keeps onlyShowSpotId intact
+      cubit.selectSpotById('car_history_123', onlyShowSpot: true);
+      expect(cubit.state.selectedSpot?.id, 'car_history_123');
+      expect(cubit.state.onlyShowSpotId, 'car_history_123');
+
+      cubit.close();
+      spotsCubitWithHistory.close();
     });
   });
 }

@@ -8,11 +8,24 @@ import 'adaptive_layout_ext.dart';
 import '../models/spot.dart';
 
 abstract final class AdaptiveNavigation {
-  static void openMap(BuildContext context, {String? spotId}) {
+  static void openMap(
+    BuildContext context, {
+    String? spotId,
+    bool onlyShowSpot = false,
+  }) {
     if (context.isWideScreen) {
-      context.read<AdaptiveNavCubit>().showMap(spotId: spotId);
+      context.read<AdaptiveNavCubit>().showMap(
+            spotId: spotId,
+            onlyShowSpot: onlyShowSpot,
+          );
     } else {
-      Navigator.of(context).pushNamed(AppRouter.spotsMap, arguments: spotId);
+      Navigator.of(context).pushNamed(
+        AppRouter.spotsMap,
+        arguments: SpotsMapArgs(
+          spotId: spotId,
+          onlyShowSpot: onlyShowSpot,
+        ),
+      );
     }
   }
 

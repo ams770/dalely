@@ -41,9 +41,9 @@ void main() {
       final lowAnchor = cache.carMarkerAnchor(MarkerZoomTier.low);
 
       expect(highAnchor.dx, 0.5);
-      expect(highAnchor.dy, 0.83);
+      expect(highAnchor.dy, 1.0);
       expect(mediumAnchor.dx, 0.5);
-      expect(mediumAnchor.dy, 0.81);
+      expect(mediumAnchor.dy, 1.0);
       expect(lowAnchor.dx, 0.5);
       expect(lowAnchor.dy, 0.5);
     });

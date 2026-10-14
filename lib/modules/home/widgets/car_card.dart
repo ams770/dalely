@@ -80,7 +80,7 @@ class CarCard extends StatelessWidget {
   }
 
   void _handleShowOnMap(BuildContext context, Spot car) {
-    AdaptiveNavigation.openMap(context, spotId: car.id);
+    AdaptiveNavigation.openMap(context, spotId: car.id, onlyShowSpot: true);
   }
 
   void _handleOpenInMaps(BuildContext context, Spot car) async {
@@ -101,7 +101,11 @@ class CarCard extends StatelessWidget {
         if (CarTrackingCalculator.isTooFar(dist)) {
           if (context.mounted) {
             AppSnackBar.show(context, content: Text(l10n.carTrackingTooFar));
-            AdaptiveNavigation.openMap(context, spotId: car.id);
+            AdaptiveNavigation.openMap(
+              context,
+              spotId: car.id,
+              onlyShowSpot: true,
+            );
           }
           return;
         }

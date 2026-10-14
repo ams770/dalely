@@ -58,7 +58,7 @@ class _HistoryHeader extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CircleIconButton(
-            icon: Icon(Icons.adaptive.arrow_back),
+            icon: const BackButtonIcon(),
             tooltip: l10n.backTooltip,
             onPressed: () {
               if (onClose != null) {
@@ -217,7 +217,11 @@ class _HistoryCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () {
-            AdaptiveNavigation.openMap(context, spotId: spot.id);
+            AdaptiveNavigation.openMap(
+              context,
+              spotId: spot.id,
+              onlyShowSpot: true,
+            );
           },
           borderRadius: AppDimens.borderRadiusLarge,
           child: Padding(

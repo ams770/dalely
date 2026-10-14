@@ -12,9 +12,15 @@ import '../shared/models/spot.dart';
 import '../shared/utils/geo_uri_parser.dart';
 
 class SpotsMapArgs {
-  const SpotsMapArgs({this.spotId, this.initialTarget});
+  const SpotsMapArgs({
+    this.spotId,
+    this.initialTarget,
+    this.onlyShowSpot = false,
+  });
+
   final String? spotId;
   final LatLng? initialTarget;
+  final bool onlyShowSpot;
 }
 
 class SaveSpotArgs {
@@ -55,10 +61,12 @@ abstract final class AppRouter {
       case spotsMap:
         String? initialSpotId;
         LatLng? initialTarget;
+        bool onlyShowSpot = false;
         final args = settings.arguments;
         if (args is SpotsMapArgs) {
           initialSpotId = args.spotId;
           initialTarget = args.initialTarget;
+          onlyShowSpot = args.onlyShowSpot;
         } else if (args is String) {
           initialSpotId = args;
         }
@@ -68,6 +76,7 @@ abstract final class AppRouter {
           builder: (_) => SpotsMapScreen(
             initialSpotId: initialSpotId,
             initialTarget: initialTarget,
+            onlyShowSpotId: onlyShowSpot ? initialSpotId : null,
           ),
           settings: settings,
         );

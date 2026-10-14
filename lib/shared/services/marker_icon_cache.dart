@@ -28,8 +28,8 @@ enum MarkerZoomTier {
 
   Offset get anchor {
     return switch (this) {
-      MarkerZoomTier.high => const Offset(0.5, 0.83),
-      MarkerZoomTier.medium => const Offset(0.5, 0.81),
+      MarkerZoomTier.high => const Offset(0.5, 1.0),
+      MarkerZoomTier.medium => const Offset(0.5, 1.0),
       MarkerZoomTier.low => const Offset(0.5, 0.5),
     };
   }
@@ -161,16 +161,18 @@ class MarkerIconCache {
     required Color color,
     required bool isSelected,
   }) async {
-    const size = 88.0;
+    const width = 88.0;
+    const height = 76.0;
     const scale = 3.0;
-    final physicalSize = (size * scale).toInt();
+    final physicalWidth = (width * scale).toInt();
+    final physicalHeight = (height * scale).toInt();
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     canvas.scale(scale, scale);
 
-    final center = const Offset(size / 2, size / 2 - 7);
     final radius = isSelected ? 27.0 : 23.0;
+    final center = Offset(width / 2, height - radius - 11.0);
 
     // Glowing halo when selected
     if (isSelected) {
@@ -198,18 +200,18 @@ class MarkerIconCache {
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, radius, bodyPaint);
 
-    // Pin bottom pointer triangle
+    // Pin bottom pointer triangle (tip terminates precisely at height)
     final pointerPath = Path()
-      ..moveTo(size / 2 - 7.5, center.dy + radius - 3)
-      ..lineTo(size / 2 + 7.5, center.dy + radius - 3)
-      ..lineTo(size / 2, center.dy + radius + 11)
+      ..moveTo(width / 2 - 7.5, center.dy + radius - 3)
+      ..lineTo(width / 2 + 7.5, center.dy + radius - 3)
+      ..lineTo(width / 2, height)
       ..close();
     canvas.drawPath(pointerPath, ringPaint);
 
     final innerPointerPath = Path()
-      ..moveTo(size / 2 - 5.5, center.dy + radius - 3)
-      ..lineTo(size / 2 + 5.5, center.dy + radius - 3)
-      ..lineTo(size / 2, center.dy + radius + 8)
+      ..moveTo(width / 2 - 5.5, center.dy + radius - 3)
+      ..lineTo(width / 2 + 5.5, center.dy + radius - 3)
+      ..lineTo(width / 2, height - 3.0)
       ..close();
     canvas.drawPath(innerPointerPath, bodyPaint);
 
@@ -234,7 +236,7 @@ class MarkerIconCache {
     );
 
     final picture = recorder.endRecording();
-    final image = await picture.toImage(physicalSize, physicalSize);
+    final image = await picture.toImage(physicalWidth, physicalHeight);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
@@ -244,16 +246,18 @@ class MarkerIconCache {
     required Color color,
     required bool isSelected,
   }) async {
-    const size = 58.0;
+    const width = 58.0;
+    const height = 50.0;
     const scale = 3.0;
-    final physicalSize = (size * scale).toInt();
+    final physicalWidth = (width * scale).toInt();
+    final physicalHeight = (height * scale).toInt();
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     canvas.scale(scale, scale);
 
-    final center = const Offset(size / 2, size / 2 - 5);
     final radius = isSelected ? 19.0 : 16.0;
+    final center = Offset(width / 2, height - radius - 7.5);
 
     // Glowing halo when selected
     if (isSelected) {
@@ -281,18 +285,18 @@ class MarkerIconCache {
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, radius, bodyPaint);
 
-    // Pin bottom pointer triangle
+    // Pin bottom pointer triangle (tip terminates precisely at height)
     final pointerPath = Path()
-      ..moveTo(size / 2 - 5, center.dy + radius - 2.5)
-      ..lineTo(size / 2 + 5, center.dy + radius - 2.5)
-      ..lineTo(size / 2, center.dy + radius + 7.5)
+      ..moveTo(width / 2 - 5, center.dy + radius - 2.5)
+      ..lineTo(width / 2 + 5, center.dy + radius - 2.5)
+      ..lineTo(width / 2, height)
       ..close();
     canvas.drawPath(pointerPath, ringPaint);
 
     final innerPointerPath = Path()
-      ..moveTo(size / 2 - 3.5, center.dy + radius - 2.5)
-      ..lineTo(size / 2 + 3.5, center.dy + radius - 2.5)
-      ..lineTo(size / 2, center.dy + radius + 5.5)
+      ..moveTo(width / 2 - 3.5, center.dy + radius - 2.5)
+      ..lineTo(width / 2 + 3.5, center.dy + radius - 2.5)
+      ..lineTo(width / 2, height - 2.5)
       ..close();
     canvas.drawPath(innerPointerPath, bodyPaint);
 
@@ -317,7 +321,7 @@ class MarkerIconCache {
     );
 
     final picture = recorder.endRecording();
-    final image = await picture.toImage(physicalSize, physicalSize);
+    final image = await picture.toImage(physicalWidth, physicalHeight);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
   }
@@ -478,16 +482,18 @@ class MarkerIconCache {
     required Color color,
     required bool isSelected,
   }) async {
-    const size = 88.0;
+    const width = 88.0;
+    const height = 76.0;
     const scale = 3.0;
-    final physicalSize = (size * scale).toInt();
+    final physicalWidth = (width * scale).toInt();
+    final physicalHeight = (height * scale).toInt();
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     canvas.scale(scale, scale);
 
-    final center = const Offset(size / 2, size / 2 - 7);
     final radius = isSelected ? 27.0 : 23.0;
+    final center = Offset(width / 2, height - radius - 11.0);
 
     // Glowing halo when selected
     if (isSelected) {
@@ -515,18 +521,18 @@ class MarkerIconCache {
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, radius, bodyPaint);
 
-    // Pin bottom pointer triangle
+    // Pin bottom pointer triangle (tip terminates precisely at height)
     final pointerPath = Path()
-      ..moveTo(size / 2 - 7.5, center.dy + radius - 3)
-      ..lineTo(size / 2 + 7.5, center.dy + radius - 3)
-      ..lineTo(size / 2, center.dy + radius + 11)
+      ..moveTo(width / 2 - 7.5, center.dy + radius - 3)
+      ..lineTo(width / 2 + 7.5, center.dy + radius - 3)
+      ..lineTo(width / 2, height)
       ..close();
     canvas.drawPath(pointerPath, ringPaint);
 
     final innerPointerPath = Path()
-      ..moveTo(size / 2 - 5.5, center.dy + radius - 3)
-      ..lineTo(size / 2 + 5.5, center.dy + radius - 3)
-      ..lineTo(size / 2, center.dy + radius + 8)
+      ..moveTo(width / 2 - 5.5, center.dy + radius - 3)
+      ..lineTo(width / 2 + 5.5, center.dy + radius - 3)
+      ..lineTo(width / 2, height - 3.0)
       ..close();
     canvas.drawPath(innerPointerPath, bodyPaint);
 
@@ -555,7 +561,7 @@ class MarkerIconCache {
     canvas.drawImageRect(image, srcRect, dstRect, carPaint);
 
     final picture = recorder.endRecording();
-    final renderedImage = await picture.toImage(physicalSize, physicalSize);
+    final renderedImage = await picture.toImage(physicalWidth, physicalHeight);
     final byteData = await renderedImage.toByteData(
       format: ui.ImageByteFormat.png,
     );
@@ -567,16 +573,18 @@ class MarkerIconCache {
     required Color color,
     required bool isSelected,
   }) async {
-    const size = 58.0;
+    const width = 58.0;
+    const height = 50.0;
     const scale = 3.0;
-    final physicalSize = (size * scale).toInt();
+    final physicalWidth = (width * scale).toInt();
+    final physicalHeight = (height * scale).toInt();
 
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
     canvas.scale(scale, scale);
 
-    final center = const Offset(size / 2, size / 2 - 5);
     final radius = isSelected ? 19.0 : 16.0;
+    final center = Offset(width / 2, height - radius - 7.5);
 
     // Glowing halo when selected
     if (isSelected) {
@@ -604,18 +612,18 @@ class MarkerIconCache {
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, radius, bodyPaint);
 
-    // Pin bottom pointer triangle
+    // Pin bottom pointer triangle (tip terminates precisely at height)
     final pointerPath = Path()
-      ..moveTo(size / 2 - 5, center.dy + radius - 2.5)
-      ..lineTo(size / 2 + 5, center.dy + radius - 2.5)
-      ..lineTo(size / 2, center.dy + radius + 7.5)
+      ..moveTo(width / 2 - 5, center.dy + radius - 2.5)
+      ..lineTo(width / 2 + 5, center.dy + radius - 2.5)
+      ..lineTo(width / 2, height)
       ..close();
     canvas.drawPath(pointerPath, ringPaint);
 
     final innerPointerPath = Path()
-      ..moveTo(size / 2 - 3.5, center.dy + radius - 2.5)
-      ..lineTo(size / 2 + 3.5, center.dy + radius - 2.5)
-      ..lineTo(size / 2, center.dy + radius + 5.5)
+      ..moveTo(width / 2 - 3.5, center.dy + radius - 2.5)
+      ..lineTo(width / 2 + 3.5, center.dy + radius - 2.5)
+      ..lineTo(width / 2, height - 2.5)
       ..close();
     canvas.drawPath(innerPointerPath, bodyPaint);
 
@@ -644,7 +652,7 @@ class MarkerIconCache {
     canvas.drawImageRect(image, srcRect, dstRect, carPaint);
 
     final picture = recorder.endRecording();
-    final renderedImage = await picture.toImage(physicalSize, physicalSize);
+    final renderedImage = await picture.toImage(physicalWidth, physicalHeight);
     final byteData = await renderedImage.toByteData(
       format: ui.ImageByteFormat.png,
     );

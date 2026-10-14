@@ -33,6 +33,7 @@ class SpotsMapScreen extends StatelessWidget {
     this.editingSpot,
     this.isEmbedded = false,
     this.onClose,
+    this.onlyShowSpotId,
   });
 
   final String? initialSpotId;
@@ -42,6 +43,7 @@ class SpotsMapScreen extends StatelessWidget {
   final Spot? editingSpot;
   final bool isEmbedded;
   final VoidCallback? onClose;
+  final String? onlyShowSpotId;
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +67,7 @@ class SpotsMapScreen extends StatelessWidget {
         initialSpotName: editingSpot?.name ?? initialSpotName,
         editingSpot: editingSpot,
         initialMode: effectiveMode,
+        onlyShowSpotId: onlyShowSpotId,
       ),
       child: _SpotsMapView(
         initialMode: effectiveMode,
@@ -159,7 +162,10 @@ class _SpotsMapView extends StatelessWidget {
               cubit.exitAddSpotMode();
             }
             if (navState.selectedSpotId != null) {
-              cubit.selectSpotById(navState.selectedSpotId!);
+              cubit.selectSpotById(
+                navState.selectedSpotId!,
+                onlyShowSpot: navState.onlyShowSpot,
+              );
             } else {
               cubit.selectSpot(null);
             }
@@ -293,11 +299,13 @@ class _TopControlsLayer extends StatelessWidget {
     final selectedSpotId = cubit.state.selectedSpot?.id;
     final cameraTarget =
         cubit.currentCameraTarget ?? cubit.state.selectedSpot?.latLng;
+    final onlyShowSpot = cubit.state.onlyShowSpotId != null;
     Navigator.of(context).pushNamed(
       AppRouter.spotsMap,
       arguments: SpotsMapArgs(
         spotId: selectedSpotId,
         initialTarget: cameraTarget,
+        onlyShowSpot: onlyShowSpot,
       ),
     );
   }
