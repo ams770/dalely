@@ -13,6 +13,7 @@ import '../../../shared/services/maps_launcher.dart';
 import '../../../shared/services/share_service.dart';
 import '../../../shared/theme/app_colors.dart';
 import '../../../shared/theme/app_dimens.dart';
+import '../../../shared/utils/adaptive_layout_ext.dart';
 import '../../../shared/utils/adaptive_navigation.dart';
 import '../../../shared/utils/app_snack_bar.dart';
 import '../../../shared/utils/car_tracking_calculator.dart';
@@ -217,6 +218,91 @@ class _ActiveCarContent extends StatelessWidget {
     final colors = context.colorScheme;
     final primary = colors.primary;
 
+    var content = context.isWideScreen
+        ? [
+            Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(
+                    height: 68,
+                    child: Image(
+                      image: AssetProvider.carImage,
+                      fit: BoxFit.contain,
+                      alignment: Alignment.center,
+                    ),
+                  ),
+                  Expanded(child: _ParkingTimer(savedAt: car.savedAt)),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppDimens.space12),
+            Row(
+              spacing: AppDimens.space6,
+              children: [
+                Expanded(
+                  child: PillButton(
+                    label: l10n.openMap,
+                    icon: Icons.navigation_rounded,
+                    backgroundColor: primary,
+                    foregroundColor: colors.onPrimary,
+                    onPressed: onShowOnMap,
+                  ),
+                ),
+                Expanded(
+                  child: PillButton(
+                    label: ' ${l10n.foundMyCar}  ',
+                    icon: Icons.check_circle_outline_rounded,
+                    backgroundColor: AppColors.greenLight,
+                    foregroundColor: AppColors.greenDark,
+                    onPressed: onFoundCar,
+                  ),
+                ),
+              ],
+            ),
+          ]
+        : [
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(
+                    height: 48,
+                    child: Image(
+                      image: AssetProvider.carImage,
+                      fit: BoxFit.contain,
+                      alignment: Alignment.center,
+                    ),
+                  ),
+                  const SizedBox(height: AppDimens.space4),
+                  _ParkingTimer(savedAt: car.savedAt),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppDimens.space12),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                PillButton(
+                  label: l10n.openMap,
+                  icon: Icons.navigation_rounded,
+                  backgroundColor: primary,
+                  foregroundColor: colors.onPrimary,
+                  onPressed: onShowOnMap,
+                ),
+                const SizedBox(height: AppDimens.space6),
+                PillButton(
+                  label: ' ${l10n.foundMyCar}  ',
+                  icon: Icons.check_circle_outline_rounded,
+                  backgroundColor: AppColors.greenLight,
+                  foregroundColor: AppColors.greenDark,
+                  onPressed: onFoundCar,
+                ),
+              ],
+            ),
+          ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -264,45 +350,8 @@ class _ActiveCarContent extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppDimens.space8),
-        Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(
-                height: 48,
-                child: Image(
-                  image: AssetProvider.carImage,
-                  fit: BoxFit.contain,
-                  alignment: Alignment.center,
-                ),
-              ),
-              const SizedBox(height: AppDimens.space4),
-              _ParkingTimer(savedAt: car.savedAt),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppDimens.space12),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            PillButton(
-              label: l10n.openMap,
-              icon: Icons.navigation_rounded,
-              backgroundColor: primary,
-              foregroundColor: colors.onPrimary,
-              onPressed: onShowOnMap,
-            ),
-            const SizedBox(height: AppDimens.space6),
-            PillButton(
-              label: ' ${l10n.foundMyCar}  ',
-              icon: Icons.check_circle_outline_rounded,
-              backgroundColor: AppColors.greenLight,
-              foregroundColor: AppColors.greenDark,
-              onPressed: onFoundCar,
-            ),
-          ],
-        ),
+
+        ...content,
       ],
     );
   }
@@ -361,6 +410,7 @@ class _ParkingTimer extends StatelessWidget {
         builder: (context, state) {
           return Row(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: .center,
             children: [
               Icon(
                 Icons.schedule_rounded,
@@ -372,7 +422,8 @@ class _ParkingTimer extends StatelessWidget {
                 l10n.parkedAgo(state.formattedElapsed),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: context.textTheme.bodySmall?.copyWith(
+
+                style: context.textTheme.bodyLarge?.copyWith(
                   color: colors.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
                   fontFeatures: const [FontFeature.tabularFigures()],
@@ -396,35 +447,31 @@ class _EmptyCarContent extends StatelessWidget {
     final l10n = context.l10n;
     final colors = context.colorScheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Text(
-                l10n.myCar,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.textTheme.titleMedium?.copyWith(
-                  color: colors.onSurface,
-                  fontWeight: FontWeight.w700,
+    var content = context.isWideScreen
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(
+                height: 68,
+                child: Image(
+                  image: AssetProvider.carImage,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.center,
                 ),
               ),
-            ),
-            _CarMiniActionButton(
-              icon: Icons.history_rounded,
-              tooltip: l10n.parkingHistory,
-              onPressed: () =>
-                  AdaptiveNavigation.openParkingHistory(context),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppDimens.space8),
-        Center(
-          child: Column(
+
+              const Spacer(),
+
+              PillButton(
+                label: l10n.parkHere,
+                icon: Icons.local_parking_rounded,
+                backgroundColor: colors.primary.withAlpha(18),
+                foregroundColor: colors.primary,
+                onPressed: onPark,
+              ),
+            ],
+          )
+        : Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(
@@ -447,16 +494,45 @@ class _EmptyCarContent extends StatelessWidget {
                 ),
               ),
             ],
-          ),
+          );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Text(
+                l10n.myCar,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textTheme.titleMedium?.copyWith(
+                  color: colors.onSurface,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            _CarMiniActionButton(
+              icon: Icons.history_rounded,
+              tooltip: l10n.parkingHistory,
+              onPressed: () => AdaptiveNavigation.openParkingHistory(context),
+            ),
+          ],
         ),
         const SizedBox(height: AppDimens.space8),
-        PillButton(
-          label: l10n.parkHere,
-          icon: Icons.local_parking_rounded,
-          backgroundColor: colors.primary,
-          foregroundColor: colors.onPrimary,
-          onPressed: onPark,
-        ),
+        Center(child: content),
+        if (!context.isWideScreen) ...[
+          const SizedBox(height: AppDimens.space8),
+          PillButton(
+            label: l10n.parkHere,
+            icon: Icons.local_parking_rounded,
+            backgroundColor: colors.primary.withAlpha(18),
+            foregroundColor: colors.primary,
+            onPressed: onPark,
+          ),
+        ],
       ],
     );
   }

@@ -45,12 +45,13 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
-            <!-- Widget Deep Links (`feen://*`) -->
+            <!-- Widget & App Deep Links (`feen://*` and `dalely://*`) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="feen" />
+                <data android:scheme="dalely" />
             </intent-filter>
 
             <!-- Handle geo: URIs (e.g. from WhatsApp, SMS, Telegram, Contacts) -->

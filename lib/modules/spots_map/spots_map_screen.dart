@@ -70,7 +70,6 @@ class SpotsMapScreen extends StatelessWidget {
         onlyShowSpotId: onlyShowSpotId,
       ),
       child: _SpotsMapView(
-        initialMode: effectiveMode,
         isEmbedded: isEmbedded,
         onClose: onClose,
       ),
@@ -80,12 +79,10 @@ class SpotsMapScreen extends StatelessWidget {
 
 class _SpotsMapView extends StatelessWidget {
   const _SpotsMapView({
-    required this.initialMode,
     required this.isEmbedded,
     this.onClose,
   });
 
-  final SpotsMapMode initialMode;
   final bool isEmbedded;
   final VoidCallback? onClose;
 
@@ -127,7 +124,6 @@ class _SpotsMapView extends StatelessWidget {
 
               // 4. Top Floating Navigation Controls
               _TopControlsLayer(
-                initialMode: initialMode,
                 isEmbedded: isEmbedded,
                 onClose: onClose,
               ),
@@ -135,9 +131,11 @@ class _SpotsMapView extends StatelessWidget {
               // 5. Recenter / My Location FAB
               const _RecenterButtonLayer(),
 
-              // 6. Bottom Overlay: SelectedSpotCard or SaveSpotBottomPanel
-              _BottomOverlayLayer(
-                initialMode: initialMode,
+              // 6. Selected Spot Card
+              const _SelectedSpotCardLayer(),
+
+              // 7. Save Spot Bottom Sheet (smooth sliding animation)
+              _SaveSpotSheetLayer(
                 isEmbedded: isEmbedded,
                 onClose: onClose,
               ),
@@ -286,12 +284,10 @@ class _CenterPinLayer extends StatelessWidget {
 
 class _TopControlsLayer extends StatelessWidget {
   const _TopControlsLayer({
-    required this.initialMode,
     required this.isEmbedded,
     this.onClose,
   });
 
-  final SpotsMapMode initialMode;
   final bool isEmbedded;
   final VoidCallback? onClose;
 
@@ -314,7 +310,6 @@ class _TopControlsLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<SpotsMapCubit>();
     final l10n = context.l10n;
-    final wasOpenedToAdd = initialMode == SpotsMapMode.addSpot;
 
     return PositionedDirectional(
       top: 0,
@@ -340,7 +335,7 @@ class _TopControlsLayer extends StatelessWidget {
                       icon: const BackButtonIcon(),
                       tooltip: l10n.backTooltip,
                       onPressed: () {
-                        if (wasOpenedToAdd &&
+                        if (cubit.state.openedToAdd &&
                             !isEmbedded &&
                             Navigator.canPop(context)) {
                           Navigator.of(context).pop();
@@ -433,41 +428,31 @@ class _RecenterButtonLayer extends StatelessWidget {
           prev.mode != curr.mode ||
           (prev.selectedSpot != null) != (curr.selectedSpot != null),
       builder: (context, state) {
-        if (state.isAddingSpot) {
-          return PositionedDirectional(
-            bottom: bottomAddPadding +
+        final isAdding = state.isAddingSpot;
+        final hasSelected = state.selectedSpot != null;
+        final bottomOffset = isAdding
+            ? bottomAddPadding +
                 mediaQuery.viewInsets.bottom +
-                AppDimens.space16,
-            end: AppDimens.space16,
+                AppDimens.space16
+            : AppDimens.space32 + (hasSelected ? 160.0 : 0.0);
+
+        return AnimatedPositionedDirectional(
+          duration: const Duration(milliseconds: 320),
+          curve: Curves.easeOutCubic,
+          bottom: bottomOffset,
+          end: AppDimens.space16,
+          child: SafeArea(
+            top: false,
+            bottom: !isAdding,
             child: CircleIconButton(
               icon: Icon(
                 Icons.my_location_rounded,
                 color: context.colorScheme.primary,
               ),
               tooltip: context.l10n.myLocation,
-              onPressed: cubit.snapToCurrentLocation,
-            ),
-          );
-        }
-
-        final hasSelected = state.selectedSpot != null;
-        return PositionedDirectional(
-          bottom: AppDimens.space32,
-          end: AppDimens.space16,
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: EdgeInsetsDirectional.only(
-                bottom: hasSelected ? 160.0 : 0.0,
-              ),
-              child: CircleIconButton(
-                icon: Icon(
-                  Icons.my_location_rounded,
-                  color: context.colorScheme.primary,
-                ),
-                tooltip: context.l10n.myLocation,
-                onPressed: cubit.recenterOnUser,
-              ),
+              onPressed: isAdding
+                  ? cubit.snapToCurrentLocation
+                  : cubit.recenterOnUser,
             ),
           ),
         );
@@ -476,59 +461,19 @@ class _RecenterButtonLayer extends StatelessWidget {
   }
 }
 
-class _BottomOverlayLayer extends StatelessWidget {
-  const _BottomOverlayLayer({
-    required this.initialMode,
-    required this.isEmbedded,
-    this.onClose,
-  });
-
-  final SpotsMapMode initialMode;
-  final bool isEmbedded;
-  final VoidCallback? onClose;
+class _SelectedSpotCardLayer extends StatelessWidget {
+  const _SelectedSpotCardLayer();
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<SpotsMapCubit>();
-    final wasOpenedToAdd = initialMode == SpotsMapMode.addSpot;
-    final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
 
     return BlocBuilder<SpotsMapCubit, SpotsMapState>(
       buildWhen: (prev, curr) =>
-          prev.mode != curr.mode || prev.selectedSpot != curr.selectedSpot,
+          prev.isAddingSpot != curr.isAddingSpot ||
+          prev.selectedSpot != curr.selectedSpot,
       builder: (context, state) {
-        if (state.isAddingSpot) {
-          return PositionedDirectional(
-            bottom: keyboardInset,
-            start: 0,
-            end: 0,
-            child: SaveSpotBottomPanel(
-              onSaved: (spot) {
-                if (onClose != null) {
-                  onClose!();
-                } else if (wasOpenedToAdd &&
-                    !isEmbedded &&
-                    Navigator.canPop(context)) {
-                  Navigator.of(context).pop();
-                }
-              },
-              onClose: () {
-                if (wasOpenedToAdd &&
-                    !isEmbedded &&
-                    Navigator.canPop(context)) {
-                  Navigator.of(context).pop();
-                } else {
-                  if (onClose != null) {
-                    onClose!();
-                  }
-                  cubit.exitAddSpotMode();
-                }
-              },
-            ),
-          );
-        }
-
-        if (state.selectedSpot == null) {
+        if (state.isAddingSpot || state.selectedSpot == null) {
           return const SizedBox.shrink();
         }
 
@@ -548,6 +493,74 @@ class _BottomOverlayLayer extends StatelessWidget {
               child: SelectedSpotCard(
                 spot: state.selectedSpot!,
                 onClose: () => cubit.selectSpot(null),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SaveSpotSheetLayer extends StatelessWidget {
+  const _SaveSpotSheetLayer({
+    required this.isEmbedded,
+    this.onClose,
+  });
+
+  final bool isEmbedded;
+  final VoidCallback? onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<SpotsMapCubit>();
+    final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return BlocSelector<SpotsMapCubit, SpotsMapState, bool>(
+      selector: (state) => state.isAddingSpot,
+      builder: (context, isAddingSpot) {
+        return PositionedDirectional(
+          bottom: keyboardInset,
+          start: 0,
+          end: 0,
+          child: TweenAnimationBuilder<Offset>(
+            tween: Tween<Offset>(
+              begin: const Offset(0, 1.2),
+              end: isAddingSpot ? Offset.zero : const Offset(0, 1.2),
+            ),
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeOutCubic,
+            builder: (context, offset, child) {
+              return FractionalTranslation(
+                translation: offset,
+                child: child,
+              );
+            },
+            child: ExcludeSemantics(
+              excluding: !isAddingSpot,
+              child: IgnorePointer(
+                ignoring: !isAddingSpot,
+                child: SaveSpotBottomPanel(
+                  onSaved: (spot) {
+                    FocusScope.of(context).unfocus();
+                    if (isEmbedded) {
+                      context.read<AdaptiveNavCubit>().showMap(spotId: spot.id);
+                    }
+                  },
+                  onClose: () {
+                    FocusScope.of(context).unfocus();
+                    if (cubit.state.openedToAdd &&
+                        !isEmbedded &&
+                        Navigator.canPop(context)) {
+                      Navigator.of(context).pop();
+                    } else {
+                      if (onClose != null) {
+                        onClose!();
+                      }
+                      cubit.exitAddSpotMode();
+                    }
+                  },
+                ),
               ),
             ),
           ),

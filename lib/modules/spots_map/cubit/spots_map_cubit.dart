@@ -216,6 +216,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       spotName: editingSpot?.name ?? initialSpotName ?? '',
       category: editingSpot?.category ?? SpotCategory.other,
       isMapReady: !isDarkMode,
+      openedToAdd: editingSpot != null || initialMode == SpotsMapMode.addSpot,
     );
   }
 
@@ -459,6 +460,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
         category: SpotCategory.other,
         isSaving: false,
         isCameraMoving: false,
+        openedToAdd: false,
       ),
     );
 
@@ -498,6 +500,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
         category: spot.category,
         isSaving: false,
         isCameraMoving: false,
+        openedToAdd: false,
       ),
     );
     final controller = _mapController;
@@ -521,6 +524,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
         spotName: '',
         isSaving: false,
         isCameraMoving: false,
+        openedToAdd: false,
       ),
     );
     _rebuildMarkers();
@@ -588,6 +592,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
             isSaving: false,
             selectedSpot: spot,
             clearEditingSpot: true,
+            openedToAdd: false,
           ),
         );
         _rebuildMarkers();

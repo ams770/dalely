@@ -13,7 +13,7 @@ class PillButton extends StatelessWidget {
     required this.foregroundColor,
     this.icon,
     this.height = AppDimens.minTouchTarget,
-    this.padding = const EdgeInsetsDirectional.symmetric(
+    this.padding = const .symmetric(
       horizontal: AppDimens.space12,
     ),
   });

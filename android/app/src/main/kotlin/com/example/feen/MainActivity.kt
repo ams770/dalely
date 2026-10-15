@@ -98,18 +98,22 @@ class MainActivity : FlutterActivity() {
             isSendAction && !sendData.isNullOrBlank() -> "OPEN_LOCATION"
             uriStr == CarTrackingNotificationBuilder.URI_MAP_CAR ||
                     uriStr?.startsWith("feen://map") == true ||
+                    uriStr?.startsWith("dalely://map") == true ||
                     action == CarTrackingNotificationBuilder.ACTION_SHOW_ON_MAP -> "SHOW_MAP"
             uriStr == CarTrackingNotificationBuilder.URI_FOUND_CAR ||
+                    uriStr == "dalely://found_car" ||
                     action == CarTrackingNotificationBuilder.ACTION_FOUND_CAR -> "FOUND_CAR"
-            uriStr == "feen://park" -> "PARK"
-            uriStr == "feen://car" -> "CAR"
+            uriStr == "feen://park" || uriStr == "dalely://park" -> "PARK"
+            uriStr == "feen://car" || uriStr == "dalely://car" -> "CAR"
             uriStr?.startsWith("geo:") == true ||
                     uriStr?.contains("maps.google.") == true ||
                     uriStr?.contains("/maps") == true ||
                     uriStr?.contains("maps.app.goo.gl") == true ||
                     uriStr?.contains("maps.apple.com") == true ||
                     uriStr?.startsWith("feen://save") == true ||
-                    uriStr?.startsWith("feen://add") == true -> "OPEN_LOCATION"
+                    uriStr?.startsWith("dalely://save") == true ||
+                    uriStr?.startsWith("feen://add") == true ||
+                    uriStr?.startsWith("dalely://add") == true -> "OPEN_LOCATION"
             else -> null
         }
 

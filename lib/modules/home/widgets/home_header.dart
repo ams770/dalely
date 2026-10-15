@@ -1,6 +1,7 @@
-import 'package:feen/shared/utils/adaptive_layout_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../shared/utils/adaptive_layout_ext.dart';
 
 import '../../../shared/cubits/spots/spots_cubit.dart';
 import '../../../shared/theme/app_dimens.dart';

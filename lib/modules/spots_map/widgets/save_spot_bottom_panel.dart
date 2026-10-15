@@ -11,11 +11,7 @@ import '../cubit/spots_map_cubit.dart';
 import '../cubit/spots_map_state.dart';
 
 class SaveSpotBottomPanel extends StatelessWidget {
-  const SaveSpotBottomPanel({
-    super.key,
-    required this.onSaved,
-    this.onClose,
-  });
+  const SaveSpotBottomPanel({super.key, required this.onSaved, this.onClose});
 
   final ValueChanged<Spot> onSaved;
   final VoidCallback? onClose;
@@ -47,6 +43,19 @@ class SaveSpotBottomPanel extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Sheet Drag Handle Pill
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.onSurfaceVariant.withAlpha(80),
+                    borderRadius: AppDimens.borderRadiusFull,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppDimens.space8),
+
               // Header Row with Title & Cancel Button
               Padding(
                 padding: const EdgeInsetsDirectional.only(

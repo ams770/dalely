@@ -44,8 +44,9 @@ abstract final class StorageKeys {
   static const String androidFavoriteWidget =
       'com.dalely.app.widgets.FavoriteWidgetReceiver';
 
-  // Widget & notification tap URIs (`feen://<host>`).
+  // Widget & notification tap URIs (`feen://<host>` / `dalely://<host>`).
   static const String uriScheme = 'feen';
+  static const String uriSchemeDalely = 'dalely';
   static const String uriPark = 'park';
   static const String uriCar = 'car';
   static const String uriSpot = 'spot';

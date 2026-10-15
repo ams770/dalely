@@ -131,10 +131,7 @@ class _HistoryHeader extends StatelessWidget {
             onPressed: () {
               Navigator.of(ctx).pop(true);
               spotsCubit.clearParkingHistory();
-              AppSnackBar.show(
-                context,
-                content: Text(l10n.parkingHistoryCleared),
-              );
+             
             },
             style: TextButton.styleFrom(
               foregroundColor: context.colorScheme.error,

@@ -63,15 +63,17 @@ class _OnboardingView extends StatelessWidget {
                     physics: const BouncingScrollPhysics(),
                     children: [
                       OnboardingPage(
-                        imageAsset: AssetProvider.onboarding1,
-                        title: l10n.onboarding1Title,
-                        body: l10n.onboarding1Body,
-                      ),
-                      OnboardingPage(
                         imageAsset: AssetProvider.onboarding2,
                         title: l10n.onboarding2Title,
                         body: l10n.onboarding2Body,
                       ),
+
+                      OnboardingPage(
+                        imageAsset: AssetProvider.onboarding1,
+                        title: l10n.onboarding1Title,
+                        body: l10n.onboarding1Body,
+                      ),
+
                       OnboardingPage(
                         imageAsset: AssetProvider.onboarding3,
                         title: l10n.onboarding3Title,

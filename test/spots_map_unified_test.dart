@@ -366,6 +366,29 @@ void main() {
       expect(cubit.state.mode, SpotsMapMode.viewing);
       expect(cubit.state.isAddingSpot, isFalse);
       expect(cubit.state.selectedSpot, saved);
+      expect(cubit.state.openedToAdd, isFalse);
+
+      cubit.close();
+    });
+
+    test('initializes openedToAdd to true when launched in addSpot mode, and resets to false on save', () async {
+      final cubit = SpotsMapCubit(
+        spotsCubit: fakeSpotsCubit,
+        locationCubit: fakeLocationCubit,
+        markerIconCache: markerIconCache,
+        themeExtension: themeExtension,
+        initialMode: SpotsMapMode.addSpot,
+      );
+
+      expect(cubit.state.openedToAdd, isTrue);
+      expect(cubit.state.isAddingSpot, isTrue);
+
+      cubit.nameController.text = 'New Spot';
+      final saved = await cubit.saveCurrentSpot();
+      expect(saved, isNotNull);
+      expect(cubit.state.openedToAdd, isFalse);
+      expect(cubit.state.isAddingSpot, isFalse);
+      expect(cubit.state.selectedSpot, saved);
 
       cubit.close();
     });

@@ -38,9 +38,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<HomeCubit>(
-      create: (context) => HomeCubit(
-        spotsCubit: context.read<SpotsCubit>(),
-      ),
+      create: (context) => HomeCubit(spotsCubit: context.read<SpotsCubit>()),
       child: CarProximityListener(
         child: context.isWideScreen
             ? const _AdaptiveTwoPaneHome()
@@ -251,13 +249,15 @@ class _HomeCardsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const IntrinsicHeight(
+    return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(child: CarCard()),
-          SizedBox(width: AppDimens.space12),
-          Expanded(child: HomeMapCard()),
+          if (!context.isWideScreen) ...[
+            SizedBox(width: AppDimens.space12),
+            Expanded(child: HomeMapCard()),
+          ],
         ],
       ),
     );
@@ -414,10 +414,7 @@ class _SortSpotsButton extends StatelessWidget {
 }
 
 class _SortMenuItem extends StatelessWidget {
-  const _SortMenuItem({
-    required this.label,
-    required this.isSelected,
-  });
+  const _SortMenuItem({required this.label, required this.isSelected});
 
   final String label;
   final bool isSelected;

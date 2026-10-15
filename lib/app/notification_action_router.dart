@@ -153,7 +153,10 @@ class NotificationActionRouter {
       handleAction(action: 'OPEN_LOCATION', data: uri.toString());
       return;
     }
-    if (uri.scheme != StorageKeys.uriScheme) return;
+    if (uri.scheme != StorageKeys.uriScheme &&
+        uri.scheme != StorageKeys.uriSchemeDalely) {
+      return;
+    }
     final host = uri.host;
     if (host == 'save' || host == 'add') {
       handleAction(action: 'OPEN_LOCATION', data: uri.toString());

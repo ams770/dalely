@@ -56,7 +56,7 @@ abstract final class GeoUriParser {
       RegExp(r'!3d([+-]?\d{1,2}(?:\.\d+)?)(?:!4d|.*?!4d)([+-]?\d{1,3}(?:\.\d+)?)');
   static final RegExp _labelInParenthesesRegex = RegExp(r'\(([^)]+)\)');
   static final RegExp _embeddedUrlRegex =
-      RegExp(r'(https?://[^\s]+|geo:[^\s]+|feen:[^\s]+)');
+      RegExp(r'(https?://[^\s]+|geo:[^\s]+|feen:[^\s]+|dalely:[^\s]+)');
   static final RegExp _googlePlacePathRegex = RegExp(r'/(?:place|search)/([^/@?]+)');
 
   /// Safely percent-decodes a string without throwing [FormatException]
@@ -182,9 +182,10 @@ abstract final class GeoUriParser {
 
     final decoded = safeDecode(trimmed);
 
-    // 1. Check for custom app URI scheme (feen://save or feen://add)
+    // 1. Check for custom app URI scheme (feen://save, dalely://save, etc.)
     final feenUri = Uri.tryParse(trimmed) ?? Uri.tryParse(decoded);
-    if (feenUri != null && feenUri.scheme == 'feen') {
+    if (feenUri != null &&
+        (feenUri.scheme == 'feen' || feenUri.scheme == 'dalely')) {
       final dataParam = feenUri.queryParameters['data'];
       if (dataParam != null && dataParam.trim().isNotEmpty) {
         final parsedData = parse(dataParam);
@@ -217,7 +218,8 @@ abstract final class GeoUriParser {
     final isDirectScheme = decoded.startsWith('http://') ||
         decoded.startsWith('https://') ||
         decoded.startsWith('geo:') ||
-        decoded.startsWith('feen:');
+        decoded.startsWith('feen:') ||
+        decoded.startsWith('dalely:');
 
     if (!isDirectScheme || decoded.contains('\n')) {
       final urlMatch = _embeddedUrlRegex.firstMatch(decoded) ??
@@ -465,7 +467,8 @@ abstract final class GeoUriParser {
     if (trimmed.isEmpty) return null;
 
     final feenUri = Uri.tryParse(trimmed) ?? Uri.tryParse(safeDecode(trimmed));
-    if (feenUri != null && feenUri.scheme == 'feen') {
+    if (feenUri != null &&
+        (feenUri.scheme == 'feen' || feenUri.scheme == 'dalely')) {
       final dataParam = feenUri.queryParameters['data'];
       if (dataParam != null && dataParam.trim().isNotEmpty) {
         trimmed = dataParam.trim();
@@ -523,9 +526,10 @@ abstract final class GeoUriParser {
     var trimmed = raw.trim();
     if (trimmed.isEmpty) return null;
 
-    // Check if raw is wrapped in feen:// scheme
+    // Check if raw is wrapped in feen:// or dalely:// scheme
     final feenUri = Uri.tryParse(trimmed) ?? Uri.tryParse(safeDecode(trimmed));
-    if (feenUri != null && feenUri.scheme == 'feen') {
+    if (feenUri != null &&
+        (feenUri.scheme == 'feen' || feenUri.scheme == 'dalely')) {
       final dataParam = feenUri.queryParameters['data'];
       if (dataParam != null && dataParam.trim().isNotEmpty) {
         trimmed = dataParam.trim();
@@ -642,7 +646,8 @@ abstract final class GeoUriParser {
       if (trimmed.startsWith('http://') ||
           trimmed.startsWith('https://') ||
           trimmed.startsWith('geo:') ||
-          trimmed.startsWith('feen:')) {
+          trimmed.startsWith('feen:') ||
+          trimmed.startsWith('dalely:')) {
         continue;
       }
       final cleanedPlace = cleanPlaceName(trimmed);

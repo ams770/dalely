@@ -21,6 +21,7 @@ class SpotsMapState {
     this.isSaving = false,
     this.isMapReady = false,
     this.editingSpot,
+    this.openedToAdd = false,
   });
 
   final bool isMapReady;
@@ -36,6 +37,7 @@ class SpotsMapState {
   final SpotCategory category;
   final bool isCameraMoving;
   final bool isSaving;
+  final bool openedToAdd;
 
   bool get isAddingSpot => mode == SpotsMapMode.addSpot;
   bool get isEditingSpot => editingSpot != null;
@@ -59,6 +61,7 @@ class SpotsMapState {
     bool? isCameraMoving,
     bool? isSaving,
     bool? isMapReady,
+    bool? openedToAdd,
   }) {
     return SpotsMapState(
       mode: mode ?? this.mode,
@@ -77,6 +80,7 @@ class SpotsMapState {
       isCameraMoving: isCameraMoving ?? this.isCameraMoving,
       isSaving: isSaving ?? this.isSaving,
       isMapReady: isMapReady ?? this.isMapReady,
+      openedToAdd: openedToAdd ?? this.openedToAdd,
     );
   }
 
@@ -96,7 +100,8 @@ class SpotsMapState {
           other.category == category &&
           other.isCameraMoving == isCameraMoving &&
           other.isSaving == isSaving &&
-          other.isMapReady == isMapReady;
+          other.isMapReady == isMapReady &&
+          other.openedToAdd == openedToAdd;
 
   @override
   int get hashCode => Object.hash(
@@ -113,5 +118,6 @@ class SpotsMapState {
     isCameraMoving,
     isSaving,
     isMapReady,
+    openedToAdd,
   );
 }
