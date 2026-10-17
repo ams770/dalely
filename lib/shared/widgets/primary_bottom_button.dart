@@ -35,58 +35,55 @@ class PrimaryBottomButton extends StatelessWidget {
     final disabledFg = isDark ? Colors.white.withAlpha(90) : bg.withAlpha(120);
     final currentFg = isEnabled ? fg : disabledFg;
 
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsetsDirectional.all(AppDimens.space16),
-        child: SizedBox(
-          width: double.infinity,
-          height: AppDimens.primaryButtonHeight,
-          child: FilledButton(
-            onPressed: isLoading ? null : onPressed,
-            style: FilledButton.styleFrom(
-              backgroundColor: bg,
-              foregroundColor: fg,
-              disabledBackgroundColor: disabledBg,
-              disabledForegroundColor: disabledFg,
-              shape: const RoundedRectangleBorder(
-                borderRadius: AppDimens.borderRadiusLarge,
-              ),
-              elevation: 0,
-              shadowColor: Colors.transparent,
+    return Padding(
+      padding: const EdgeInsetsDirectional.all(AppDimens.space16),
+      child: SizedBox(
+        width: double.infinity,
+        height: AppDimens.primaryButtonHeight,
+        child: FilledButton(
+          onPressed: isLoading ? null : onPressed,
+          style: FilledButton.styleFrom(
+            backgroundColor: bg,
+            foregroundColor: fg,
+            disabledBackgroundColor: disabledBg,
+            disabledForegroundColor: disabledFg,
+            shape: const RoundedRectangleBorder(
+              borderRadius: AppDimens.borderRadiusLarge,
             ),
-            child: isLoading
-                ? SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      valueColor: AlwaysStoppedAnimation<Color>(fg),
-                    ),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (icon != null) ...[
-                        IconTheme(
-                          data: IconThemeData(
-                            color: currentFg,
-                            size: AppDimens.iconSmall,
-                          ),
-                          child: icon!,
-                        ),
-                        const SizedBox(width: AppDimens.space8),
-                      ],
-                      Text(
-                        label,
-                        style: context.textTheme.titleMedium?.copyWith(
-                          color: currentFg,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+            elevation: 0,
+            shadowColor: Colors.transparent,
           ),
+          child: isLoading
+              ? SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    valueColor: AlwaysStoppedAnimation<Color>(fg),
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (icon != null) ...[
+                      IconTheme(
+                        data: IconThemeData(
+                          color: currentFg,
+                          size: AppDimens.iconSmall,
+                        ),
+                        child: icon!,
+                      ),
+                      const SizedBox(width: AppDimens.space8),
+                    ],
+                    Text(
+                      label,
+                      style: context.textTheme.titleMedium?.copyWith(
+                        color: currentFg,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

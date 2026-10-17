@@ -34,7 +34,6 @@ import 'widgets/home_map_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<HomeCubit>(
@@ -53,7 +52,6 @@ class _AdaptiveTwoPaneHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isFoldable = context.isFoldableDevice;
     final size = MediaQuery.sizeOf(context);
     final features = MediaQuery.displayFeaturesOf(context);
 
@@ -98,10 +96,10 @@ class _AdaptiveTwoPaneHome extends StatelessWidget {
           // Left Pane: Home
           // On foldable/flip devices, each part takes exactly half (50%) of the device.
           // On tablets, home pane is a fixed sidebar so the map takes the largest area.
-          if (isFoldable)
-            const Expanded(flex: 1, child: _HomePane())
+          if (context.isFoldableDevice || context.isWideScreen)
+            Expanded(flex: context.isRtl ? 9 : 8, child: _HomePane())
           else
-            const SizedBox(width: 380.0, child: _HomePane()),
+            const SizedBox(width: 440.0, child: _HomePane()),
 
           // Professional Adaptive Pane Separator
           const _AdaptivePaneSeparator(),
@@ -109,7 +107,7 @@ class _AdaptiveTwoPaneHome extends StatelessWidget {
           // Right Pane: Active Detail (Map by default, or Settings, SaveSpot, Search)
           // On tablets, takes all remaining space (the largest area).
           // On foldable/flip devices, takes the second half (50%).
-          const Expanded(flex: 1, child: _AdaptiveDetailPane()),
+          Expanded(flex: !context.isRtl ? 9 : 8, child: _AdaptiveDetailPane()),
         ],
       ),
     );
@@ -205,6 +203,8 @@ class _HomePane extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         bottom: false,
+        left: false,
+        right: context.isRtl,
         child: Column(
           children: [
             const HomeHeader(),
@@ -290,7 +290,9 @@ class _BottomSaveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.isWideScreen) return const SizedBox.shrink();
+    if (context.isWideScreen || context.isSmallScreen) {
+      return const SizedBox.shrink();
+    }
 
     return BlocBuilder<SpotsCubit, SpotsState>(
       buildWhen: (prev, curr) => prev.spots.isEmpty != curr.spots.isEmpty,
@@ -318,7 +320,7 @@ class _SavedSpotsSectionHeader extends StatelessWidget {
       buildWhen: (prev, curr) =>
           prev.spots.length != curr.spots.length || prev.car != curr.car,
       builder: (context, state) {
-        if (state.spots.isEmpty && state.car == null) {
+        if (state.spots.where((item) => !item.isParking).isEmpty) {
           return const SizedBox.shrink();
         }
 

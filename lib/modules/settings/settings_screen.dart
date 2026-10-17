@@ -7,6 +7,7 @@ import '../../shared/cubits/settings/settings_cubit.dart';
 import '../../shared/cubits/settings/settings_state.dart';
 import '../../shared/services/maps_launcher.dart';
 import '../../shared/theme/app_dimens.dart';
+import '../../shared/utils/adaptive_layout_ext.dart';
 import '../../shared/utils/context_ext.dart';
 import '../../shared/widgets/circle_icon_button.dart';
 import '../../shared/widgets/settings_group.dart';
@@ -22,23 +23,31 @@ class SettingsScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         bottom: false,
+        right: context.height > 500 && context.width < 600,
+        left: context.height > 500 && context.width < 600,
+
         child: Column(
           children: [
             _SettingsHeader(onClose: onClose),
             Expanded(
-              child: ListView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsetsDirectional.all(AppDimens.space16),
-                children: const [
-                  _AppearanceSection(),
-                  SizedBox(height: AppDimens.space24),
-                  _CarTrackingSection(),
-                  SizedBox(height: AppDimens.space24),
-                  _AboutSection(),
-                  SizedBox(height: AppDimens.space32),
-                  _SettingsFooter(),
-                  SizedBox(height: AppDimens.space24),
-                ],
+              child: MediaQuery.removePadding(
+                context: context,
+                removeLeft: true,
+                removeRight: true,
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const .all(AppDimens.space16),
+                  children: const [
+                    _AppearanceSection(),
+                    SizedBox(height: AppDimens.space24),
+                    _CarTrackingSection(),
+                    SizedBox(height: AppDimens.space24),
+                    _AboutSection(),
+                    SizedBox(height: AppDimens.space32),
+                    _SettingsFooter(),
+                    SizedBox(height: AppDimens.space24),
+                  ],
+                ),
               ),
             ),
           ],
@@ -58,7 +67,7 @@ class _SettingsHeader extends StatelessWidget {
     final l10n = context.l10n;
 
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(
+      padding: const .fromSTEB(
         AppDimens.space16,
         AppDimens.space16,
         AppDimens.space16,
@@ -92,9 +101,9 @@ class _AppearanceSection extends StatelessWidget {
           children: [
             // Theme Mode Segmented Selector
             Padding(
-              padding: const EdgeInsetsDirectional.all(AppDimens.space16),
+              padding: const .all(AppDimens.space16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: .start,
                 children: [
                   Text(l10n.theme, style: context.textTheme.titleMedium),
                   const SizedBox(height: AppDimens.space12),
@@ -261,9 +270,7 @@ class _SettingsFooter extends StatelessWidget {
       builder: (context, snapshot) {
         final version = snapshot.data?.version ?? '1.0.0';
         return Padding(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppDimens.space16,
-          ),
+          padding: const .symmetric(horizontal: AppDimens.space16),
           child: Text(
             context.l10n.versionFooter(version),
             textAlign: TextAlign.center,

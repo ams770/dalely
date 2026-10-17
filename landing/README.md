@@ -17,27 +17,34 @@ Bilingual landing page and legal privacy disclosure for **Dalely (دليلى)**,
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ and npm
 
 ### Installation
+
 ```bash
 cd landing
 npm install
 ```
 
 ### Development
+
 ```bash
 npm run dev
 ```
+
 Runs the local dev server at `http://127.0.0.1:5173/`.
 
 ### Production Build
+
 ```bash
 npm run build
 ```
+
 Generates optimized static assets in `dist/`.
 
 ### Preview Production Build
+
 ```bash
 npm run preview
 ```
@@ -45,10 +52,13 @@ npm run preview
 ## Deployment Options
 
 ### GitHub Pages / Static Hosting
+
 Build with `npm run build` and deploy the `dist/` directory directly to GitHub Pages, Cloudflare Pages, or AWS S3.
 
 ### Vercel / Netlify
+
 Connect the repository and set the root directory to `landing`.
+
 - Build command: `npm run build`
 - Output directory: `dist`
 

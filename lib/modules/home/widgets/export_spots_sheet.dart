@@ -22,100 +22,97 @@ class ExportSpotsSheet extends StatelessWidget {
     final l10n = context.l10n;
     final theme = context.theme;
 
-    return SafeArea(
-      top: false,
-      child: SingleChildScrollView(
-        padding: const EdgeInsetsDirectional.fromSTEB(
-          AppDimens.space20,
-          AppDimens.space12,
-          AppDimens.space20,
-          AppDimens.space20,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Drag handle
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.outlineVariant.withAlpha(160),
-                  borderRadius: AppDimens.borderRadiusFull,
-                ),
+    return SingleChildScrollView(
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppDimens.space20,
+        AppDimens.space12,
+        AppDimens.space20,
+        AppDimens.space20,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Drag handle
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.outlineVariant.withAlpha(160),
+                borderRadius: AppDimens.borderRadiusFull,
               ),
             ),
-            const SizedBox(height: AppDimens.space16),
+          ),
+          const SizedBox(height: AppDimens.space16),
 
-            // Sheet title and close action
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.file_upload_outlined,
-                    color: theme.colorScheme.primary,
-                    size: AppDimens.iconMedium,
+          // Sheet title and close action
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.file_upload_outlined,
+                  color: theme.colorScheme.primary,
+                  size: AppDimens.iconMedium,
+                ),
+              ),
+              const SizedBox(width: AppDimens.space12),
+              Expanded(
+                child: Text(
+                  l10n.exportSpotsTitle,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(width: AppDimens.space12),
-                Expanded(
-                  child: Text(
-                    l10n.exportSpotsTitle,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close_rounded),
-                  tooltip: l10n.cancel,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppDimens.space20),
+              ),
+              IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.close_rounded),
+                tooltip: l10n.cancel,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDimens.space20),
 
-            // Export as Excel (CSV)
-            _ExportOptionCard(
-              icon: Icons.table_chart_rounded,
-              title: l10n.exportAsExcel,
-              subtitle: l10n.exportAsExcelSubtitle,
-              onTap: () {
-                Navigator.of(context).pop();
-                const ShareService().shareAllSpotsAsCsv(
-                  spots,
-                  l10n: l10n,
-                  sharePositionOrigin: sharePositionOrigin,
-                );
-              },
-            ),
-            const SizedBox(height: AppDimens.space12),
+          // Export as Excel (CSV)
+          _ExportOptionCard(
+            icon: Icons.table_chart_rounded,
+            title: l10n.exportAsExcel,
+            subtitle: l10n.exportAsExcelSubtitle,
+            onTap: () {
+              Navigator.of(context).pop();
+              const ShareService().shareAllSpotsAsCsv(
+                spots,
+                l10n: l10n,
+                sharePositionOrigin: sharePositionOrigin,
+              );
+            },
+          ),
+          const SizedBox(height: AppDimens.space12),
 
-            // Export as Text
-            _ExportOptionCard(
-              icon: Icons.text_snippet_rounded,
-              title: l10n.exportAsText,
-              subtitle: l10n.exportAsTextSubtitle,
-              onTap: () {
-                Navigator.of(context).pop();
-                const ShareService().shareAllSpots(
-                  spots,
-                  l10n: l10n,
-                  sharePositionOrigin: sharePositionOrigin,
-                );
-              },
-            ),
-            const SizedBox(height: AppDimens.space8),
-          ],
-        ),
+          // Export as Text
+          _ExportOptionCard(
+            icon: Icons.text_snippet_rounded,
+            title: l10n.exportAsText,
+            subtitle: l10n.exportAsTextSubtitle,
+            onTap: () {
+              Navigator.of(context).pop();
+              const ShareService().shareAllSpots(
+                spots,
+                l10n: l10n,
+                sharePositionOrigin: sharePositionOrigin,
+              );
+            },
+          ),
+          SafeArea(top: false, child: const SizedBox(height: AppDimens.space8)),
+        ],
       ),
     );
   }

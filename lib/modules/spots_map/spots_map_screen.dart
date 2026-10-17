@@ -52,8 +52,9 @@ class SpotsMapScreen extends StatelessWidget {
     final themeTokens = context.tokens;
     final isDarkMode = context.isDarkMode;
 
-    final effectiveMode =
-        editingSpot != null ? SpotsMapMode.addSpot : initialMode;
+    final effectiveMode = editingSpot != null
+        ? SpotsMapMode.addSpot
+        : initialMode;
 
     return BlocProvider<SpotsMapCubit>(
       create: (_) => SpotsMapCubit(
@@ -69,19 +70,13 @@ class SpotsMapScreen extends StatelessWidget {
         initialMode: effectiveMode,
         onlyShowSpotId: onlyShowSpotId,
       ),
-      child: _SpotsMapView(
-        isEmbedded: isEmbedded,
-        onClose: onClose,
-      ),
+      child: _SpotsMapView(isEmbedded: isEmbedded, onClose: onClose),
     );
   }
 }
 
 class _SpotsMapView extends StatelessWidget {
-  const _SpotsMapView({
-    required this.isEmbedded,
-    this.onClose,
-  });
+  const _SpotsMapView({required this.isEmbedded, this.onClose});
 
   final bool isEmbedded;
   final VoidCallback? onClose;
@@ -123,10 +118,7 @@ class _SpotsMapView extends StatelessWidget {
               _CenterPinLayer(pinPoint: cubit.pinScreenPoint),
 
               // 4. Top Floating Navigation Controls
-              _TopControlsLayer(
-                isEmbedded: isEmbedded,
-                onClose: onClose,
-              ),
+              _TopControlsLayer(isEmbedded: isEmbedded, onClose: onClose),
 
               // 5. Recenter / My Location FAB
               const _RecenterButtonLayer(),
@@ -135,10 +127,7 @@ class _SpotsMapView extends StatelessWidget {
               const _SelectedSpotCardLayer(),
 
               // 7. Save Spot Bottom Sheet (smooth sliding animation)
-              _SaveSpotSheetLayer(
-                isEmbedded: isEmbedded,
-                onClose: onClose,
-              ),
+              _SaveSpotSheetLayer(isEmbedded: isEmbedded, onClose: onClose),
             ],
           ),
         );
@@ -189,8 +178,7 @@ class _MapLayer extends StatelessWidget {
     cubit.updateTheme(isDarkMode: isDark, themeExtension: themeTokens);
 
     return BlocBuilder<SpotsMapCubit, SpotsMapState>(
-      buildWhen: (prev, curr) =>
-          prev.isAddingSpot != curr.isAddingSpot,
+      buildWhen: (prev, curr) => prev.isAddingSpot != curr.isAddingSpot,
       builder: (context, state) {
         return RepaintBoundary(
           child: AppMap(
@@ -283,10 +271,7 @@ class _CenterPinLayer extends StatelessWidget {
 }
 
 class _TopControlsLayer extends StatelessWidget {
-  const _TopControlsLayer({
-    required this.isEmbedded,
-    this.onClose,
-  });
+  const _TopControlsLayer({required this.isEmbedded, this.onClose});
 
   final bool isEmbedded;
   final VoidCallback? onClose;
@@ -315,20 +300,19 @@ class _TopControlsLayer extends StatelessWidget {
       top: 0,
       start: 0,
       end: 0,
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(
-            AppDimens.space16,
-            AppDimens.space16,
-            AppDimens.space16,
-            AppDimens.space8,
-          ),
-          child: BlocSelector<SpotsMapCubit, SpotsMapState, bool>(
-            selector: (state) => state.isAddingSpot,
-            builder: (context, isAddingSpot) {
-              if (isAddingSpot) {
-                return Row(
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(
+          AppDimens.space16,
+          AppDimens.space16,
+          AppDimens.space16,
+          AppDimens.space8,
+        ),
+        child: BlocSelector<SpotsMapCubit, SpotsMapState, bool>(
+          selector: (state) => state.isAddingSpot,
+          builder: (context, isAddingSpot) {
+            if (isAddingSpot) {
+              return SafeArea(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     CircleIconButton(
@@ -354,10 +338,12 @@ class _TopControlsLayer extends StatelessWidget {
                         onPressed: () => _openFullscreen(context, cubit),
                       ),
                   ],
-                );
-              }
+                ),
+              );
+            }
 
-              return Row(
+            return SafeArea(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (!isEmbedded)
@@ -370,6 +356,7 @@ class _TopControlsLayer extends StatelessWidget {
                     const SizedBox.shrink(),
 
                   Row(
+                    crossAxisAlignment: .end,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (!isEmbedded)
@@ -383,9 +370,9 @@ class _TopControlsLayer extends StatelessWidget {
                     ],
                   ),
                 ],
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -432,8 +419,8 @@ class _RecenterButtonLayer extends StatelessWidget {
         final hasSelected = state.selectedSpot != null;
         final bottomOffset = isAdding
             ? bottomAddPadding +
-                mediaQuery.viewInsets.bottom +
-                AppDimens.space16
+                  mediaQuery.viewInsets.bottom +
+                  AppDimens.space16
             : AppDimens.space32 + (hasSelected ? 160.0 : 0.0);
 
         return AnimatedPositionedDirectional(
@@ -503,10 +490,7 @@ class _SelectedSpotCardLayer extends StatelessWidget {
 }
 
 class _SaveSpotSheetLayer extends StatelessWidget {
-  const _SaveSpotSheetLayer({
-    required this.isEmbedded,
-    this.onClose,
-  });
+  const _SaveSpotSheetLayer({required this.isEmbedded, this.onClose});
 
   final bool isEmbedded;
   final VoidCallback? onClose;
@@ -531,10 +515,7 @@ class _SaveSpotSheetLayer extends StatelessWidget {
             duration: const Duration(milliseconds: 320),
             curve: Curves.easeOutCubic,
             builder: (context, offset, child) {
-              return FractionalTranslation(
-                translation: offset,
-                child: child,
-              );
+              return FractionalTranslation(translation: offset, child: child);
             },
             child: ExcludeSemantics(
               excluding: !isAddingSpot,

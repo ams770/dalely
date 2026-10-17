@@ -74,7 +74,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get carCleared => 'تم مسح موقع السيارة';
 
   @override
-  String get savedSpots => 'الأماكن المحفوظة';
+  String get savedSpots => 'الأماكن';
 
   @override
   String get shareAll => 'مشاركة الكل';
@@ -774,7 +774,7 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
   String get carCleared => 'تم مسح موقع العربية';
 
   @override
-  String get savedSpots => 'الأماكن المحفوظة';
+  String get savedSpots => 'الأماكن';
 
   @override
   String get shareAll => 'مشاركة الكل';
@@ -1399,7 +1399,7 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
   String get carCleared => 'تم مسح موقع السيارة';
 
   @override
-  String get savedSpots => 'الأماكن المحفوظة';
+  String get savedSpots => 'الأماكن';
 
   @override
   String get shareAll => 'مشاركة الكل';

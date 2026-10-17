@@ -5,11 +5,7 @@ import '../utils/context_ext.dart';
 
 /// A card group wrapper for settings tiles.
 class SettingsGroup extends StatelessWidget {
-  const SettingsGroup({
-    super.key,
-    this.title,
-    required this.children,
-  });
+  const SettingsGroup({super.key, this.title, required this.children});
 
   final String? title;
   final List<Widget> children;
@@ -73,7 +69,8 @@ class SettingsTile extends StatelessWidget {
       leading: leading,
       title: Text(title),
       subtitle: subtitle != null ? Text(subtitle!) : null,
-      trailing: trailing ??
+      trailing:
+          trailing ??
           (onTap != null
               ? const Icon(
                   Icons.chevron_right_rounded,

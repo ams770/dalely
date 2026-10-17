@@ -199,7 +199,7 @@ abstract class AppLocalizations {
   /// No description provided for @savedSpots.
   ///
   /// In en, this message translates to:
-  /// **'Saved spots'**
+  /// **'Spots'**
   String get savedSpots;
 
   /// No description provided for @shareAll.

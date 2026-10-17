@@ -27,24 +27,28 @@ class HomeHeader extends StatelessWidget {
         AppDimens.space16,
         AppDimens.space8,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          CircleIconButton(
-            icon: const Icon(Icons.tune_rounded),
-            tooltip: context.l10n.settingsTooltip,
-            onPressed: () {
-              AdaptiveNavigation.openSettings(context);
-            },
-          ),
-          const Spacer(),
-          if (hasSpots || context.isFoldableDevice)
-            _AddSpotHeaderButton(
+      child: SafeArea(
+        left: !context.isRtl || !context.isWideScreen,
+        right: !context.isWideScreen,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CircleIconButton(
+              icon: const Icon(Icons.tune_rounded),
+              tooltip: context.l10n.settingsTooltip,
               onPressed: () {
-                AdaptiveNavigation.openSaveSpot(context);
+                AdaptiveNavigation.openSettings(context);
               },
             ),
-        ],
+            const Spacer(),
+            if (hasSpots || context.isFoldableDevice || context.isSmallScreen)
+              _AddSpotHeaderButton(
+                onPressed: () {
+                  AdaptiveNavigation.openSaveSpot(context);
+                },
+              ),
+          ],
+        ),
       ),
     );
   }

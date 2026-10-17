@@ -71,7 +71,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get carCleared => 'Car location cleared';
 
   @override
-  String get savedSpots => 'Saved spots';
+  String get savedSpots => 'Spots';
 
   @override
   String get shareAll => 'Share all';

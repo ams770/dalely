@@ -45,7 +45,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
            initialTarget: editingSpot?.latLng ?? initialTarget,
            initialSpotName: editingSpot?.name ?? initialSpotName,
            editingSpot: editingSpot,
-           initialMode: editingSpot != null ? SpotsMapMode.addSpot : initialMode,
+           initialMode: editingSpot != null
+               ? SpotsMapMode.addSpot
+               : initialMode,
          ),
        ) {
     _currentCameraTarget = state.initialTarget;
@@ -156,7 +158,10 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       final ratio = _devicePixelRatio > 0 ? _devicePixelRatio : 1.0;
       return Point<double>(platformPoint.x / ratio, platformPoint.y / ratio);
     }
-    return Point<double>(platformPoint.x.toDouble(), platformPoint.y.toDouble());
+    return Point<double>(
+      platformPoint.x.toDouble(),
+      platformPoint.y.toDouble(),
+    );
   }
 
   static SpotsMapState _computeInitialState({
@@ -173,8 +178,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     Spot? selectedSpot;
     final targetSpotId = initialSelectedSpotId ?? onlyShowSpotId;
     if (targetSpotId != null && initialMode == SpotsMapMode.viewing) {
-      final all = spotsCubit.state.allSpots
-          .followedBy(spotsCubit.state.parkingHistory);
+      final all = spotsCubit.state.allSpots.followedBy(
+        spotsCubit.state.parkingHistory,
+      );
       for (final s in all) {
         if (s.id == targetSpotId) {
           selectedSpot = s;
@@ -247,10 +253,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
           final iconRotate = ((locState.heading - bearing) % 360 + 360) % 360;
           controller.updateSymbol(
             sym,
-            SymbolOptions(
-              geometry: locState.latLng!,
-              iconRotate: iconRotate,
-            ),
+            SymbolOptions(geometry: locState.latLng!, iconRotate: iconRotate),
           );
         } else {
           _rebuildMarkers();
@@ -360,12 +363,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
     if (state.isAddingSpot) {
       if (position.zoom != state.currentZoom || !state.isCameraMoving) {
-        emit(
-          state.copyWith(
-            isCameraMoving: true,
-            currentZoom: position.zoom,
-          ),
-        );
+        emit(state.copyWith(isCameraMoving: true, currentZoom: position.zoom));
       }
     } else {
       if (position.zoom != state.currentZoom) {
@@ -445,7 +443,8 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     Point<double>? touchScreenPoint,
   }) {
     _hasCenteredOnUser = true;
-    final target = initialTarget ??
+    final target =
+        initialTarget ??
         _currentCameraTarget ??
         _mapController?.cameraPosition?.target ??
         state.pickedLocation;
@@ -479,10 +478,11 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
         controller
             .toLatLng(_toPlatformScreenPoint(pinScreenPoint))
             .then((loc) {
-          if (!isClosed && state.isAddingSpot) {
-            emit(state.copyWith(pickedLocation: loc));
-          }
-        }).catchError((_) {});
+              if (!isClosed && state.isAddingSpot) {
+                emit(state.copyWith(pickedLocation: loc));
+              }
+            })
+            .catchError((_) {});
       }
     }
   }
@@ -619,7 +619,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       if (controller.isDisposed || isClosed) return;
       await controller.addImage('car_pin', carBytes);
 
-      final carSelectedBytes = await markerIconCache.getCarMarker(isSelected: true);
+      final carSelectedBytes = await markerIconCache.getCarMarker(
+        isSelected: true,
+      );
       if (controller.isDisposed || isClosed) return;
       await controller.addImage('car_pin_selected', carSelectedBytes);
 
@@ -645,7 +647,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       }
 
       // 3. User location
-      final userBytes = await markerIconCache.getUserLocationMarker(heading: 0.0);
+      final userBytes = await markerIconCache.getUserLocationMarker(
+        heading: 0.0,
+      );
       if (controller.isDisposed || isClosed) return;
       await controller.addImage('user_location', userBytes);
     } catch (_) {
@@ -655,7 +659,11 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
   Future<void> _rebuildMarkers() async {
     final controller = _mapController;
-    if (controller == null || controller.isDisposed || !_styleLoaded || isClosed) return;
+    if (controller == null ||
+        controller.isDisposed ||
+        !_styleLoaded ||
+        isClosed)
+      return;
 
     if (_isRebuildingMarkers) {
       _needsRebuildMarkers = true;
@@ -721,8 +729,8 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
         final imageName = spot.isCar
             ? (isSelected ? 'car_pin_selected' : 'car_pin')
             : (isSelected
-                ? 'category_${spot.category.name}_selected'
-                : 'category_${spot.category.name}');
+                  ? 'category_${spot.category.name}_selected'
+                  : 'category_${spot.category.name}');
 
         options.add(
           SymbolOptions(
@@ -763,11 +771,13 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     if (spot == null) {
       emit(state.copyWith(clearSelected: true, clearOnlyShowSpot: true));
     } else {
-      emit(state.copyWith(
-        selectedSpot: spot,
-        onlyShowSpotId: onlyShowSpot ? spot.id : null,
-        clearOnlyShowSpot: !onlyShowSpot,
-      ));
+      emit(
+        state.copyWith(
+          selectedSpot: spot,
+          onlyShowSpotId: onlyShowSpot ? spot.id : null,
+          clearOnlyShowSpot: !onlyShowSpot,
+        ),
+      );
       final controller = _mapController;
       if (controller != null && !controller.isDisposed) {
         controller.animateCamera(
@@ -782,8 +792,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     if (state.isAddingSpot) {
       exitAddSpotMode();
     }
-    final all = spotsCubit.state.allSpots
-        .followedBy(spotsCubit.state.parkingHistory);
+    final all = spotsCubit.state.allSpots.followedBy(
+      spotsCubit.state.parkingHistory,
+    );
     for (final spot in all) {
       if (spot.id == id) {
         selectSpot(spot, onlyShowSpot: onlyShowSpot);
@@ -821,4 +832,3 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     return super.close();
   }
 }
-

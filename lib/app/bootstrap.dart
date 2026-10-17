@@ -53,16 +53,7 @@ Future<BootstrapDependencies> bootstrap() async {
     ),
   );
 
-  final view = WidgetsBinding.instance.platformDispatcher.views.firstOrNull;
-  if (view != null && view.devicePixelRatio > 0) {
-    final widthDp = view.physicalSize.width / view.devicePixelRatio;
-    if (widthDp < 600) {
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
-    }
-  }
+  await SystemChrome.setPreferredOrientations([]);
 
   // Initialize Hive
   await Hive.initFlutter();
