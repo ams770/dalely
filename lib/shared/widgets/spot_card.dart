@@ -35,11 +35,15 @@ class SpotCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: onShowOnMap ?? onTap,
+        onTap: () {
+          Feedback.forTap(context);
+          (onShowOnMap ?? onTap)?.call();
+        },
         onLongPress: onLongPress,
         borderRadius: AppDimens.borderRadiusLarge,
-        splashColor: theme.colorScheme.primary.withAlpha(20),
-        highlightColor: theme.colorScheme.primary.withAlpha(10),
+        hoverColor: theme.colorScheme.primary.withAlpha(context.isDarkMode ? 30 : 15),
+        highlightColor: theme.colorScheme.primary.withAlpha(context.isDarkMode ? 50 : 25),
+        splashColor: theme.colorScheme.primary.withAlpha(context.isDarkMode ? 70 : 35),
         child: Padding(
           padding: const EdgeInsetsDirectional.all(AppDimens.space16),
           child: Column(

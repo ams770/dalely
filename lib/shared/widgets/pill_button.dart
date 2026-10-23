@@ -39,10 +39,14 @@ class PillButton extends StatelessWidget {
           color: Colors.transparent,
           borderRadius: AppDimens.borderRadiusFull,
           child: InkWell(
-            onTap: onPressed,
+            onTap: () {
+              Feedback.forTap(context);
+              onPressed();
+            },
             borderRadius: AppDimens.borderRadiusFull,
-            splashColor: foregroundColor.withAlpha(25),
-            highlightColor: foregroundColor.withAlpha(15),
+            hoverColor: foregroundColor.withAlpha(35),
+            highlightColor: foregroundColor.withAlpha(65),
+            splashColor: foregroundColor.withAlpha(85),
             child: Padding(
               padding: padding,
               child: Row(

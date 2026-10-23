@@ -17,6 +17,7 @@ import '../../shared/utils/app_snack_bar.dart';
 import '../../shared/utils/context_ext.dart';
 import '../../shared/widgets/car_proximity_listener.dart';
 import '../../shared/widgets/circle_icon_button.dart';
+import '../../shared/widgets/duo_action_rail.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/location_permission_banner.dart';
 import '../../shared/widgets/primary_bottom_button.dart';
@@ -39,8 +40,10 @@ class HomeScreen extends StatelessWidget {
     return BlocProvider<HomeCubit>(
       create: (context) => HomeCubit(spotsCubit: context.read<SpotsCubit>()),
       child: CarProximityListener(
-        child: context.isWideScreen
+        child: context.isSplitLayout
             ? const _AdaptiveTwoPaneHome()
+            : context.isDuoFolded
+            ? const _DuoFoldedHomeLayout()
             : const _HomePane(),
       ),
     );
@@ -236,9 +239,87 @@ class _HomePane extends StatelessWidget {
                 ],
               ),
             ),
-            const _BottomSaveButton(),
+            const _BottomActionArea(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _DuoFoldedHomeLayout extends StatelessWidget {
+  const _DuoFoldedHomeLayout();
+
+  @override
+  Widget build(BuildContext context) {
+    final homeCubit = context.read<HomeCubit>();
+    final isLeft = context.isDuoLeftScreen;
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Main content column padded away from the vertical action rail.
+          // Physical constraint: On a dual-screen device, if opened on the left screen,
+          // the outer bezel/thumb edge is on the physical left and the hinge is on the right.
+          // If opened on the right screen, the outer bezel is on the physical right.
+          SafeArea(
+            bottom: false,
+            left: false,
+            right: false,
+            child: Padding(
+              padding: isLeft
+                  ? const EdgeInsets.only(left: 78.0)
+                  : const EdgeInsets.only(right: 78.0),
+              child: CustomScrollView(
+                controller: homeCubit.scrollController,
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                      AppDimens.space16,
+                      AppDimens.space16,
+                      AppDimens.space16,
+                      AppDimens.space16,
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate.fixed([
+                        const LocationPermissionBanner(),
+                        const _HomeCardsGrid(),
+                        const SizedBox(height: AppDimens.space24),
+                        const _SavedSpotsSectionHeader(),
+                      ]),
+                    ),
+                  ),
+                  const _SavedSpotsSliverList(),
+                  const _BottomListSpacer(),
+                ],
+              ),
+            ),
+          ),
+
+          // Vertical action rail positioned on the outer edge (away from the center hinge)
+          Positioned(
+            top: 168.0,
+            left: isLeft ? 22.0 : null,
+            right: isLeft ? null : 22.0,
+            child: DuoActionRail(
+              onSettings: () {
+                AdaptiveNavigation.openSettings(context);
+              },
+              onHistory: () {
+                AdaptiveNavigation.openParkingHistory(context);
+              },
+              onMap: () {
+                AdaptiveNavigation.openMap(context);
+              },
+              onAddSpot: () {
+                AdaptiveNavigation.openSaveSpot(context);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -254,7 +335,7 @@ class _HomeCardsGrid extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(child: CarCard()),
-          if (!context.isWideScreen) ...[
+          if (!context.isSplitLayout) ...[
             SizedBox(width: AppDimens.space12),
             Expanded(child: HomeMapCard()),
           ],
@@ -269,43 +350,31 @@ class _BottomListSpacer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.isWideScreen) {
-      return const SliverToBoxAdapter(
-        child: SizedBox(height: AppDimens.space32),
-      );
-    }
-
-    return BlocBuilder<SpotsCubit, SpotsState>(
-      buildWhen: (prev, curr) => prev.spots.isEmpty != curr.spots.isEmpty,
-      builder: (context, state) {
-        final height = state.spots.isEmpty ? 100.0 : AppDimens.space32;
-        return SliverToBoxAdapter(child: SizedBox(height: height));
-      },
-    );
+    return const SliverToBoxAdapter(child: SizedBox(height: AppDimens.space20));
   }
 }
 
-class _BottomSaveButton extends StatelessWidget {
-  const _BottomSaveButton();
+class _BottomActionArea extends StatelessWidget {
+  const _BottomActionArea();
 
   @override
   Widget build(BuildContext context) {
-    if (context.isWideScreen || context.isSmallScreen) {
-      return const SizedBox.shrink();
-    }
-
     return BlocBuilder<SpotsCubit, SpotsState>(
       buildWhen: (prev, curr) => prev.spots.isEmpty != curr.spots.isEmpty,
       builder: (context, state) {
-        if (state.spots.isNotEmpty) return const SizedBox.shrink();
+        if (state.spots.isEmpty &&
+            !context.isSplitLayout &&
+            !context.isSmallScreen) {
+          return PrimaryBottomButton(
+            label: context.l10n.saveThisSpot,
+            icon: const Icon(Icons.add_rounded),
+            onPressed: () {
+              AdaptiveNavigation.openSaveSpot(context);
+            },
+          );
+        }
 
-        return PrimaryBottomButton(
-          label: context.l10n.saveThisSpot,
-          icon: const Icon(Icons.add_rounded),
-          onPressed: () {
-            AdaptiveNavigation.openSaveSpot(context);
-          },
-        );
+        return const SizedBox.shrink();
       },
     );
   }

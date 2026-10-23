@@ -662,8 +662,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     if (controller == null ||
         controller.isDisposed ||
         !_styleLoaded ||
-        isClosed)
+        isClosed) {
       return;
+    }
 
     if (_isRebuildingMarkers) {
       _needsRebuildMarkers = true;

@@ -125,6 +125,133 @@ void main() {
       expect(isTablet, isTrue);
     });
 
+    testWidgets('isSplitLayout is false in portrait even when screen is wide',
+        (tester) async {
+      // Wide screen in portrait: 700 x 1000
+      tester.view.physicalSize = const Size(700 * 2.0, 1000 * 2.0);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      late bool isPortrait;
+      late bool isLandscape;
+      late bool isWide;
+      late bool isSplit;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              isPortrait = context.isPortrait;
+              isLandscape = context.isLandscape;
+              isWide = context.isWideScreen;
+              isSplit = context.isSplitLayout;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(isPortrait, isTrue);
+      expect(isLandscape, isFalse);
+      expect(isWide, isTrue);
+      expect(isSplit, isFalse, reason: 'Portrait mode must never split the layout');
+    });
+
+    testWidgets('isSplitLayout is true in landscape on wide screen',
+        (tester) async {
+      // Wide screen in landscape: 1000 x 700
+      tester.view.physicalSize = const Size(1000 * 2.0, 700 * 2.0);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      late bool isPortrait;
+      late bool isLandscape;
+      late bool isWide;
+      late bool isSplit;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              isPortrait = context.isPortrait;
+              isLandscape = context.isLandscape;
+              isWide = context.isWideScreen;
+              isSplit = context.isSplitLayout;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(isPortrait, isFalse);
+      expect(isLandscape, isTrue);
+      expect(isWide, isTrue);
+      expect(isSplit, isTrue);
+    });
+
+    testWidgets('identifies left screen on iPhone Duo and positions rail on left',
+        (tester) async {
+      // iPhone Duo Left Screen: 466 x 678, padding.right is 0 (touches hinge)
+      tester.view.physicalSize = const Size(466 * 3.0, 678 * 3.0);
+      tester.view.devicePixelRatio = 3.0;
+      tester.view.padding = FakeViewPadding.zero;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetPadding);
+
+      late bool isDuoFolded;
+      late bool isDuoLeft;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              isDuoFolded = context.isDuoFolded;
+              isDuoLeft = context.isDuoLeftScreen;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(isDuoFolded, isTrue);
+      expect(isDuoLeft, isTrue,
+          reason: 'Left screen has no right hardware status rail');
+    });
+
+    testWidgets('identifies right screen on iPhone Duo when right status rail exists',
+        (tester) async {
+      // iPhone Duo Right Screen: 466 x 678, padding.right >= 35 (hardware status rail)
+      tester.view.physicalSize = const Size(466 * 3.0, 678 * 3.0);
+      tester.view.devicePixelRatio = 3.0;
+      tester.view.padding = const FakeViewPadding(right: 48 * 3.0);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetPadding);
+
+      late bool isDuoFolded;
+      late bool isDuoLeft;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              isDuoFolded = context.isDuoFolded;
+              isDuoLeft = context.isDuoLeftScreen;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+
+      expect(isDuoFolded, isTrue);
+      expect(isDuoLeft, isFalse,
+          reason: 'Right screen has right hardware status rail');
+    });
+
+
     testWidgets(
         'SpotsMapScreen centers pin within map pane width, not window width on wide screens',
         (tester) async {

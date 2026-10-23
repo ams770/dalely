@@ -38,8 +38,14 @@ class HomeMapCard extends StatelessWidget {
         color: Colors.transparent,
         borderRadius: AppDimens.borderRadiusLarge,
         child: InkWell(
-          onTap: () => AdaptiveNavigation.openMap(context),
+          onTap: () {
+            Feedback.forTap(context);
+            AdaptiveNavigation.openMap(context);
+          },
           borderRadius: AppDimens.borderRadiusLarge,
+          hoverColor: colors.primary.withAlpha(context.isDarkMode ? 25 : 15),
+          highlightColor: colors.primary.withAlpha(context.isDarkMode ? 45 : 30),
+          splashColor: colors.primary.withAlpha(context.isDarkMode ? 65 : 45),
           child: Padding(
             padding: const EdgeInsetsDirectional.all(AppDimens.space16),
             child: Column(

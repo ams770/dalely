@@ -91,13 +91,22 @@ class _ActionPillButton extends StatelessWidget {
     final colorScheme = context.colorScheme;
     final bg = isPrimary ? colorScheme.primary : context.tokens.pillBackground;
     final fg = isPrimary ? colorScheme.onPrimary : colorScheme.onSurface;
+    final isDark = context.isDarkMode;
 
     return Material(
       color: bg,
       borderRadius: AppDimens.borderRadiusMedium,
       child: InkWell(
-        onTap: onPressed,
+        onTap: onPressed == null
+            ? null
+            : () {
+                Feedback.forTap(context);
+                onPressed!();
+              },
         borderRadius: AppDimens.borderRadiusMedium,
+        hoverColor: fg.withAlpha(isDark ? 35 : 20),
+        highlightColor: fg.withAlpha(isDark ? 65 : 40),
+        splashColor: fg.withAlpha(isDark ? 85 : 60),
         child: Container(
           height: 38,
           padding: const EdgeInsetsDirectional.symmetric(

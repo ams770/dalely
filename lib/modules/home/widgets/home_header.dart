@@ -28,8 +28,8 @@ class HomeHeader extends StatelessWidget {
         AppDimens.space8,
       ),
       child: SafeArea(
-        left: !context.isRtl || !context.isWideScreen,
-        right: !context.isWideScreen,
+        left: !context.isRtl || !context.isSplitLayout,
+        right: !context.isSplitLayout,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -40,13 +40,29 @@ class HomeHeader extends StatelessWidget {
                 AdaptiveNavigation.openSettings(context);
               },
             ),
-            const Spacer(),
-            if (hasSpots || context.isFoldableDevice || context.isSmallScreen)
+            const SizedBox(width: AppDimens.space8),
+            Expanded(
+              child: Text(
+                context.l10n.appTitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                ),
+              ),
+            ),
+            if (hasSpots ||
+                context.isFoldableDevice ||
+                context.isSmallScreen ||
+                context.isSplitLayout) ...[
+              const SizedBox(width: AppDimens.space8),
               _AddSpotHeaderButton(
                 onPressed: () {
                   AdaptiveNavigation.openSaveSpot(context);
                 },
               ),
+            ],
           ],
         ),
       ),

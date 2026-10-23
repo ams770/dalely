@@ -218,7 +218,7 @@ class _ActiveCarContent extends StatelessWidget {
     final colors = context.colorScheme;
     final primary = colors.primary;
 
-    var content = context.isWideScreen
+    var content = context.isSplitLayout
         ? [
             Center(
               child: Row(
@@ -447,7 +447,7 @@ class _EmptyCarContent extends StatelessWidget {
     final l10n = context.l10n;
     final colors = context.colorScheme;
 
-    var content = context.isWideScreen
+    var content = context.isSplitLayout
         ? Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -523,7 +523,7 @@ class _EmptyCarContent extends StatelessWidget {
         ),
         const SizedBox(height: AppDimens.space8),
         Center(child: content),
-        if (!context.isWideScreen) ...[
+        if (!context.isSplitLayout) ...[
           const SizedBox(height: AppDimens.space8),
           PillButton(
             label: l10n.parkHere,

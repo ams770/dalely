@@ -13,7 +13,7 @@ abstract final class AdaptiveNavigation {
     String? spotId,
     bool onlyShowSpot = false,
   }) {
-    if (context.isWideScreen) {
+    if (context.isSplitLayout) {
       context.read<AdaptiveNavCubit>().showMap(
             spotId: spotId,
             onlyShowSpot: onlyShowSpot,
@@ -30,7 +30,7 @@ abstract final class AdaptiveNavigation {
   }
 
   static void openSaveSpot(BuildContext context) {
-    if (context.isWideScreen) {
+    if (context.isSplitLayout) {
       context.read<AdaptiveNavCubit>().openSaveSpot();
     } else {
       Navigator.of(context).pushNamed(AppRouter.saveSpot);
@@ -38,7 +38,7 @@ abstract final class AdaptiveNavigation {
   }
 
   static void openEditSpot(BuildContext context, Spot spot) {
-    if (context.isWideScreen) {
+    if (context.isSplitLayout) {
       context.read<AdaptiveNavCubit>().openEditSpot(spot);
     } else {
       Navigator.of(context).pushNamed(
@@ -53,7 +53,7 @@ abstract final class AdaptiveNavigation {
   }
 
   static void openSettings(BuildContext context) {
-    if (context.isWideScreen) {
+    if (context.isSplitLayout) {
       context.read<AdaptiveNavCubit>().openSettings();
     } else {
       Navigator.of(context).pushNamed(AppRouter.settings);
@@ -61,7 +61,7 @@ abstract final class AdaptiveNavigation {
   }
 
   static void openSearch(BuildContext context) {
-    if (context.isWideScreen) {
+    if (context.isSplitLayout) {
       context.read<AdaptiveNavCubit>().openSearch();
     } else {
       Navigator.of(context).pushNamed(AppRouter.search);
@@ -69,7 +69,7 @@ abstract final class AdaptiveNavigation {
   }
 
   static void openParkingHistory(BuildContext context) {
-    if (context.isWideScreen) {
+    if (context.isSplitLayout) {
       context.read<AdaptiveNavCubit>().openParkingHistory();
     } else {
       Navigator.of(context).pushNamed(AppRouter.parkingHistory);

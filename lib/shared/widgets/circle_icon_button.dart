@@ -63,9 +63,15 @@ class CircleIconButton extends StatelessWidget {
         shape: CircleBorder(side: borderSide),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: onPressed,
-          splashColor: fg.withAlpha(35),
-          highlightColor: fg.withAlpha(18),
+          onTap: onPressed == null
+              ? null
+              : () {
+                  Feedback.forTap(context);
+                  onPressed!();
+                },
+          hoverColor: fg.withAlpha(isDark ? 35 : 25),
+          highlightColor: fg.withAlpha(isDark ? 65 : 45),
+          splashColor: fg.withAlpha(isDark ? 85 : 65),
           child: Center(
             child: IconTheme(
               data: IconThemeData(size: iconSize, color: fg),

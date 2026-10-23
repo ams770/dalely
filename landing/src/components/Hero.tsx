@@ -7,7 +7,7 @@ interface HeroProps {
   lang: 'en' | 'ar';
 }
 
-export const Hero: React.FC<HeroProps> = ({ t, lang }) => {
+export const Hero: React.FC<HeroProps> = ({ t }) => {
   return (
     <section
       style={{
@@ -45,14 +45,6 @@ export const Hero: React.FC<HeroProps> = ({ t, lang }) => {
                 backdropFilter: 'blur(8px)',
               }}
             >
-              <div
-                style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: '#FFFFFF',
-                }}
-              />
               <span>{t.hero.badge}</span>
             </div>
 
@@ -112,7 +104,6 @@ export const Hero: React.FC<HeroProps> = ({ t, lang }) => {
                 marginTop: '4px',
               }}
             >
-              <span>{lang === 'ar' ? 'حزمة أندرويد:' : 'Android Package:'} </span>
               <code
                 style={{
                   fontFamily: 'monospace',
@@ -128,131 +119,16 @@ export const Hero: React.FC<HeroProps> = ({ t, lang }) => {
           </div>
 
           {/* Right Column: Friendly Onboarding Image & Distance Card */}
-          <div
+          <img
+            src="/assets/onboarding_2.png"
+            alt="Dalely Car Finder"
             style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              position: 'relative',
+              maxWidth: '100%',
+              maxHeight: '450px',
+              objectFit: 'contain',
+              borderRadius: '16px',
             }}
-          >
-            {/* Friendly Card with Onboarding Image from Flutter App */}
-            <div
-              style={{
-                position: 'relative',
-                width: '100%',
-                maxWidth: '420px',
-                backgroundColor: '#FFFFFF',
-                borderRadius: '32px',
-                padding: '28px',
-                boxShadow:
-                  '0 24px 50px -12px rgba(11, 40, 70, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.3)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                textAlign: 'center',
-              }}
-            >
-              {/* Top status bar inside card */}
-              <div
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '16px',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    color: '#12263F',
-                  }}
-                >
-                  <img
-                    src="/assets/logo.png"
-                    alt="Dalely"
-                    style={{ width: '22px', height: '22px', borderRadius: '6px' }}
-                  />
-                  <span>{lang === 'ar' ? 'دليلى' : 'Dalely'}</span>
-                </div>
-
-                {/* Distance pill (Coral theme accent) */}
-                <div
-                  style={{
-                    backgroundColor: '#FF8A65',
-                    color: '#12263F',
-                    fontSize: '0.78rem',
-                    fontWeight: 800,
-                    padding: '4px 12px',
-                    borderRadius: '9999px',
-                    boxShadow: '0 2px 8px rgba(255, 138, 101, 0.3)',
-                  }}
-                >
-                  {t.hero.distancePill}
-                </div>
-              </div>
-
-              {/* Onboarding Image from onboarding_screen.dart */}
-              <div
-                style={{
-                  width: '100%',
-                  maxHeight: '260px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  margin: '8px 0 16px',
-                }}
-              >
-                <img
-                  src="/assets/onboarding_1.png"
-                  alt="Dalely Car Finder"
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: '250px',
-                    objectFit: 'contain',
-                    borderRadius: '16px',
-                  }}
-                />
-              </div>
-
-              {/* Bottom Friendly Note */}
-              <div
-                style={{
-                  width: '100%',
-                  backgroundColor: '#F3F9FF',
-                  borderRadius: '16px',
-                  padding: '10px 14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    color: '#0B6FBF',
-                  }}
-                >
-                  🚗 {t.hero.carParkedBadge}
-                </span>
-                <span
-                  style={{
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    color: '#5B738E',
-                  }}
-                >
-                  {lang === 'ar' ? 'محلياً على جهازك' : '100% on device'}
-                </span>
-              </div>
-            </div>
-          </div>
+          />
         </div>
       </div>
     </section>

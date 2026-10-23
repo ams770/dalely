@@ -41,7 +41,12 @@ class PrimaryBottomButton extends StatelessWidget {
         width: double.infinity,
         height: AppDimens.primaryButtonHeight,
         child: FilledButton(
-          onPressed: isLoading ? null : onPressed,
+          onPressed: isLoading || onPressed == null
+              ? null
+              : () {
+                  Feedback.forTap(context);
+                  onPressed!();
+                },
           style: FilledButton.styleFrom(
             backgroundColor: bg,
             foregroundColor: fg,
@@ -52,6 +57,16 @@ class PrimaryBottomButton extends StatelessWidget {
             ),
             elevation: 0,
             shadowColor: Colors.transparent,
+          ).copyWith(
+            overlayColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.pressed)) {
+                return fg.withAlpha(isDark ? 55 : 40);
+              }
+              if (states.contains(WidgetState.hovered)) {
+                return fg.withAlpha(isDark ? 30 : 20);
+              }
+              return null;
+            }),
           ),
           child: isLoading
               ? SizedBox(

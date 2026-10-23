@@ -189,6 +189,16 @@ abstract final class AppTheme {
           padding: const EdgeInsetsDirectional.symmetric(
             horizontal: AppDimens.space24,
           ),
+        ).copyWith(
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return colorScheme.onPrimary.withAlpha(isDark ? 60 : 45);
+            }
+            if (states.contains(WidgetState.hovered)) {
+              return colorScheme.onPrimary.withAlpha(isDark ? 35 : 22);
+            }
+            return null;
+          }),
         ),
       ),
 
@@ -206,6 +216,16 @@ abstract final class AppTheme {
             horizontal: AppDimens.space16,
             vertical: AppDimens.space8,
           ),
+        ).copyWith(
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return colorScheme.primary.withAlpha(isDark ? 50 : 35);
+            }
+            if (states.contains(WidgetState.hovered)) {
+              return colorScheme.primary.withAlpha(isDark ? 25 : 15);
+            }
+            return null;
+          }),
         ),
       ),
 
@@ -223,6 +243,16 @@ abstract final class AppTheme {
           shape: const RoundedRectangleBorder(
             borderRadius: AppDimens.borderRadiusSmall,
           ),
+        ).copyWith(
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return colorScheme.primary.withAlpha(isDark ? 45 : 30);
+            }
+            if (states.contains(WidgetState.hovered)) {
+              return colorScheme.primary.withAlpha(isDark ? 20 : 12);
+            }
+            return null;
+          }),
         ),
       ),
 
@@ -239,6 +269,16 @@ abstract final class AppTheme {
             borderRadius: AppDimens.borderRadiusMedium,
           ),
           elevation: 0,
+        ).copyWith(
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return colorScheme.onSurface.withAlpha(isDark ? 50 : 35);
+            }
+            if (states.contains(WidgetState.hovered)) {
+              return colorScheme.onSurface.withAlpha(isDark ? 25 : 15);
+            }
+            return null;
+          }),
         ),
       ),
 
