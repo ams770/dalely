@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShieldCheck, Heart, Mail, Phone, MessageCircle } from 'lucide-react';
 import type { TranslationContent } from '../data/translations';
-import { PLAY_STORE_URL, CONTACT_EMAIL, CONTACT_PHONE, WHATSAPP_URL } from '../data/translations';
+import { PLAY_STORE_URL, APP_STORE_URL, CONTACT_EMAIL, CONTACT_PHONE, WHATSAPP_URL } from '../data/translations';
 
 interface FooterProps {
   t: TranslationContent;
@@ -164,6 +164,22 @@ export const Footer: React.FC<FooterProps> = ({
             >
               <li>
                 <a
+                  href={APP_STORE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: 'var(--primary)',
+                    fontWeight: 700,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span>App Store</span>
+                </a>
+              </li>
+              <li>
+                <a
                   href={PLAY_STORE_URL}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -176,7 +192,6 @@ export const Footer: React.FC<FooterProps> = ({
                   }}
                 >
                   <span>Google Play</span>
-                  <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>(com.dalely.app)</span>
                 </a>
               </li>
               <li>
@@ -243,9 +258,6 @@ export const Footer: React.FC<FooterProps> = ({
                   <Phone size={15} color="var(--primary)" />
                   <span>{CONTACT_PHONE}</span>
                 </a>
-              </li>
-              <li style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
-                {t.footer.packageId}
               </li>
             </ul>
           </div>

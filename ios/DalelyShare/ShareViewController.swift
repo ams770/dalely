@@ -7,7 +7,7 @@ import ObjectiveC.runtime
 
 @objc(ShareViewController)
 class ShareViewController: UIViewController {
-    private let appGroupId = "group.com.dalely.app"
+    private let appGroupId = "group.ios.dalely.app"
     private let keyPendingAction = "pending_notification_action"
     private let keyPendingTime = "pending_notification_time"
     private let keyPendingData = "pending_notification_data"

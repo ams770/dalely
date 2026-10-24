@@ -7,7 +7,7 @@ import UIKit
 
   public static let methodChannelName = "feen/notification_actions"
   public static let eventChannelName = "feen/notification_actions/events"
-  public static let appGroupId = "group.com.dalely.app"
+  public static let appGroupId = "group.ios.dalely.app"
   public static let keyPendingAction = "pending_notification_action"
   public static let keyPendingTime = "pending_notification_time"
   public static let keyPendingData = "pending_notification_data"

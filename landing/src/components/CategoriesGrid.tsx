@@ -17,26 +17,21 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({ t }) => {
           <p className="section-subtitle">{t.categories.subtitle}</p>
         </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: '16px',
-          }}
-        >
+        <div className="categories-items-grid">
           {t.categories.items.map((cat, idx) => (
             <div
               key={idx}
               className="glass-card"
               style={{
-                padding: '18px 16px',
+                padding: '16px 14px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '14px',
-                borderRadius: '20px',
+                gap: '12px',
+                borderRadius: '18px',
                 backgroundColor: 'var(--bg-surface)',
                 border: '1px solid var(--border-light)',
-                transition: 'transform 0.2s ease, border-color 0.2s ease',
+                transition: 'transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
+                minWidth: 0,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px)';
@@ -49,14 +44,14 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({ t }) => {
             >
               <div
                 style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '14px',
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '12px',
                   backgroundColor: `${cat.color}15`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.4rem',
+                  fontSize: '1.3rem',
                   flexShrink: 0,
                   border: `1.5px solid ${cat.color}35`,
                 }}
@@ -64,12 +59,15 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({ t }) => {
                 {cat.icon}
               </div>
 
-              <div>
+              <div style={{ minWidth: 0, flex: 1 }}>
                 <div
                   style={{
-                    fontSize: '1rem',
+                    fontSize: '0.95rem',
                     fontWeight: 700,
                     color: 'var(--text-main)',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
                   }}
                 >
                   {cat.name}
@@ -82,3 +80,4 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({ t }) => {
     </section>
   );
 };
+

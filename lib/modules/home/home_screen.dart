@@ -301,7 +301,7 @@ class _DuoFoldedHomeLayout extends StatelessWidget {
 
           // Vertical action rail positioned on the outer edge (away from the center hinge)
           Positioned(
-            top: 168.0,
+            bottom: context.height / 2,
             left: isLeft ? 22.0 : null,
             right: isLeft ? null : 22.0,
             child: DuoActionRail(
@@ -365,12 +365,14 @@ class _BottomActionArea extends StatelessWidget {
         if (state.spots.isEmpty &&
             !context.isSplitLayout &&
             !context.isSmallScreen) {
-          return PrimaryBottomButton(
-            label: context.l10n.saveThisSpot,
-            icon: const Icon(Icons.add_rounded),
-            onPressed: () {
-              AdaptiveNavigation.openSaveSpot(context);
-            },
+          return SafeArea(
+            child: PrimaryBottomButton(
+              label: context.l10n.saveThisSpot,
+              icon: const Icon(Icons.add_rounded),
+              onPressed: () {
+                AdaptiveNavigation.openSaveSpot(context);
+              },
+            ),
           );
         }
 

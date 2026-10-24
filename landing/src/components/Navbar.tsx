@@ -264,48 +264,76 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           <button
             onClick={() => handleNavClick('how-it-works')}
+            className="mobile-nav-link"
             style={{
               textAlign: 'start',
-              padding: '10px 0',
+              padding: '12px 0',
               fontWeight: 600,
               fontSize: '1rem',
+              color: 'var(--text-main)',
               borderBottom: '1px solid var(--border-light)',
+              background: 'none',
+              cursor: 'pointer',
+              display: 'block',
+              width: '100%',
+              transition: 'color 0.2s ease',
             }}
           >
             {t.nav.howItWorks}
           </button>
           <button
             onClick={() => handleNavClick('features')}
+            className="mobile-nav-link"
             style={{
               textAlign: 'start',
-              padding: '10px 0',
+              padding: '12px 0',
               fontWeight: 600,
               fontSize: '1rem',
+              color: 'var(--text-main)',
               borderBottom: '1px solid var(--border-light)',
+              background: 'none',
+              cursor: 'pointer',
+              display: 'block',
+              width: '100%',
+              transition: 'color 0.2s ease',
             }}
           >
             {t.nav.features}
           </button>
           <button
             onClick={() => handleNavClick('categories')}
+            className="mobile-nav-link"
             style={{
               textAlign: 'start',
-              padding: '10px 0',
+              padding: '12px 0',
               fontWeight: 600,
               fontSize: '1rem',
+              color: 'var(--text-main)',
               borderBottom: '1px solid var(--border-light)',
+              background: 'none',
+              cursor: 'pointer',
+              display: 'block',
+              width: '100%',
+              transition: 'color 0.2s ease',
             }}
           >
             {t.nav.categories}
           </button>
           <button
             onClick={() => handleNavClick('faq')}
+            className="mobile-nav-link"
             style={{
               textAlign: 'start',
-              padding: '10px 0',
+              padding: '12px 0',
               fontWeight: 600,
               fontSize: '1rem',
+              color: 'var(--text-main)',
               borderBottom: '1px solid var(--border-light)',
+              background: 'none',
+              cursor: 'pointer',
+              display: 'block',
+              width: '100%',
+              transition: 'color 0.2s ease',
             }}
           >
             {t.nav.faq}
@@ -315,15 +343,20 @@ export const Navbar: React.FC<NavbarProps> = ({
               setMobileMenuOpen(false);
               onNavigatePrivacy();
             }}
+            className="mobile-nav-link"
             style={{
               textAlign: 'start',
-              padding: '10px 0',
+              padding: '12px 0',
               fontWeight: 600,
               fontSize: '1rem',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
               color: 'var(--primary)',
+              background: 'none',
+              cursor: 'pointer',
+              width: '100%',
+              transition: 'opacity 0.2s ease',
             }}
           >
             <ShieldCheck size={18} />

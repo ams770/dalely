@@ -67,6 +67,7 @@ export const GooglePlayButton: React.FC<GooglePlayButtonProps> = ({
 
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
         <span
+          className="store-btn-subtitle"
           style={{
             fontSize: isLarge ? '0.72rem' : '0.68rem',
             letterSpacing: '0.06em',
@@ -78,6 +79,7 @@ export const GooglePlayButton: React.FC<GooglePlayButtonProps> = ({
           {smallText}
         </span>
         <span
+          className="store-btn-title"
           style={{
             fontSize: isLarge ? '1.2rem' : '1.05rem',
             fontWeight: 800,

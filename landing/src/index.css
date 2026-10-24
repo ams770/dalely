@@ -102,6 +102,7 @@ button {
   border: none;
   background: none;
   outline: none;
+  color: inherit;
 }
 
 /* Button Variants */
@@ -191,9 +192,20 @@ button {
 }
 
 @keyframes pulse-ring {
-  0% { transform: scale(0.8); opacity: 0.8; }
-  50% { transform: scale(1.4); opacity: 0.2; }
-  100% { transform: scale(1.8); opacity: 0; }
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.4);
+    opacity: 0.2;
+  }
+
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
 }
 
 /* Section Header Styles */
@@ -233,8 +245,15 @@ button {
 
 /* Floating Animation */
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .animate-float {
@@ -267,12 +286,14 @@ button {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
-.google-play-btn:hover {
+.google-play-btn:hover,
+.app-store-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.25) !important;
 }
 
-.google-play-btn:active {
+.google-play-btn:active,
+.app-store-btn:active {
   transform: translateY(0);
 }
 
@@ -300,10 +321,432 @@ button {
   .section-title {
     font-size: 1.85rem;
   }
+
   .section-subtitle {
     font-size: 1rem;
   }
-  .btn-primary, .btn-secondary {
+
+  .btn-primary,
+  .btn-secondary {
     width: 100%;
+  }
+}
+
+/* ==========================================================================
+   Hero Section & Interactive Mobile Experience
+   ========================================================================== */
+
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  padding: 64px 0 80px;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.22) 0%, transparent 65%),
+    linear-gradient(160deg, #1A93EA 0%, #1279CE 50%, #0B62A8 100%);
+  color: #FFFFFF;
+  transition: background 0.3s ease;
+}
+
+
+
+.hero-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.hero-content-col {
+  max-width: 560px;
+}
+
+.hero-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.hero-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10B981;
+  box-shadow: 0 0 10px #10B981;
+}
+
+.hero-main-title {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin-bottom: 18px;
+  color: #FFFFFF;
+  text-wrap: balance;
+}
+
+.hero-main-subtitle {
+  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.6;
+  margin-bottom: 30px;
+  max-width: 490px;
+}
+
+.hero-cta-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.hero-trust-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-trust-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
+}
+
+/* ==========================================================================
+   Hero Preview Clean Card Styles
+   Simple, clean, friendly, attractive, zero confusing buttons
+   ========================================================================== */
+.hero-preview-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.hero-clean-glow {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(26, 147, 234, 0.22) 0%, rgba(255, 138, 101, 0.15) 50%, transparent 70%);
+  filter: blur(55px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme='dark'] .hero-clean-glow {
+  background: radial-gradient(circle, rgba(26, 147, 234, 0.28) 0%, rgba(255, 138, 101, 0.18) 50%, transparent 70%);
+}
+
+.hero-clean-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 28px;
+  padding: 20px 20px 18px;
+  box-shadow: var(--card-shadow), 0 20px 40px -15px rgba(26, 147, 234, 0.1);
+  backdrop-filter: blur(20px);
+  animation: heroCardFloat 5s ease-in-out infinite;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme='dark'] .hero-clean-card {
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+@keyframes heroCardFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.hero-clean-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.hero-clean-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-clean-pulse-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.75;
+  }
+}
+
+.hero-clean-title {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.hero-clean-distance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background: #E8F5E9;
+  color: #2E7D32;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+[data-theme='dark'] .hero-clean-distance {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34D399;
+}
+
+.hero-clean-compass {
+  animation: spinSlow 14s linear infinite;
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hero-clean-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle);
+  border-radius: 20px;
+  padding: 16px 12px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+}
+
+.hero-clean-car-img {
+  max-width: 100%;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+}
+
+.hero-clean-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 2px 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.hero-clean-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.hero-clean-pin-icon {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.hero-clean-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+/* ==========================================================================
+   Categories Grid Responsive Layout
+   Max items is 6, then next on smaller screens is 4, in all cases NO 5!
+   ========================================================================== */
+.categories-items-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1040px) {
+  .categories-items-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .categories-items-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+
+/* Mobile-Specific Refinements (< 900px) */
+@media (max-width: 899px) {
+  .hero-section {
+    padding: 28px 0 44px;
+  }
+
+  .hero-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .hero-content-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .hero-badge-pill {
+    margin-bottom: 14px;
+  }
+
+  .hero-main-title {
+    font-size: clamp(2rem, 7vw, 2.75rem);
+    margin-bottom: 12px;
+  }
+
+  .hero-main-subtitle {
+    margin-bottom: 20px;
+    font-size: 1rem;
+    padding: 0 8px;
+  }
+
+  .hero-cta-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto 16px;
+  }
+
+  .hero-cta-group .app-store-btn,
+  .hero-cta-group .google-play-btn {
+    width: 100% !important;
+    padding: 10px 8px !important;
+    gap: 8px !important;
+    justify-content: center !important;
+    border-radius: 14px !important;
+  }
+
+  .hero-cta-group .store-btn-subtitle {
+    font-size: 0.62rem !important;
+  }
+
+  .hero-cta-group .store-btn-title {
+    font-size: 0.92rem !important;
+  }
+
+  .hero-trust-chips {
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .hero-trust-chip {
+    font-size: 0.72rem;
+    padding: 4px 10px;
+  }
+
+  .hero-preview-wrapper {
+    margin-top: 10px;
+  }
+
+  .hero-clean-card {
+    text-align: start;
+    padding: 16px 14px 14px;
+    max-width: 360px;
+  }
+
+  .hero-clean-stage {
+    padding: 12px 8px;
+    margin-bottom: 12px;
+  }
+
+  .hero-clean-car-img {
+    max-height: 160px;
+  }
+
+  .mobile-nav-link {
+    color: var(--text-main) !important;
+  }
+
+  .mobile-nav-link:hover,
+  .mobile-nav-link:active {
+    color: var(--primary) !important;
+  }
+
+}
+
+@media (max-width: 400px) {
+  .hero-cta-group {
+    grid-template-columns: 1fr;
+    max-width: 280px;
   }
 }

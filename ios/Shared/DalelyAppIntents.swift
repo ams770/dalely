@@ -9,7 +9,7 @@ public struct ShowOnMapIntent: LiveActivityIntent {
   public init() {}
 
   public func perform() async throws -> some IntentResult {
-    let defaults = UserDefaults(suiteName: "group.com.dalely.app") ?? UserDefaults.standard
+    let defaults = UserDefaults(suiteName: "group.ios.dalely.app") ?? UserDefaults.standard
     defaults.set("SHOW_MAP", forKey: "pending_notification_action")
     defaults.set("car", forKey: "pending_notification_data")
     defaults.set(Int64(Date().timeIntervalSince1970 * 1000.0), forKey: "pending_notification_time")
@@ -26,7 +26,7 @@ public struct FoundCarIntent: LiveActivityIntent {
   public init() {}
 
   public func perform() async throws -> some IntentResult {
-    let defaults = UserDefaults(suiteName: "group.com.dalely.app") ?? UserDefaults.standard
+    let defaults = UserDefaults(suiteName: "group.ios.dalely.app") ?? UserDefaults.standard
     defaults.set("FOUND_CAR", forKey: "pending_notification_action")
     defaults.set(Int64(Date().timeIntervalSince1970 * 1000.0), forKey: "pending_notification_time")
     defaults.synchronize()

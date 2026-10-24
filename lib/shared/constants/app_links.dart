@@ -7,4 +7,6 @@ abstract final class AppLinks {
   static const String playStore =
       'https://play.google.com/store/apps/details?id=com.dalely.app';
   static const String playStoreMarket = 'market://details?id=com.dalely.app';
+  static const String appStore = 'https://apps.apple.com/app/id6826521702';
+  static const String appleAppId = '6826521702';
 }

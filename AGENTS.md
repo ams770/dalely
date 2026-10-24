@@ -304,13 +304,13 @@ Adding anything else → ask first, then add it to this list.
 | 5 | Maps API key | None needed (free CARTO vector styles) |
 | 6 | Place search | _Pending: native geocoder vs Google Places_ |
 | 7 | Widget "Park" | _Pending: open app briefly vs background save_ |
-| 8 | Bundle ID / App Group | _Pending (currently `com.dalely.app`)_ |
+| 8 | Bundle ID / App Group | Android: `com.dalely.app`; iOS Bundle ID: `ios.dalely.app`; iOS App Group: `group.ios.dalely.app` |
 | 9 | Favorite spot for widget | _Pending: in-app star vs widget config_ |
 | 10 | Edit / delete spots | _Pending: swipe-to-delete + rename on long-press_ |
 | 11 | Font | _Pending: Readex Pro proposed_ |
 | 12 | Parking notification | `flutter_local_notifications`: pinned/ongoing notification with live chronometer and distance to parked car |
 | 13 | App name localization | Android `values/strings.xml` ("Dalely") & `values-ar/strings.xml` ("دليلى"); iOS `en.lproj/InfoPlist.strings` & `ar.lproj/InfoPlist.strings` |
 | 14 | Car distance notification | Live Activity (ActivityKit / SwiftUI) on iOS; ongoing foreground service (`CarTrackingService`) on Android. Bridge via MethodChannel `feen/car_tracking` & EventChannel `feen/car_tracking/events`. |
-| 15 | Incoming location links & share sheet | Android intent-filters (`geo:`, Google Maps, Apple Maps, send intent) & iOS Share Extension (`DalelyShare`) + `geo:` scheme; App Group `group.com.dalely.app` persistence; parsed via `GeoUriParser` and routed to `saveSpot` (`SpotsMapScreen` in `addSpot` mode) with coordinates pinned and bottom panel active. |
+| 15 | Incoming location links & share sheet | Android intent-filters (`geo:`, Google Maps, Apple Maps, send intent) & iOS Share Extension (`DalelyShare`) + `geo:` scheme; App Group `group.ios.dalely.app` persistence; parsed via `GeoUriParser` and routed to `saveSpot` (`SpotsMapScreen` in `addSpot` mode) with coordinates pinned and bottom panel active. |
 | 16 | Android compass provider | Native `EventChannel("feen/compass")` (`CompassPlugin.kt`) supporting `TYPE_ROTATION_VECTOR`, `TYPE_GEOMAGNETIC_ROTATION_VECTOR` and fallback to accelerometer + magnetometer / orientation with Android 11+ display rotation compatibility; iOS uses `flutter_compass` CoreLocation heading. |
 

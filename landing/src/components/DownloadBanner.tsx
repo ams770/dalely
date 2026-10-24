@@ -1,6 +1,7 @@
 import React from 'react';
 import type { TranslationContent } from '../data/translations';
 import { GooglePlayButton } from './GooglePlayButton';
+import { AppStoreButton } from './AppStoreButton';
 
 interface DownloadBannerProps {
   t: TranslationContent;
@@ -100,32 +101,29 @@ export const DownloadBanner: React.FC<DownloadBannerProps> = ({ t }) => {
               {t.ctaBanner.subtitle}
             </p>
 
-            {/* Only Android Google Play button */}
+            {/* App Store & Google Play download buttons */}
             <div
               style={{
                 display: 'flex',
-                flexDirection: 'column',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
                 alignItems: 'center',
-                gap: '12px',
-                marginBottom: '20px',
+                gap: '16px',
+                marginBottom: '28px',
               }}
             >
+              <AppStoreButton
+                variant="light"
+                size="large"
+                smallText={t.hero.appStoreBtn}
+                largeText={t.hero.appStoreSub}
+              />
               <GooglePlayButton
                 variant="light"
                 size="large"
                 smallText={t.hero.googlePlayBtn}
                 largeText={t.hero.googlePlaySub}
               />
-
-              <div
-                style={{
-                  fontSize: '0.8rem',
-                  color: '#94A3B8',
-                  fontFamily: 'monospace',
-                }}
-              >
-                {t.ctaBanner.packageName}
-              </div>
             </div>
 
             {/* Note */}

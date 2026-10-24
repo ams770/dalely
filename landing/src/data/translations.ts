@@ -13,6 +13,8 @@ export interface TranslationContent {
     subtitle: string;
     googlePlayBtn: string;
     googlePlaySub: string;
+    appStoreBtn: string;
+    appStoreSub: string;
     packageName: string;
     readPrivacy: string;
     distancePill: string;
@@ -65,6 +67,7 @@ export interface TranslationContent {
     title: string;
     subtitle: string;
     googlePlayBtn: string;
+    appStoreBtn: string;
     packageName: string;
     note: string;
   };
@@ -90,6 +93,8 @@ export interface TranslationContent {
 }
 
 export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.dalely.app';
+export const APP_STORE_URL = 'https://apps.apple.com/app/id6826521702';
+export const APPLE_APP_ID = '6826521702';
 export const PACKAGE_NAME = 'com.dalely.app';
 export const CONTACT_EMAIL = 'salem.dev.77@gmail.com';
 export const CONTACT_PHONE = '+201123225592';
@@ -112,6 +117,8 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
         'Save your car and favourite spots in one tap. Local-only, private, and simple.',
       googlePlayBtn: 'GET IT ON',
       googlePlaySub: 'Google Play',
+      appStoreBtn: 'Download on the',
+      appStoreSub: 'App Store',
       packageName: 'com.dalely.app',
       readPrivacy: 'Privacy Policy',
       distancePill: '45 m away',
@@ -124,19 +131,21 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
         'Dalely is designed to do one thing exceptionally well: help you find your way back without friction.',
       steps: [
         {
-          id: 'step-1',
-          image: '/assets/onboarding_1.png',
-          title: 'Never forget where you parked',
-          body: 'Save your car with one tap, then open it in Maps when you are ready to walk back. No more wandering around the car park.',
-          highlight: '1-Tap Park',
-        },
-        {
           id: 'step-2',
           image: '/assets/onboarding_2.png',
           title: 'All your places, one spot',
           body: 'Your market, home, pharmacy and more live in one list and on one map. Share any spot, or all of them, with a map link anytime.',
           highlight: '1 Map for All',
         },
+
+        {
+          id: 'step-1',
+          image: '/assets/onboarding_1.png',
+          title: 'Never forget where you parked',
+          body: 'Save your car with one tap, then open it in Maps when you are ready to walk back. No more wandering around the car park.',
+          highlight: '1-Tap Park',
+        },
+
         {
           id: 'step-3',
           image: '/assets/onboarding_3.png',
@@ -219,9 +228,9 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
             'No. Dalely only accesses your location while you are actively using the app in the foreground, or optionally when tracking walking distance back to your parked car. The location stream pauses automatically in the background.',
         },
         {
-          question: 'How do I install the app on Android?',
+          question: 'Where can I download the app?',
           answer:
-            'You can download Dalely directly from Google Play under package name com.dalely.app.',
+            'You can download Dalely for iOS directly from the App Store and for Android from Google Play.',
         },
       ],
     },
@@ -229,10 +238,11 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
       badge: 'Available Now',
       title: 'Ready to find your car without stress?',
       subtitle:
-        'Download Dalely on Google Play today. Safe, fast, and completely private.',
-      googlePlayBtn: 'Get it on Google Play',
-      packageName: 'Package: com.dalely.app',
-      note: 'Compatible with Android phones, foldable devices & tablets.',
+        'Download Dalely on the App Store and Google Play today. Safe, fast, and completely private.',
+      googlePlayBtn: 'Google Play',
+      appStoreBtn: 'App Store',
+      packageName: '',
+      note: 'Compatible with iPhone, Android phones, foldable devices & tablets.',
     },
     footer: {
       tagline: 'Simple, friendly, and local-only spot & car finder.',
@@ -289,9 +299,9 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
           ],
         },
         {
-          heading: '6. Contact & Package Details',
+          heading: '6. Contact & Availability',
           content: [
-            'Dalely is published for Android under package name com.dalely.app.',
+            'Dalely is available on the App Store for iOS and Google Play for Android.',
             'If you have questions, feedback, or inquiries regarding this Privacy Policy or your data, you can reach the developer directly at salem.dev.77@gmail.com or by phone/WhatsApp at +201123225592.',
           ],
         },
@@ -314,6 +324,8 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
         'احفظ مكان سيارتك وأماكنك المفضلة بضغطة زر. خصوصية كاملة، وبجهازك بس.',
       googlePlayBtn: 'متوفر على',
       googlePlaySub: 'Google Play',
+      appStoreBtn: 'حمّله من',
+      appStoreSub: 'App Store',
       packageName: 'com.dalely.app',
       readPrivacy: 'سياسة الخصوصية',
       distancePill: 'على بُعد 45 متر',
@@ -421,9 +433,9 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
             'لا، يعمل تحديد الموقع فقط وأنت فاتح التطبيق لتحديد مكان وقوفك أو لمتابعة مسافة العودة للسيارة. يتوقف بث الموقع فور خروجك.',
         },
         {
-          question: 'كيف يمكنني تحميل التطبيق على أندرويد؟',
+          question: 'أين يمكنني تحميل التطبيق؟',
           answer:
-            'يمكنك تحميل التطبيق مباشرة من متجر Google Play تحت الحزمة الرسمية com.dalely.app.',
+            'يمكنك تحميل تطبيق دليلى لأجهزة iPhone مباشرة من متجر App Store، ولأجهزة أندرويد من متجر Google Play.',
         },
       ],
     },
@@ -431,10 +443,11 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
       badge: 'متوفر الآن',
       title: 'جاهز تحفظ مكان سيارتك بدون أي قلق؟',
       subtitle:
-        'حمّل تطبيق دليلى من متجر Google Play الآن. خفيف، سريع، وبخصوصية مطلقة.',
-      googlePlayBtn: 'تحميل من Google Play',
-      packageName: 'الحزمة: com.dalely.app',
-      note: 'متوافق مع هواتف أندرويد، الأجهزة القابلة للطي، والأجهزة اللوحية.',
+        'حمّل تطبيق دليلى من متجر App Store أو Google Play الآن. خفيف، سريع، وبخصوصية مطلقة.',
+      googlePlayBtn: 'Google Play',
+      appStoreBtn: 'App Store',
+      packageName: '',
+      note: 'متوافق مع أجهزة iPhone، وهواتف أندرويد، والأجهزة اللوحية.',
     },
     footer: {
       tagline: 'تطبيق لطيف، بسيط، وبخصوصية كاملة لحفظ مكان سيارتك وأماكنك.',
@@ -491,9 +504,9 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
           ],
         },
         {
-          heading: '٦. معلومات الحزمة والتواصل',
+          heading: '٦. التوفر ومعلومات التواصل',
           content: [
-            'التطبيق منشور رسمياً لنظام أندرويد تحت اسم الحزمة com.dalely.app.',
+            'التطبيق متاح رسمياً على متجر App Store لأجهزة iOS ومتجر Google Play لأجهزة أندرويد.',
             'لأي استفسارات أو ملاحظات بخصوص سياسة الخصوصية أو التطبيق، يمكنك التواصل مباشرة مع المطور عبر البريد الإلكتروني salem.dev.77@gmail.com أو عبر الهاتف / واتساب على الرقم 201123225592+.',
           ],
         },

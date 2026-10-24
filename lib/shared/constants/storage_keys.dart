@@ -9,8 +9,8 @@ abstract final class StorageKeys {
   /// Reserved id of the single car spot.
   static const String carId = 'car';
 
-  // Native widget bridge.
-  static const String appGroupId = 'group.com.dalely.app';
+  // Native widget bridge (iOS App Group).
+  static const String appGroupId = 'group.ios.dalely.app';
   static const String widgetCarLat = 'car_lat';
   static const String widgetCarLng = 'car_lng';
   static const String widgetCarSavedAt = 'car_saved_at';
