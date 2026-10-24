@@ -142,19 +142,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               {t.nav.features}
             </button>
-            <button
-              onClick={() => handleNavClick('categories')}
-              style={{
-                fontSize: '0.92rem',
-                fontWeight: 600,
-                color: 'var(--text-muted)',
-                transition: 'color 0.2s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--primary)')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
-            >
-              {t.nav.categories}
-            </button>
+    
             <button
               onClick={() => handleNavClick('faq')}
               style={{
@@ -300,25 +288,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             {t.nav.features}
           </button>
-          <button
-            onClick={() => handleNavClick('categories')}
-            className="mobile-nav-link"
-            style={{
-              textAlign: 'start',
-              padding: '12px 0',
-              fontWeight: 600,
-              fontSize: '1rem',
-              color: 'var(--text-main)',
-              borderBottom: '1px solid var(--border-light)',
-              background: 'none',
-              cursor: 'pointer',
-              display: 'block',
-              width: '100%',
-              transition: 'color 0.2s ease',
-            }}
-          >
-            {t.nav.categories}
-          </button>
+       
           <button
             onClick={() => handleNavClick('faq')}
             className="mobile-nav-link"

@@ -2,7 +2,6 @@ export interface TranslationContent {
   nav: {
     howItWorks: string;
     features: string;
-    categories: string;
     faq: string;
     privacyPolicy: string;
     getGooglePlay: string;
@@ -105,14 +104,13 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
     nav: {
       howItWorks: 'How it Works',
       features: 'Features',
-      categories: 'Categories',
       faq: 'FAQ',
       privacyPolicy: 'Privacy Policy',
       getGooglePlay: 'Google Play',
     },
     hero: {
       badge: '100% Local • Zero Accounts • No Tracking',
-      title: 'Never forget where you parked.',
+      title: 'Every spot, always found.',
       subtitle:
         'Save your car and favourite spots in one tap. Local-only, private, and simple.',
       googlePlayBtn: 'GET IT ON',
@@ -312,14 +310,13 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
     nav: {
       howItWorks: 'كيف يعمل؟',
       features: 'المميزات',
-      categories: 'التصنيفات',
       faq: 'الأسئلة الشائعة',
       privacyPolicy: 'سياسة الخصوصية',
       getGooglePlay: 'جوجل بلاي',
     },
     hero: {
       badge: 'بجهازك فقط • بدون حسابات • بدون تتبع',
-      title: 'ما راح تنسى وين وقفت سيارتك.',
+      title: 'كل مكان، تلاقيه دايمًا.',
       subtitle:
         'احفظ مكان سيارتك وأماكنك المفضلة بضغطة زر. خصوصية كاملة، وبجهازك بس.',
       googlePlayBtn: 'متوفر على',
@@ -337,6 +334,15 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
       subtitle:
         'تم تصميم دليلى ليؤدي غرضاً واحداً باحترافية: يرجعك لمكان سيارتك وأماكنك بدون أي تعقيد.',
       steps: [
+          {
+          id: 'step-2',
+          image: '/assets/onboarding_2.png',
+          title: 'كل أماكنك بمكان واحد',
+          body: 'البقالة، البيت، الصيدلية وكل مشاويرك بقائمة وخريطة وحدة. شارك أي موقع برابط بأي وقت.',
+          highlight: 'خريطة واحدة للكل',
+        },
+
+        
         {
           id: 'step-1',
           image: '/assets/onboarding_1.png',
@@ -344,13 +350,7 @@ export const translations: Record<'en' | 'ar', TranslationContent> = {
           body: 'احفظ مكان سيارتك بضغطة زر، وافتحها في الخرايط وقت ما ترجع. وداعاً للبحث واللف في المواقف.',
           highlight: 'ضغطة زر واحدة',
         },
-        {
-          id: 'step-2',
-          image: '/assets/onboarding_2.png',
-          title: 'كل أماكنك بمكان واحد',
-          body: 'البقالة، البيت، الصيدلية وكل مشاويرك بقائمة وخريطة وحدة. شارك أي موقع برابط بأي وقت.',
-          highlight: 'خريطة واحدة للكل',
-        },
+      
         {
           id: 'step-3',
           image: '/assets/onboarding_3.png',

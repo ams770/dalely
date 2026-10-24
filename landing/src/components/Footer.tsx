@@ -127,11 +127,7 @@ export const Footer: React.FC<FooterProps> = ({
                   {t.nav.features}
                 </a>
               </li>
-              <li>
-                <a href="#categories" style={{ transition: 'color 0.2s' }}>
-                  {t.nav.categories}
-                </a>
-              </li>
+             
               <li>
                 <a href="#faq" style={{ transition: 'color 0.2s' }}>
                   {t.nav.faq}
