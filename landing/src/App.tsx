@@ -4,7 +4,6 @@ import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { OnboardingFeatures } from './components/OnboardingFeatures';
 import { SpotActionsSection } from './components/SpotActionsSection';
-import { CategoriesGrid } from './components/CategoriesGrid';
 import { FaqSection } from './components/FaqSection';
 import { DownloadBanner } from './components/DownloadBanner';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
@@ -93,7 +92,7 @@ export function App() {
             <Hero t={t} lang={lang} />
             <OnboardingFeatures t={t} />
             <SpotActionsSection t={t} />
-            <CategoriesGrid t={t} />
+            {/* <CategoriesGrid t={t} /> */}
             <FaqSection t={t} />
             <DownloadBanner t={t} />
           </>

@@ -20,7 +20,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ t }) => {
       id="faq"
       style={{
         padding: '80px 0',
-        backgroundColor: 'var(--bg-surface)',
+        backgroundColor: 'var(--bg-main)',
         borderTop: '1px solid var(--border-light)',
       }}
     >
