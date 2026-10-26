@@ -9,9 +9,9 @@ import '../../shared/services/maps_launcher.dart';
 import '../../shared/theme/app_dimens.dart';
 import '../../shared/utils/adaptive_layout_ext.dart';
 import '../../shared/utils/context_ext.dart';
+import '../../shared/widgets/adaptive/adaptive_ui.dart';
 import '../../shared/widgets/circle_icon_button.dart';
 import '../../shared/widgets/settings_group.dart';
-import 'widgets/language_selector_sheet.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key, this.onClose});
@@ -36,7 +36,7 @@ class SettingsScreen extends StatelessWidget {
                 removeRight: true,
                 child: ListView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const .all(AppDimens.space16),
+                  padding: const EdgeInsetsDirectional.all(AppDimens.space16),
                   children: const [
                     _AppearanceSection(),
                     SizedBox(height: AppDimens.space24),
@@ -67,7 +67,7 @@ class _SettingsHeader extends StatelessWidget {
     final l10n = context.l10n;
 
     return Padding(
-      padding: const .fromSTEB(
+      padding: const EdgeInsetsDirectional.fromSTEB(
         AppDimens.space16,
         AppDimens.space16,
         AppDimens.space16,
@@ -79,6 +79,13 @@ class _SettingsHeader extends StatelessWidget {
             icon: const BackButtonIcon(),
             tooltip: l10n.backTooltip,
             onPressed: onClose ?? () => Navigator.of(context).pop(),
+          ),
+          const SizedBox(width: AppDimens.space12),
+          Text(
+            l10n.settingsTitle,
+            style: context.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
@@ -99,65 +106,83 @@ class _AppearanceSection extends StatelessWidget {
         return SettingsGroup(
           title: l10n.appearance,
           children: [
-            // Theme Mode Segmented Selector
+            // Theme Mode Adaptive Segmented Selector
             Padding(
-              padding: const .all(AppDimens.space16),
+              padding: const EdgeInsetsDirectional.all(AppDimens.space16),
               child: Column(
-                crossAxisAlignment: .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(l10n.theme, style: context.textTheme.titleMedium),
                   const SizedBox(height: AppDimens.space12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: SegmentedButton<ThemeMode>(
-                      segments: [
-                        ButtonSegment(
-                          value: ThemeMode.system,
-                          label: Text(l10n.themeSystem),
-                        ),
-                        ButtonSegment(
-                          value: ThemeMode.light,
-                          label: Text(l10n.themeLight),
-                        ),
-                        ButtonSegment(
-                          value: ThemeMode.dark,
-                          label: Text(l10n.themeDark),
-                        ),
-                      ],
-                      selected: {state.themeMode},
-                      onSelectionChanged: (newSelection) {
-                        cubit.setThemeMode(newSelection.first);
-                      },
-                    ),
+                  AdaptiveSegmentedControl(
+                    labels: [
+                      l10n.themeSystem,
+                      l10n.themeLight,
+                      l10n.themeDark,
+                    ],
+                    selectedIndex: switch (state.themeMode) {
+                      ThemeMode.system => 0,
+                      ThemeMode.light => 1,
+                      ThemeMode.dark => 2,
+                    },
+                    onValueChanged: (index) {
+                      final mode = switch (index) {
+                        0 => ThemeMode.system,
+                        1 => ThemeMode.light,
+                        2 => ThemeMode.dark,
+                        _ => ThemeMode.system,
+                      };
+                      cubit.setThemeMode(mode);
+                    },
+                    color: context.colorScheme.primary,
                   ),
                 ],
               ),
             ),
 
-            // Language Tile
-            SettingsTile(
-              leading: const Icon(Icons.language_rounded),
-              title: l10n.language,
-              trailing: Text(
-                _getLanguageDisplayName(context, state.localeCode),
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
+            // Language Adaptive Popup Menu Tile
+            AdaptivePopupMenuButton.widget<String?>(
+              items: [
+                AdaptivePopupMenuItem<String?>(
+                  label: l10n.languageSystem,
+                  value: null,
+                  selected: state.localeCode == null,
+                ),
+                AdaptivePopupMenuItem<String?>(
+                  label: l10n.languageArabic,
+                  value: 'ar',
+                  selected: state.localeCode == 'ar',
+                ),
+                AdaptivePopupMenuItem<String?>(
+                  label: l10n.languageArabicEg,
+                  value: 'ar_EG',
+                  selected: state.localeCode == 'ar_EG',
+                ),
+                AdaptivePopupMenuItem<String?>(
+                  label: l10n.languageArabicSa,
+                  value: 'ar_SA',
+                  selected: state.localeCode == 'ar_SA',
+                ),
+                AdaptivePopupMenuItem<String?>(
+                  label: l10n.languageEnglish,
+                  value: 'en',
+                  selected: state.localeCode == 'en',
+                ),
+              ],
+              onSelected: (index, item) {
+                cubit.setLocaleCode(item.value);
+              },
+              child: SettingsTile(
+                leading: const Icon(Icons.language_rounded),
+                title: l10n.language,
+                trailing: Text(
+                  _getLanguageDisplayName(context, state.localeCode),
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  showDragHandle: true,
-                  builder: (_) => LanguageSelectorSheet(
-                    selectedLocaleCode: state.localeCode,
-                    onLocaleSelected: (code) {
-                      cubit.setLocaleCode(code);
-                    },
-                  ),
-                );
-              },
             ),
           ],
         );
@@ -198,19 +223,17 @@ class _CarTrackingSection extends StatelessWidget {
         return SettingsGroup(
           title: l10n.carTrackingNotificationSettingTitle,
           children: [
-            SwitchListTile.adaptive(
-              secondary: const Icon(Icons.directions_walk_rounded),
-              title: Text(l10n.carTrackingNotificationSettingTitle),
-              subtitle: Text(
-                l10n.carTrackingNotificationSettingSubtitle,
-                style: context.textTheme.bodySmall?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
+            SettingsTile(
+              leading: const Icon(Icons.directions_walk_rounded),
+              title: l10n.carTrackingNotificationSettingTitle,
+              subtitle: l10n.carTrackingNotificationSettingSubtitle,
+              trailing: AdaptiveSwitch(
+                value: state.carDistanceNotificationEnabled,
+                activeColor: context.colorScheme.primary,
+                onChanged: (enabled) {
+                  cubit.setCarDistanceNotificationEnabled(enabled);
+                },
               ),
-              value: state.carDistanceNotificationEnabled,
-              onChanged: (enabled) {
-                cubit.setCarDistanceNotificationEnabled(enabled);
-              },
             ),
           ],
         );

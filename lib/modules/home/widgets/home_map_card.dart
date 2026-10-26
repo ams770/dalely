@@ -44,7 +44,9 @@ class HomeMapCard extends StatelessWidget {
           },
           borderRadius: AppDimens.borderRadiusLarge,
           hoverColor: colors.primary.withAlpha(context.isDarkMode ? 25 : 15),
-          highlightColor: colors.primary.withAlpha(context.isDarkMode ? 45 : 30),
+          highlightColor: colors.primary.withAlpha(
+            context.isDarkMode ? 45 : 30,
+          ),
           splashColor: colors.primary.withAlpha(context.isDarkMode ? 65 : 45),
           child: Padding(
             padding: const EdgeInsetsDirectional.all(AppDimens.space16),
@@ -82,6 +84,7 @@ class HomeMapCard extends StatelessWidget {
                   icon: Icons.explore_rounded,
                   backgroundColor: colors.primary.withAlpha(18),
                   foregroundColor: Colors.blueAccent,
+                  style: .tinted,
                   onPressed: () => AdaptiveNavigation.openMap(context),
                 ),
               ],

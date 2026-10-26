@@ -11,7 +11,7 @@ class SearchBarHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const .fromSTEB(
+      padding: const EdgeInsetsDirectional.fromSTEB(
         AppDimens.space16,
         AppDimens.space16,
         AppDimens.space16,

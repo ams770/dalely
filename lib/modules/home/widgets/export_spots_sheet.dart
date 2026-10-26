@@ -4,6 +4,7 @@ import '../../../shared/models/spot.dart';
 import '../../../shared/services/share_service.dart';
 import '../../../shared/theme/app_dimens.dart';
 import '../../../shared/utils/context_ext.dart';
+import '../../../shared/widgets/circle_icon_button.dart';
 
 /// Bottom sheet allowing users to export saved spots as an Excel spreadsheet (CSV)
 /// or formatted text list.
@@ -72,10 +73,12 @@ class ExportSpotsSheet extends StatelessWidget {
                   ),
                 ),
               ),
-              IconButton(
+              CircleIconButton(
                 onPressed: () => Navigator.of(context).pop(),
                 icon: const Icon(Icons.close_rounded),
                 tooltip: l10n.cancel,
+                size: 36,
+                iconSize: 20,
               ),
             ],
           ),

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../shared/theme/app_dimens.dart';
 import '../../../shared/utils/context_ext.dart';
+import '../../../shared/widgets/adaptive/adaptive_ui.dart';
 import '../cubit/onboarding_cubit.dart';
 import '../cubit/onboarding_state.dart';
 
@@ -34,19 +35,11 @@ class OnboardingTopBar extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
 
-                  return TextButton(
+                  return AdaptiveButton(
                     onPressed: cubit.completeWithoutLocation,
-                    style: TextButton.styleFrom(
-                      foregroundColor: context.colorScheme.primary,
-                      textStyle: context.textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                      padding: const EdgeInsetsDirectional.symmetric(
-                        horizontal: AppDimens.space12,
-                        vertical: AppDimens.space8,
-                      ),
-                    ),
-                    child: Text(l10n.onboardingSkip),
+                    style: AdaptiveButtonStyle.plain,
+                    textColor: context.colorScheme.primary,
+                    label: l10n.onboardingSkip,
                   );
                 },
               ),

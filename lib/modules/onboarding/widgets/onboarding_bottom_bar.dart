@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../shared/theme/app_dimens.dart';
 import '../../../shared/utils/context_ext.dart';
+import '../../../shared/widgets/adaptive/adaptive_ui.dart';
 import '../cubit/onboarding_cubit.dart';
 import '../cubit/onboarding_state.dart';
 import 'onboarding_page_indicator.dart';
@@ -45,62 +46,66 @@ class OnboardingBottomBar extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Allow Location Access Primary Button
-                      FilledButton(
-                        onPressed: state.isCompleting
-                            ? null
-                            : cubit.allowLocationAndComplete,
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size(
+                      SizedBox(
+                        width: double.infinity,
+                        height: AppDimens.primaryButtonHeight,
+                        child: AdaptiveButton.child(
+                          onPressed: state.isCompleting
+                              ? null
+                              : cubit.allowLocationAndComplete,
+                          style: AdaptiveButtonStyle.filled,
+                          color: theme.colorScheme.primary,
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(AppDimens.radiusLarge),
+                          ),
+                          minSize: const Size(
                             double.infinity,
                             AppDimens.primaryButtonHeight,
                           ),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: AppDimens.borderRadiusLarge,
-                          ),
-                        ),
-                        child: state.isCompleting
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.near_me_outlined,
-                                    size: AppDimens.iconMedium,
+                          child: state.isCompleting
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: Colors.white,
                                   ),
-                                  const SizedBox(width: AppDimens.space8),
-                                  Text(
-                                    l10n.onboardingAllowLocation,
-                                    style:
-                                        theme.textTheme.titleMedium?.copyWith(
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.near_me_outlined,
+                                      size: AppDimens.iconMedium,
                                       color: Colors.white,
-                                      fontWeight: FontWeight.w700,
                                     ),
-                                  ),
-                                ],
-                              ),
+                                    const SizedBox(width: AppDimens.space8),
+                                    Text(
+                                      l10n.onboardingAllowLocation,
+                                      style:
+                                          theme.textTheme.titleMedium?.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
                       ),
                       const SizedBox(height: AppDimens.space8),
 
                       // Not Now Secondary Button
-                      TextButton(
-                        onPressed: state.isCompleting
-                            ? null
-                            : cubit.completeWithoutLocation,
-                        style: TextButton.styleFrom(
-                          foregroundColor: theme.colorScheme.onSurfaceVariant,
-                          textStyle: theme.textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                          minimumSize: const Size(double.infinity, 44),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 44,
+                        child: AdaptiveButton(
+                          onPressed: state.isCompleting
+                              ? null
+                              : cubit.completeWithoutLocation,
+                          style: AdaptiveButtonStyle.plain,
+                          textColor: theme.colorScheme.onSurfaceVariant,
+                          label: l10n.onboardingNotNow,
                         ),
-                        child: Text(l10n.onboardingNotNow),
                       ),
                     ],
                   );
@@ -111,23 +116,22 @@ class OnboardingBottomBar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Next Button
-                    FilledButton(
-                      onPressed: cubit.nextPage,
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size(
+                    SizedBox(
+                      width: double.infinity,
+                      height: AppDimens.primaryButtonHeight,
+                      child: AdaptiveButton(
+                        onPressed: cubit.nextPage,
+                        style: AdaptiveButtonStyle.filled,
+                        color: theme.colorScheme.primary,
+                        textColor: Colors.white,
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(AppDimens.radiusLarge),
+                        ),
+                        minSize: const Size(
                           double.infinity,
                           AppDimens.primaryButtonHeight,
                         ),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: AppDimens.borderRadiusLarge,
-                        ),
-                      ),
-                      child: Text(
-                        l10n.onboardingNext,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        label: l10n.onboardingNext,
                       ),
                     ),
                     const SizedBox(height: AppDimens.space8),

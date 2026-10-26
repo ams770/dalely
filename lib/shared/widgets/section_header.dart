@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_dimens.dart';
 import '../utils/context_ext.dart';
+import 'adaptive/adaptive_ui.dart';
 
 /// Section title with an optional trailing action (e.g., "Share all").
 class SectionHeader extends StatelessWidget {
@@ -41,15 +42,15 @@ class SectionHeader extends StatelessWidget {
           trailing!,
         ]
         else if (actionLabel != null && onAction != null)
-          TextButton(
+          AdaptiveButton.child(
             onPressed: onAction,
-            style: TextButton.styleFrom(
-              padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: AppDimens.space8,
-                vertical: AppDimens.space4,
-              ),
-              minimumSize: const Size(0, 36),
+            style: AdaptiveButtonStyle.plain,
+            color: context.colorScheme.primary,
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: AppDimens.space8,
+              vertical: AppDimens.space4,
             ),
+            minSize: const Size(0, 36),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -71,3 +72,4 @@ class SectionHeader extends StatelessWidget {
     );
   }
 }
+

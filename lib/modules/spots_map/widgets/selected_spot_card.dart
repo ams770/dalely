@@ -14,6 +14,7 @@ import '../../../shared/utils/app_snack_bar.dart';
 import '../../../shared/utils/car_tracking_calculator.dart';
 import '../../../shared/utils/context_ext.dart';
 import '../../../shared/widgets/category_badge.dart';
+import '../../../shared/widgets/circle_icon_button.dart';
 import '../../../shared/widgets/info_pill.dart';
 import '../../../shared/widgets/spot_actions_row.dart';
 
@@ -65,13 +66,11 @@ class SelectedSpotCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                IconButton(
+                CircleIconButton(
                   icon: const Icon(Icons.close_rounded),
                   onPressed: onClose,
-                  style: IconButton.styleFrom(
-                    minimumSize: const Size(32, 32),
-                    padding: EdgeInsets.zero,
-                  ),
+                  size: 32,
+                  iconSize: 18,
                 ),
               ],
             ),

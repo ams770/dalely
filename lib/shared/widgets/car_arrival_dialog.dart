@@ -4,6 +4,7 @@ import '../constants/app_assets.dart';
 import '../theme/app_dimens.dart';
 import '../utils/adaptive_layout_ext.dart';
 import '../utils/context_ext.dart';
+import 'adaptive/adaptive_ui.dart';
 
 /// Arrival page/dialog presented when the user is in front of their parked car.
 ///
@@ -219,26 +220,31 @@ class _ActionButtons extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           height: AppDimens.primaryButtonHeight,
-          child: FilledButton.icon(
+          child: AdaptiveButton.child(
             onPressed: () {
               Navigator.of(context).pop();
               onFoundCar();
             },
-            icon: const Icon(Icons.check_circle_rounded),
-            label: Text(
-              l10n.foundMyCar,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onPrimary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            style: FilledButton.styleFrom(
-              backgroundColor: colorScheme.primary,
-              foregroundColor: colorScheme.onPrimary,
-              elevation: 0,
-              shape: const RoundedRectangleBorder(
-                borderRadius: AppDimens.borderRadiusLarge,
-              ),
+            style: AdaptiveButtonStyle.filled,
+            padding: const EdgeInsets.symmetric(horizontal: AppDimens.space8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle_rounded),
+                const SizedBox(width: AppDimens.space8),
+                Flexible(
+                  child: Text(
+                    l10n.foundMyCar,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: colorScheme.onPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -248,25 +254,31 @@ class _ActionButtons extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           height: AppDimens.primaryButtonHeight,
-          child: OutlinedButton.icon(
+          child: AdaptiveButton.child(
             onPressed: () {
               Navigator.of(context).pop();
               onCantSeeCar();
             },
-            icon: Icon(Icons.map_rounded, color: colorScheme.primary),
-            label: Text(
-              l10n.cantSeeCar,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: colorScheme.onSurface,
-              side: BorderSide(color: colorScheme.outline, width: 1.5),
-              shape: const RoundedRectangleBorder(
-                borderRadius: AppDimens.borderRadiusLarge,
-              ),
+            style: AdaptiveButtonStyle.bordered,
+            padding: const EdgeInsets.symmetric(horizontal: AppDimens.space8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.map_rounded, color: colorScheme.primary),
+                const SizedBox(width: AppDimens.space8),
+                Flexible(
+                  child: Text(
+                    l10n.cantSeeCar,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: colorScheme.onSurface,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

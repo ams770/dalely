@@ -13,6 +13,7 @@ import '../../shared/utils/adaptive_navigation.dart';
 import '../../shared/utils/app_snack_bar.dart';
 import '../../shared/utils/context_ext.dart';
 import '../../shared/utils/duration_formatter.dart';
+import '../../shared/widgets/adaptive/adaptive_ui.dart';
 import '../../shared/widgets/circle_icon_button.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/info_pill.dart';
@@ -117,29 +118,24 @@ class _HistoryHeader extends StatelessWidget {
     final l10n = context.l10n;
     final spotsCubit = context.read<SpotsCubit>();
 
-    showDialog<bool>(
+    AdaptiveAlertDialog.show(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.clearHistory),
-        content: Text(l10n.clearHistoryConfirm),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop(true);
-              spotsCubit.clearParkingHistory();
-             
-            },
-            style: TextButton.styleFrom(
-              foregroundColor: context.colorScheme.error,
-            ),
-            child: Text(l10n.clearHistory),
-          ),
-        ],
-      ),
+      title: l10n.clearHistory,
+      message: l10n.clearHistoryConfirm,
+      actions: [
+        AlertAction(
+          title: l10n.cancel,
+          onPressed: () {},
+          style: AlertActionStyle.cancel,
+        ),
+        AlertAction(
+          title: l10n.clearHistory,
+          onPressed: () {
+            spotsCubit.clearParkingHistory();
+          },
+          style: AlertActionStyle.destructive,
+        ),
+      ],
     );
   }
 }
@@ -347,35 +343,32 @@ class _ActionPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: theme.outlinedButtonTheme.style?.copyWith(
-        padding: const WidgetStatePropertyAll(
-          EdgeInsetsDirectional.symmetric(
-            horizontal: AppDimens.space8,
-            vertical: AppDimens.space8,
-          ),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16),
-          const SizedBox(width: AppDimens.space6),
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.textTheme.labelMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+    return SizedBox(
+      height: 36,
+      child: AdaptiveButton.child(
+        onPressed: onPressed,
+        style: AdaptiveButtonStyle.bordered,
+        borderRadius: BorderRadius.circular(AppDimens.radiusSmall),
+        padding: const EdgeInsets.symmetric(horizontal: AppDimens.space8),
+        minSize: const Size(0, 36),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16),
+            const SizedBox(width: AppDimens.space6),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -84,16 +84,12 @@ class PlaceSearchField extends StatelessWidget {
                           );
                         }
                         if (state.searchQuery.isNotEmpty) {
-                          return IconButton(
+                          return CircleIconButton(
                             icon: const Icon(Icons.close_rounded),
                             iconSize: AppDimens.iconSmall,
                             tooltip: context.l10n.clearSearch,
                             onPressed: cubit.clearSearch,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
-                            ),
+                            size: 32,
                           );
                         }
                         return const SizedBox.shrink();

@@ -242,6 +242,7 @@ class _ActiveCarContent extends StatelessWidget {
               children: [
                 Expanded(
                   child: PillButton(
+                    style: .tinted,
                     label: l10n.openMap,
                     icon: Icons.navigation_rounded,
                     backgroundColor: primary,
@@ -251,6 +252,7 @@ class _ActiveCarContent extends StatelessWidget {
                 ),
                 Expanded(
                   child: PillButton(
+                    style: .tinted,
                     label: ' ${l10n.foundMyCar}  ',
                     icon: Icons.check_circle_outline_rounded,
                     backgroundColor: AppColors.greenLight,
@@ -285,6 +287,7 @@ class _ActiveCarContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 PillButton(
+                  style: .tinted,
                   label: l10n.openMap,
                   icon: Icons.navigation_rounded,
                   backgroundColor: primary,
@@ -293,6 +296,7 @@ class _ActiveCarContent extends StatelessWidget {
                 ),
                 const SizedBox(height: AppDimens.space6),
                 PillButton(
+                  style: .tinted,
                   label: ' ${l10n.foundMyCar}  ',
                   icon: Icons.check_circle_outline_rounded,
                   backgroundColor: AppColors.greenLight,
@@ -463,6 +467,7 @@ class _EmptyCarContent extends StatelessWidget {
               const Spacer(),
 
               PillButton(
+                style: .tinted,
                 label: l10n.parkHere,
                 icon: Icons.local_parking_rounded,
                 backgroundColor: colors.primary.withAlpha(18),
@@ -530,6 +535,7 @@ class _EmptyCarContent extends StatelessWidget {
             icon: Icons.local_parking_rounded,
             backgroundColor: colors.primary.withAlpha(18),
             foregroundColor: colors.primary,
+            style: .tinted,
             onPressed: onPark,
           ),
         ],

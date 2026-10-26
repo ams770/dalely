@@ -6,6 +6,7 @@ import '../cubits/location/location_state.dart';
 import '../models/location_access.dart';
 import '../theme/app_dimens.dart';
 import '../utils/context_ext.dart';
+import 'adaptive/adaptive_ui.dart';
 
 /// A friendly banner displayed when location access is denied or service is disabled.
 class LocationPermissionBanner extends StatelessWidget {
@@ -73,7 +74,11 @@ class LocationPermissionBanner extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: AppDimens.space8),
-                  FilledButton.tonal(
+                  AdaptiveButton(
+                    label: actionLabel,
+                    style: AdaptiveButtonStyle.tinted,
+                    size: AdaptiveButtonSize.small,
+                    minSize: const Size(0, 36),
                     onPressed: () {
                       final cubit = context.read<LocationCubit>();
                       if (isServiceOff) {
@@ -84,16 +89,6 @@ class LocationPermissionBanner extends StatelessWidget {
                         cubit.requestPermission();
                       }
                     },
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(0, 36),
-                      padding: const EdgeInsetsDirectional.symmetric(
-                        horizontal: AppDimens.space12,
-                      ),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: AppDimens.borderRadiusSmall,
-                      ),
-                    ),
-                    child: Text(actionLabel),
                   ),
                 ],  
               ),

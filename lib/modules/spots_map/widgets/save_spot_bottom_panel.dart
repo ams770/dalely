@@ -6,6 +6,7 @@ import '../../../shared/models/spot.dart';
 import '../../../shared/theme/app_dimens.dart';
 import '../../../shared/utils/context_ext.dart';
 import '../../../shared/widgets/category_chips.dart';
+import '../../../shared/widgets/circle_icon_button.dart';
 import '../../../shared/widgets/primary_bottom_button.dart';
 import '../cubit/spots_map_cubit.dart';
 import '../cubit/spots_map_state.dart';
@@ -75,14 +76,12 @@ class SaveSpotBottomPanel extends StatelessWidget {
                       );
                     },
                   ),
-                  IconButton(
+                  CircleIconButton(
                     icon: const Icon(Icons.close_rounded),
                     tooltip: l10n.cancel,
                     onPressed: onClose ?? cubit.exitAddSpotMode,
-                    style: IconButton.styleFrom(
-                      minimumSize: const Size(36, 36),
-                      padding: EdgeInsets.zero,
-                    ),
+                    size: 36,
+                    iconSize: 20,
                   ),
                 ],
               ),

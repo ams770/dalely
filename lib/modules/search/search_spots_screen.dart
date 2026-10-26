@@ -7,6 +7,7 @@ import '../../shared/theme/app_dimens.dart';
 import '../../shared/utils/adaptive_layout_ext.dart';
 import '../../shared/utils/context_ext.dart';
 import '../../shared/widgets/category_chips.dart';
+import '../../shared/widgets/circle_icon_button.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/spot_card.dart';
 import 'cubit/search_spots_cubit.dart';
@@ -104,10 +105,12 @@ class _CategoryFilterRow extends StatelessWidget {
                                 selector: (state) => state.query.isNotEmpty,
                                 builder: (context, hasQuery) {
                                   if (!hasQuery) return const SizedBox.shrink();
-                                  return IconButton(
+                                  return CircleIconButton(
                                     icon: const Icon(Icons.close_rounded),
                                     tooltip: context.l10n.clearSearch,
                                     onPressed: cubit.clearQuery,
+                                    size: 36,
+                                    iconSize: 18,
                                   );
                                 },
                               ),

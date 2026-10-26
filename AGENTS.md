@@ -263,7 +263,7 @@ Nullable fields in `copyWith` that must be clearable use a `ValueGetter<T?>?` pa
 
 ## 13. Packages
 
-Approved: `flutter_bloc`, `hive_ce`, `hive_ce_flutter`, `maplibre_gl`, `geolocator`, `flutter_compass`, `url_launcher`, `share_plus`, `home_widget`, `package_info_plus`, `in_app_review`, `flutter_localizations`, `intl`, `flutter_local_notifications`, `flutter_launcher_icons`, `flutter_native_splash`, `lottie`, place-search package per decisions log.
+Approved: `flutter_bloc`, `hive_ce`, `hive_ce_flutter`, `maplibre_gl`, `geolocator`, `flutter_compass`, `url_launcher`, `share_plus`, `home_widget`, `package_info_plus`, `in_app_review`, `flutter_localizations`, `intl`, `flutter_local_notifications`, `flutter_launcher_icons`, `flutter_native_splash`, `lottie`, place-search package per decisions log, `adaptive_platform_ui` (adaptive native UI layer — iOS 26+ Liquid Glass, iOS Cupertino, Android Material 3).
 
 Not allowed: `google_maps_flutter`, `freezed`, `equatable`, `get_it`, `provider` (directly), `riverpod`, `getx`, `go_router` (plain `onGenerateRoute` is used), `flutter_map`, `google_fonts` (fonts are bundled), any backend/analytics SDK.
 

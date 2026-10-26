@@ -1,9 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/app_dimens.dart';
 import '../utils/context_ext.dart';
+import 'adaptive/adaptive_ui.dart';
 
 /// A primary action button placed in the thumb zone (bottom) with safe-area padding.
+/// Adapts across platforms using CupertinoButton on iOS and FilledButton on Android.
 class PrimaryBottomButton extends StatelessWidget {
   const PrimaryBottomButton({
     super.key,
@@ -25,82 +29,82 @@ class PrimaryBottomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colorScheme;
-    final isDark = context.isDarkMode;
     final bg = backgroundColor ?? colors.primary;
     final fg = foregroundColor ?? colors.onPrimary;
     final isEnabled = onPressed != null && !isLoading;
 
-    // Friendly soft tinted disabled colors matching brand identity
-    final disabledBg = isDark ? bg.withAlpha(45) : bg.withAlpha(35);
-    final disabledFg = isDark ? Colors.white.withAlpha(90) : bg.withAlpha(120);
-    final currentFg = isEnabled ? fg : disabledFg;
+    final content = isLoading
+        ? SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              valueColor: AlwaysStoppedAnimation<Color>(fg),
+            ),
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (icon != null) ...[
+                IconTheme(
+                  data: IconThemeData(
+                    color: fg,
+                    size: AppDimens.iconSmall,
+                  ),
+                  child: icon!,
+                ),
+                const SizedBox(width: AppDimens.space8),
+              ],
+              Text(
+                label,
+                style: context.textTheme.titleMedium?.copyWith(
+                  color: fg,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          );
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppDimens.space16),
       child: SizedBox(
         width: double.infinity,
         height: AppDimens.primaryButtonHeight,
-        child: FilledButton(
-          onPressed: isLoading || onPressed == null
-              ? null
-              : () {
-                  Feedback.forTap(context);
-                  onPressed!();
-                },
-          style: FilledButton.styleFrom(
-            backgroundColor: bg,
-            foregroundColor: fg,
-            disabledBackgroundColor: disabledBg,
-            disabledForegroundColor: disabledFg,
-            shape: const RoundedRectangleBorder(
-              borderRadius: AppDimens.borderRadiusLarge,
-            ),
-            elevation: 0,
-            shadowColor: Colors.transparent,
-          ).copyWith(
-            overlayColor: WidgetStateProperty.resolveWith((states) {
-              if (states.contains(WidgetState.pressed)) {
-                return fg.withAlpha(isDark ? 55 : 40);
-              }
-              if (states.contains(WidgetState.hovered)) {
-                return fg.withAlpha(isDark ? 30 : 20);
-              }
-              return null;
-            }),
-          ),
-          child: isLoading
-              ? SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    valueColor: AlwaysStoppedAnimation<Color>(fg),
-                  ),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (icon != null) ...[
-                      IconTheme(
-                        data: IconThemeData(
-                          color: currentFg,
-                          size: AppDimens.iconSmall,
-                        ),
-                        child: icon!,
-                      ),
-                      const SizedBox(width: AppDimens.space8),
-                    ],
-                    Text(
-                      label,
-                      style: context.textTheme.titleMedium?.copyWith(
-                        color: currentFg,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+        child: PlatformInfo.isIOS
+            ? CupertinoButton(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(
+                  double.infinity,
+                  AppDimens.primaryButtonHeight,
                 ),
-        ),
+                color: bg,
+                disabledColor: bg.withAlpha(100),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(AppDimens.radiusLarge),
+                ),
+                onPressed: isEnabled
+                    ? () {
+                        HapticFeedback.lightImpact();
+                        onPressed!();
+                      }
+                    : null,
+                child: content,
+              )
+            : FilledButton(
+                onPressed: isEnabled ? onPressed : null,
+                style: FilledButton.styleFrom(
+                  backgroundColor: bg,
+                  foregroundColor: fg,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(AppDimens.radiusLarge),
+                    ),
+                  ),
+                ),
+                child: content,
+              ),
       ),
     );
   }
 }
+

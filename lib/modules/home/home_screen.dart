@@ -15,6 +15,7 @@ import '../../shared/utils/adaptive_layout_ext.dart';
 import '../../shared/utils/adaptive_navigation.dart';
 import '../../shared/utils/app_snack_bar.dart';
 import '../../shared/utils/context_ext.dart';
+import '../../shared/widgets/adaptive/adaptive_ui.dart';
 import '../../shared/widgets/car_proximity_listener.dart';
 import '../../shared/widgets/circle_icon_button.dart';
 import '../../shared/widgets/duo_action_rail.dart';
@@ -301,7 +302,7 @@ class _DuoFoldedHomeLayout extends StatelessWidget {
 
           // Vertical action rail positioned on the outer edge (away from the center hinge)
           Positioned(
-            bottom: context.height / 2,
+            top: context.height / 4,
             left: isLeft ? 22.0 : null,
             right: isLeft ? null : 22.0,
             child: DuoActionRail(
@@ -429,91 +430,41 @@ class _SortSpotsButton extends StatelessWidget {
       (c) => c.state.sortOrder,
     );
 
-    return CircleIconButton(
-      icon: const Icon(Icons.sort_rounded),
-      tooltip: l10n.sortBy,
-      onPressed: () async {
-        final box = context.findRenderObject() as RenderBox?;
-        final origin = (box != null && box.hasSize)
-            ? box.localToGlobal(Offset.zero) & box.size
-            : Rect.zero;
-
-        final selected = await showMenu<SpotSortOrder>(
-          context: context,
-          position: RelativeRect.fromLTRB(
-            origin.left,
-            origin.bottom + 8,
-            origin.right,
-            origin.bottom + 8,
-          ),
-          items: [
-            PopupMenuItem(
-              value: SpotSortOrder.dateDesc,
-              child: _SortMenuItem(
-                label: l10n.sortByDateDesc,
-                isSelected: currentOrder == SpotSortOrder.dateDesc,
-              ),
-            ),
-            PopupMenuItem(
-              value: SpotSortOrder.nearest,
-              child: _SortMenuItem(
-                label: l10n.sortByNearest,
-                isSelected: currentOrder == SpotSortOrder.nearest,
-              ),
-            ),
-            PopupMenuItem(
-              value: SpotSortOrder.category,
-              child: _SortMenuItem(
-                label: l10n.sortByCategory,
-                isSelected: currentOrder == SpotSortOrder.category,
-              ),
-            ),
-            PopupMenuItem(
-              value: SpotSortOrder.name,
-              child: _SortMenuItem(
-                label: l10n.sortByName,
-                isSelected: currentOrder == SpotSortOrder.name,
-              ),
-            ),
-          ],
-        );
-
-        if (selected != null && context.mounted) {
-          context.read<SpotsCubit>().setSortOrder(selected);
+    return AdaptivePopupMenuButton.widget<SpotSortOrder>(
+      items: [
+        AdaptivePopupMenuItem<SpotSortOrder>(
+          label: l10n.sortByDateDesc,
+          value: SpotSortOrder.dateDesc,
+          selected: currentOrder == SpotSortOrder.dateDesc,
+        ),
+        AdaptivePopupMenuItem<SpotSortOrder>(
+          label: l10n.sortByNearest,
+          value: SpotSortOrder.nearest,
+          selected: currentOrder == SpotSortOrder.nearest,
+        ),
+        AdaptivePopupMenuItem<SpotSortOrder>(
+          label: l10n.sortByCategory,
+          value: SpotSortOrder.category,
+          selected: currentOrder == SpotSortOrder.category,
+        ),
+        AdaptivePopupMenuItem<SpotSortOrder>(
+          label: l10n.sortByName,
+          value: SpotSortOrder.name,
+          selected: currentOrder == SpotSortOrder.name,
+        ),
+      ],
+      onSelected: (index, item) {
+        if (item.value != null) {
+          context.read<SpotsCubit>().setSortOrder(item.value!);
         }
       },
-    );
-  }
-}
-
-class _SortMenuItem extends StatelessWidget {
-  const _SortMenuItem({required this.label, required this.isSelected});
-
-  final String label;
-  final bool isSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.theme;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            color: isSelected
-                ? theme.colorScheme.primary
-                : theme.colorScheme.onSurface,
-          ),
+      child: IgnorePointer(
+        child: CircleIconButton(
+          icon: const Icon(Icons.sort_rounded),
+          tooltip: l10n.sortBy,
+          onPressed: null,
         ),
-        if (isSelected)
-          Icon(
-            Icons.check_rounded,
-            size: AppDimens.iconMedium,
-            color: theme.colorScheme.primary,
-          ),
-      ],
+      ),
     );
   }
 }

@@ -1,11 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:flutter/services.dart';
+
 import '../models/spot.dart';
 import '../services/maps_launcher.dart';
 import '../services/share_service.dart';
 import '../theme/app_dimens.dart';
 import '../utils/context_ext.dart';
+import 'adaptive/adaptive_ui.dart';
 
 /// The standard 2 actions available for every spot:
 /// - "Open in Maps"
@@ -91,49 +94,68 @@ class _ActionPillButton extends StatelessWidget {
     final colorScheme = context.colorScheme;
     final bg = isPrimary ? colorScheme.primary : context.tokens.pillBackground;
     final fg = isPrimary ? colorScheme.onPrimary : colorScheme.onSurface;
-    final isDark = context.isDarkMode;
 
-    return Material(
-      color: bg,
-      borderRadius: AppDimens.borderRadiusMedium,
-      child: InkWell(
-        onTap: onPressed == null
-            ? null
-            : () {
-                Feedback.forTap(context);
-                onPressed!();
-              },
-        borderRadius: AppDimens.borderRadiusMedium,
-        hoverColor: fg.withAlpha(isDark ? 35 : 20),
-        highlightColor: fg.withAlpha(isDark ? 65 : 40),
-        splashColor: fg.withAlpha(isDark ? 85 : 60),
-        child: Container(
-          height: 38,
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppDimens.space8,
+    final content = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: AppDimens.iconSmall, color: fg),
+        const SizedBox(width: AppDimens.space4),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.labelMedium?.copyWith(
+              color: fg,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: AppDimens.iconSmall, color: fg),
-              const SizedBox(width: AppDimens.space4),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textTheme.labelMedium?.copyWith(
-                    color: fg,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+        ),
+      ],
+    );
+
+    if (PlatformInfo.isIOS) {
+      return SizedBox(
+        height: 38,
+        child: CupertinoButton(
+          padding: EdgeInsets.zero,
+          minimumSize: const Size(0, 38),
+          onPressed: onPressed == null
+              ? null
+              : () {
+                  HapticFeedback.lightImpact();
+                  onPressed!();
+                },
+          child: Container(
+            height: 38,
+            padding: const EdgeInsets.symmetric(horizontal: AppDimens.space8),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: AppDimens.borderRadiusMedium,
+            ),
+            alignment: Alignment.center,
+            child: content,
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 38,
+      child: Material(
+        color: bg,
+        borderRadius: AppDimens.borderRadiusMedium,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: AppDimens.borderRadiusMedium,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppDimens.space8),
+            child: Center(child: content),
           ),
         ),
       ),
     );
   }
 }
+
