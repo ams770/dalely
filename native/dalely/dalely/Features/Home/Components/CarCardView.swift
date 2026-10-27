@@ -15,7 +15,7 @@ struct CarCardView: View {
         .frame(maxWidth: .infinity)
         .appCardStyle(
             cornerRadius: AppDimens.radiusLarge,
-            borderColor: env.car != nil ? env.palette.car.opacity(0.35) : nil
+            borderColor: env.car != nil ? env.palette.primary.opacity(0.65) : nil
         )
     }
 

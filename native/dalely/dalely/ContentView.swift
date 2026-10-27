@@ -13,6 +13,8 @@ struct ContentView: View {
                 if !env.settings.hasCompletedOnboarding {
                     OnboardingView()
                         .transition(.opacity)
+                } else if isWide {
+                    HomeView()
                 } else {
                     NavigationStack(path: $env.path) {
                         HomeView()

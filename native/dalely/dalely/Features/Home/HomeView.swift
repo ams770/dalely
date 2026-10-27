@@ -65,6 +65,16 @@ struct HomeView: View {
         .navigationTitle(env.l10n.t("appTitle"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    Haptics.tap()
+                    env.openSettings()
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
+                }
+                .accessibilityLabel(Text(env.l10n.t("settingsTooltip")))
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     Haptics.tap()
@@ -73,16 +83,6 @@ struct HomeView: View {
                     Image(systemName: "plus")
                 }
                 .accessibilityLabel(Text(env.l10n.t("addSpot")))
-            }
-
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    Haptics.tap()
-                    env.openSettings()
-                } label: {
-                    Image(systemName: "slider.horizontal.3")
-                }
-                .accessibilityLabel(Text(env.l10n.t("settingsTooltip")))
             }
         }
     }
@@ -94,9 +94,11 @@ struct HomeView: View {
             let masterWidth = isDualScreen ? (geometry.size.width * 0.5) : min(500, max(420, geometry.size.width * 0.46))
             HStack(spacing: 0) {
                 // Left: Home Pane (Always showing the home page)
-                NavigationStack {
+                ZStack(alignment: .topLeading) {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0) {
+
+                            // Top Cards
                             VStack(spacing: AppDimens.space16) {
                                 LocationPermissionBanner()
                                 HStack(alignment: .top, spacing: AppDimens.space12) {
@@ -108,6 +110,7 @@ struct HomeView: View {
                             .padding(.top, AppDimens.space8)
                             .padding(.bottom, AppDimens.space16)
 
+                            // Saved Spots Section
                             Section {
                                 if env.savedSpots.isEmpty {
                                     emptySpotsSection
@@ -120,34 +123,17 @@ struct HomeView: View {
                                 }
                             }
                         }
+                        .padding(.leading, 54)
                         .padding(.bottom, 24)
                     }
-                    .background(env.effectiveColorScheme == .dark ? env.palette.background : Color.white)
-                    .navigationTitle(env.l10n.t("appTitle"))
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button {
-                                Haptics.tap()
-                                env.openSaveSpot()
-                            } label: {
-                                Image(systemName: "plus")
-                            }
-                            .accessibilityLabel(Text(env.l10n.t("addSpot")))
-                        }
 
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button {
-                                Haptics.tap()
-                                env.openSettings()
-                            } label: {
-                                Image(systemName: "slider.horizontal.3")
-                            }
-                            .accessibilityLabel(Text(env.l10n.t("settingsTooltip")))
-                        }
-                    }
+                    // Floating Vertical Action Rail (Settings & Add Spot)
+                    wideActionRail
+                        .padding(.leading, AppDimens.space16)
+                        .padding(.top, AppDimens.space12)
                 }
                 .frame(width: masterWidth)
+                .background(env.effectiveColorScheme == .dark ? env.palette.background : Color.white)
 
                 // Divider Separator aligned with device hinge
                 Rectangle()
@@ -155,18 +141,14 @@ struct HomeView: View {
                     .frame(width: 1)
 
                 // Right: Detail Pane (Map / Settings / History)
-                ZStack {
-                    switch env.detailPane {
-                    case .map:
-                        NavigationStack {
+                NavigationStack {
+                    ZStack {
+                        switch env.detailPane {
+                        case .map:
                             SpotsMapView(isEmbedded: true)
-                        }
-                    case .settings:
-                        NavigationStack {
+                        case .settings:
                             SettingsView(isEmbedded: true)
-                        }
-                    case .parkingHistory:
-                        NavigationStack {
+                        case .parkingHistory:
                             ParkingHistoryView(isEmbedded: true)
                         }
                     }
@@ -309,6 +291,26 @@ struct HomeView: View {
             )
         }
         .padding(.vertical, 24)
+    }
+
+    // MARK: - Wide Screen / Duo Action Rail
+    private var wideActionRail: some View {
+        VStack(spacing: 10) {
+            
+            
+            CircleIconButton(systemName: "slider.horizontal.3"){
+                Haptics.tap()
+                env.openSettings()
+            }.accessibilityLabel(Text(env.l10n.t("settingsTooltip")))
+            
+            
+            
+            CircleIconButton(systemName: "plus"){
+                Haptics.tap()
+                env.openSaveSpot()
+            }.accessibilityLabel(Text(env.l10n.t("addSpot")))
+            
+        }
     }
 }
 

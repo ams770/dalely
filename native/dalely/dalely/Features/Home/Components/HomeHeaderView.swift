@@ -19,10 +19,7 @@ struct HomeHeaderView: View {
             
     
 
-            // App Brand Title
-            Text(env.l10n.t("appTitle"))
-                .font(.system(size: 22, weight: .bold, design: .rounded))
-                .foregroundStyle(env.palette.textPrimary)
+
 
             Spacer()
 

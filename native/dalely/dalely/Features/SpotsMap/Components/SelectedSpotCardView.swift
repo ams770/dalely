@@ -75,7 +75,7 @@ struct SelectedSpotCardView: View {
             .padding(.horizontal, 20)
 
             // Action Buttons Row
-            if spot.isCar {
+            if spot.isParking {
                 HStack(spacing: 12) {
                     // Open in Maps
                     Button {
@@ -112,6 +112,33 @@ struct SelectedSpotCardView: View {
                         .liquidGlassProminent(cornerRadius: 14, tint: Color(hex: 0x0E9F75))
                     }
                     .buttonStyle(LiquidGlassButtonStyle())
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 12)
+            } else if spot.isFound {
+                HStack(spacing: 10) {
+                    // Open in Maps
+                    Button {
+                        MapsLauncher.openDirections(latitude: spot.latitude, longitude: spot.longitude, label: spot.name)
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
+                                .font(.system(size: 15, weight: .bold))
+                            Text(env.l10n.t("openInMaps"))
+                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                        }
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                        .liquidGlassProminent(cornerRadius: 14, tint: env.palette.primary)
+                    }
+                    .buttonStyle(LiquidGlassButtonStyle())
+
+                    // Delete
+                    CircleIconButton(systemName: "trash", tint: .red) {
+                        env.deleteSpot(spot)
+                        onClose()
+                    }
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 12)

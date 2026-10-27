@@ -9,8 +9,24 @@ struct ParkingHistoryView: View {
     @State private var visibleHistoryLimit: Int = 20
     private let pageSize: Int = 20
 
+    @State private var filterEnabled: Bool = false
+    @State private var startDate: Date = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+    @State private var endDate: Date = Date()
+
+    private var filteredHistory: [Spot] {
+        if !filterEnabled {
+            return env.parkingHistory
+        }
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: startDate)
+        let end = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: endDate) ?? endDate
+        return env.parkingHistory.filter { spot in
+            spot.savedAt >= start && spot.savedAt <= end
+        }
+    }
+
     private var paginatedHistory: [Spot] {
-        Array(env.parkingHistory.prefix(visibleHistoryLimit))
+        Array(filteredHistory.prefix(visibleHistoryLimit))
     }
 
     var body: some View {
@@ -25,29 +41,60 @@ struct ParkingHistoryView: View {
                     Spacer()
                 }
             } else {
-                ScrollView(showsIndicators: false) {
-                    LazyVStack(spacing: AppDimens.space12) {
-                        ForEach(paginatedHistory) { item in
-                            historyCard(item: item)
-                                .onAppear {
-                                    if item.id == paginatedHistory.last?.id && visibleHistoryLimit < env.parkingHistory.count {
-                                        visibleHistoryLimit += pageSize
-                                    }
-                                }
-                        }
+                VStack(spacing: 0) {
+                    dateFilterBar
 
-                        if visibleHistoryLimit < env.parkingHistory.count {
-                            ProgressView()
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 14)
-                                .onAppear {
-                                    visibleHistoryLimit += pageSize
+                    if filteredHistory.isEmpty {
+                        VStack(spacing: 16) {
+                            Spacer()
+                            EmptyStateView(
+                                title: env.l10n.t("noMatchingHistoryTitle"),
+                                message: env.l10n.t("noMatchingHistoryDesc")
+                            )
+                            Button {
+                                Haptics.tap()
+                                filterEnabled = false
+                                visibleHistoryLimit = pageSize
+                            } label: {
+                                Text(env.l10n.t("clearFilter"))
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundStyle(env.palette.primary)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        Capsule()
+                                            .fill(env.palette.primary.opacity(0.12))
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                            Spacer()
+                        }
+                    } else {
+                        ScrollView(showsIndicators: false) {
+                            LazyVStack(spacing: AppDimens.space12) {
+                                ForEach(paginatedHistory) { item in
+                                    historyCard(item: item)
+                                        .onAppear {
+                                            if item.id == paginatedHistory.last?.id && visibleHistoryLimit < filteredHistory.count {
+                                                visibleHistoryLimit += pageSize
+                                            }
+                                        }
                                 }
+
+                                if visibleHistoryLimit < filteredHistory.count {
+                                    ProgressView()
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
+                                        .onAppear {
+                                            visibleHistoryLimit += pageSize
+                                        }
+                                }
+                            }
+                            .padding(.horizontal, AppDimens.space16)
+                            .padding(.top, 4)
+                            .padding(.bottom, 24)
                         }
                     }
-                    .padding(.horizontal, AppDimens.space16)
-                    .padding(.top, 4)
-                    .padding(.bottom, 24)
                 }
             }
         }
@@ -199,5 +246,149 @@ struct ParkingHistoryView: View {
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .appCardStyle(cornerRadius: AppDimens.radiusLarge)
+    }
+
+    // MARK: - Date Filter Bar
+    private var dateFilterBar: some View {
+        VStack(spacing: 8) {
+            // Preset Chips Row
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    filterChip(title: env.l10n.t("allDates"), isSelected: !filterEnabled) {
+                        filterEnabled = false
+                        visibleHistoryLimit = pageSize
+                    }
+
+                    filterChip(title: env.l10n.t("todayFilter"), isSelected: filterEnabled && isSameDay(startDate, Date()) && isSameDay(endDate, Date())) {
+                        startDate = Date()
+                        endDate = Date()
+                        filterEnabled = true
+                        visibleHistoryLimit = pageSize
+                    }
+
+                    filterChip(title: env.l10n.t("last7Days"), isSelected: filterEnabled && isPastDays(startDate, 7) && isSameDay(endDate, Date())) {
+                        startDate = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+                        endDate = Date()
+                        filterEnabled = true
+                        visibleHistoryLimit = pageSize
+                    }
+
+                    filterChip(title: env.l10n.t("last30Days"), isSelected: filterEnabled && isPastDays(startDate, 30) && isSameDay(endDate, Date())) {
+                        startDate = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+                        endDate = Date()
+                        filterEnabled = true
+                        visibleHistoryLimit = pageSize
+                    }
+                }
+                .padding(.horizontal, AppDimens.space16)
+            }
+
+            // Custom Range: From & To DatePickers
+            HStack(spacing: 8) {
+                // From Date
+                HStack(spacing: 4) {
+                    Text(env.l10n.t("filterFromDate"))
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundStyle(env.palette.textSecondary)
+
+                    DatePicker(
+                        "",
+                        selection: $startDate,
+                        displayedComponents: .date
+                    )
+                    .labelsHidden()
+                    .datePickerStyle(.compact)
+                    .onChange(of: startDate) { _, newStart in
+                        filterEnabled = true
+                        visibleHistoryLimit = pageSize
+                        if endDate < newStart {
+                            endDate = newStart
+                        }
+                    }
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(env.palette.surfaceSecondary.opacity(0.85))
+                )
+
+                // To Date
+                HStack(spacing: 4) {
+                    Text(env.l10n.t("filterToDate"))
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundStyle(env.palette.textSecondary)
+
+                    DatePicker(
+                        "",
+                        selection: $endDate,
+                        displayedComponents: .date
+                    )
+                    .labelsHidden()
+                    .datePickerStyle(.compact)
+                    .onChange(of: endDate) { _, newEnd in
+                        filterEnabled = true
+                        visibleHistoryLimit = pageSize
+                        if startDate > newEnd {
+                            startDate = newEnd
+                        }
+                    }
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(env.palette.surfaceSecondary.opacity(0.85))
+                )
+
+                if filterEnabled {
+                    Button {
+                        Haptics.tap()
+                        filterEnabled = false
+                        visibleHistoryLimit = pageSize
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundStyle(env.palette.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text(env.l10n.t("clearFilter")))
+                }
+            }
+            .padding(.horizontal, AppDimens.space16)
+        }
+        .padding(.vertical, 8)
+        .background(env.palette.background)
+    }
+
+    private func filterChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button {
+            Haptics.selection()
+            action()
+        } label: {
+            Text(title)
+                .font(.system(size: 13, weight: isSelected ? .bold : .medium, design: .rounded))
+                .foregroundStyle(isSelected ? Color.white : env.palette.textPrimary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(isSelected ? env.palette.primary : env.palette.surfaceSecondary)
+                )
+                .overlay(
+                    Capsule()
+                        .strokeBorder(isSelected ? Color.clear : env.palette.border.opacity(0.5), lineWidth: 0.5)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func isSameDay(_ date1: Date, _ date2: Date) -> Bool {
+        Calendar.current.isDate(date1, inSameDayAs: date2)
+    }
+
+    private func isPastDays(_ date: Date, _ days: Int) -> Bool {
+        guard let target = Calendar.current.date(byAdding: .day, value: -days, to: Date()) else { return false }
+        return Calendar.current.isDate(date, inSameDayAs: target)
     }
 }
