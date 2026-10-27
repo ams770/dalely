@@ -5,14 +5,12 @@ import UIKit
 enum DetailPane: Equatable {
     case map
     case settings
-    case search
     case parkingHistory
 }
 
 enum AppRoute: Equatable, Hashable {
     case map(spotId: String?, onlyShow: Bool)
     case saveSpot(lat: Double?, lng: Double?, name: String?, editingId: String?)
-    case search(query: String?)
     case settings
     case parkingHistory
 }
@@ -27,9 +25,10 @@ final class AppEnvironment {
     var snack: SnackMessage?
     var showArrival = false
     var pendingRoute: AppRoute?
-    var path = NavigationPath()
+    var path: [AppRoute] = []
     var detailPane: DetailPane = .map
     var searchQuery: String = ""
+    var isSearchPresented: Bool = false
     var mapFocusSpotId: String?
     var mapOnlyShowSpotId: String?
     var saveDraft: SaveDraft?
@@ -54,6 +53,14 @@ final class AppEnvironment {
         syncWidgets()
     }
 
+    func reloadFromDisk() {
+        let loaded = LocalStore.loadSpots()
+        if loaded != spots {
+            spots = loaded
+            syncWidgets()
+        }
+    }
+
     var l10n: L10n {
         L10n(locale: resolvedLocale)
     }
@@ -68,6 +75,7 @@ final class AppEnvironment {
     }
 
     var isRTL: Bool { l10n.isArabic }
+    var layoutDirection: LayoutDirection { isRTL ? .rightToLeft : .leftToRight }
 
     var palette: AppPalette {
         switch effectiveColorScheme {
@@ -157,7 +165,6 @@ final class AppEnvironment {
 
     func parkHere() {
         guard let coordinate = location.coordinate else {
-            snack = SnackMessage(text: l10n.t("locationUnavailable"))
             location.requestPermission()
             return
         }
@@ -173,8 +180,9 @@ final class AppEnvironment {
         spots.removeAll { $0.id == StorageKeys.carId }
         spots.append(carSpot)
         persist()
-        AppNotifications.requestPermission()
-        snack = SnackMessage(text: l10n.t("carSaved"))
+        AppNotifications.cancelParking()
+        // Pinned Dynamic Island Live Activity
+        tracking.start(car: carSpot, current: coordinate, l10n: l10n)
         Haptics.success()
     }
 
@@ -196,7 +204,6 @@ final class AppEnvironment {
         spots.removeAll { $0.id == StorageKeys.carId }
         spots.append(history)
         persist()
-        snack = SnackMessage(text: l10n.t("carCleared"), undoSpot: current)
         Haptics.success()
     }
 
@@ -212,7 +219,7 @@ final class AppEnvironment {
             spots.removeAll { $0.id == StorageKeys.carId }
             spots.append(carSpot)
             persist()
-            snack = SnackMessage(text: l10n.t("carSaved"))
+            Haptics.success()
             return
         }
         if let editingId, let index = spots.firstIndex(where: { $0.id == editingId }) {
@@ -221,7 +228,7 @@ final class AppEnvironment {
             spots[index].latitude = latitude
             spots[index].longitude = longitude
             persist()
-            snack = SnackMessage(text: l10n.t("spotUpdated"))
+            Haptics.success()
             return
         }
         let spot = Spot(
@@ -234,7 +241,6 @@ final class AppEnvironment {
         )
         spots.append(spot)
         persist()
-        snack = SnackMessage(text: l10n.format("spotSaved", ["name": spot.name]))
         Haptics.success()
     }
 
@@ -250,26 +256,24 @@ final class AppEnvironment {
     func toggleFavorite(_ spot: Spot) {
         if settings.favoriteSpotId == spot.id {
             settings.favoriteSpotId = nil
-            snack = SnackMessage(text: l10n.t("favoriteRemoved"))
         } else {
             settings.favoriteSpotId = spot.id
-            snack = SnackMessage(text: l10n.format("favoriteSet", ["name": spot.name]))
         }
         persist()
+        Haptics.selection()
     }
 
     func clearParkingHistory() {
         let ids = Set(parkingHistory.map(\.id))
         spots.removeAll { ids.contains($0.id) }
         persist()
-        snack = SnackMessage(text: l10n.t("parkingHistoryCleared"))
+        Haptics.success()
     }
 
     func openDirections(for spot: Spot) {
         if settings.carDistanceNotificationEnabled, spot.isCar, let user = location.coordinate {
             let dist = CarTrackingCalculator.calculateDistance(from: user, to: spot.coordinate)
             if CarTrackingCalculator.isTooFar(dist) {
-                snack = SnackMessage(text: l10n.t("carTrackingTooFar"))
                 openMap(spotId: spot.id, onlyShow: true)
                 return
             }
@@ -279,26 +283,41 @@ final class AppEnvironment {
     }
 
     func foundCar() {
+        if car == nil {
+            reloadFromDisk()
+        }
+        guard let current = car else {
+            tracking.stop()
+            AppNotifications.cancelParking()
+            return
+        }
         tracking.stop()
-        clearCar()
+        AppNotifications.cancelParking()
+        let now = Date()
+        let history = Spot(
+            id: "car_history_\(Int(current.savedAt.timeIntervalSince1970 * 1000))_\(Int(now.timeIntervalSince1970 * 1000))",
+            name: current.name,
+            category: .car,
+            latitude: current.latitude,
+            longitude: current.longitude,
+            savedAt: current.savedAt,
+            status: .found,
+            parkedDurationMs: Int(now.timeIntervalSince(current.savedAt) * 1000)
+        )
+        spots.removeAll { $0.id == StorageKeys.carId }
+        spots.append(history)
+        persist()
         showArrival = false
+        snack = SnackMessage(text: l10n.t("carFoundCelebration"), undoSpot: current)
+        Haptics.success()
     }
 
     func updateProximity() {
         guard let car, let user = location.lastLocation else { return }
-        let dist = user.distance(from: CLLocation(latitude: car.latitude, longitude: car.longitude))
-        if dist > 15 { lastProximityAway = true }
-        if lastProximityAway && dist <= 5 {
-            lastProximityAway = false
-            showArrival = true
-            AppNotifications.showArrival(l10n: l10n)
-        }
         if tracking.isTracking {
             tracking.update(user: user, l10n: l10n)
-        }
-        if let userCoord = location.coordinate {
-            let meters = DistanceFormatter.calculateDistance(from: userCoord, to: car.coordinate)
-            AppNotifications.showParking(distanceText: DistanceFormatter.format(meters, l10n: l10n), l10n: l10n)
+        } else {
+            tracking.start(car: car, current: user.coordinate, l10n: l10n)
         }
     }
 
@@ -323,11 +342,7 @@ final class AppEnvironment {
 
     func openSearch(query: String? = nil) {
         searchQuery = query ?? ""
-        if isTwoPane {
-            detailPane = .search
-        } else {
-            path.append(AppRoute.search(query: query))
-        }
+        isSearchPresented = true
     }
 
     func openSettings() {
@@ -352,8 +367,73 @@ final class AppEnvironment {
         mapOnlyShowSpotId = nil
     }
 
+    private var _isTwoPane: Bool?
+
     var isTwoPane: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad || UIScreen.main.bounds.width >= 580
+        get {
+            _isTwoPane ?? computeIsTwoPane()
+        }
+        set {
+            _isTwoPane = newValue
+        }
+    }
+
+    private func computeIsTwoPane() -> Bool {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            return true
+        }
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let windowWidth = scenes.first?.windows.first(where: { $0.isKeyWindow })?.bounds.width
+            ?? scenes.first?.windows.first?.bounds.width
+            ?? scenes.first?.screen.bounds.width
+            ?? 0
+        return windowWidth >= 700
+    }
+
+    func adaptLayout(toWide: Bool) {
+        let previousMode = _isTwoPane
+        self.isTwoPane = toWide
+        if let previousMode, previousMode == toWide {
+            return
+        }
+
+        if toWide {
+            // Small screen -> Wide screen (unfolding/rotating)
+            if let lastRoute = path.last {
+                switch lastRoute {
+                case .settings:
+                    detailPane = .settings
+                case .parkingHistory:
+                    detailPane = .parkingHistory
+                case .map(let spotId, let onlyShow):
+                    detailPane = .map
+                    mapFocusSpotId = spotId
+                    mapOnlyShowSpotId = onlyShow ? spotId : nil
+                case .saveSpot:
+                    detailPane = .map
+                }
+                path.removeAll()
+            } else {
+                detailPane = .map
+            }
+        } else {
+            // Wide screen -> Small screen (folding/narrowing)
+            switch detailPane {
+            case .settings:
+                if path.last != .settings {
+                    path = [.settings]
+                }
+            case .parkingHistory:
+                if path.last != .parkingHistory {
+                    path = [.parkingHistory]
+                }
+            case .map:
+                if isMapExpanded {
+                    isMapExpanded = false
+                    path = [.map(spotId: mapFocusSpotId, onlyShow: mapOnlyShowSpotId != nil)]
+                }
+            }
+        }
     }
 
     func handleURL(_ url: URL) {
@@ -362,7 +442,9 @@ final class AppEnvironment {
         case .park:
             parkHere()
         case .foundCar:
-            foundCar()
+            DispatchQueue.main.async { [weak self] in
+                self?.foundCar()
+            }
         case .settings:
             openSettings()
         case .history:
@@ -424,7 +506,7 @@ enum DeepLink {
         let path = url.path
         switch host {
         case "park": return .park
-        case "found_car", "done": return .foundCar
+        case "found_car", "found", "done": return .foundCar
         case "settings": return .settings
         case "history", "parking_history": return .history
         case "map", "car", "on_map":

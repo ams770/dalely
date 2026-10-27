@@ -6,6 +6,12 @@ struct ParkingHistoryView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingClearConfirmation = false
     @State private var selectedToDelete: Spot? = nil
+    @State private var visibleHistoryLimit: Int = 20
+    private let pageSize: Int = 20
+
+    private var paginatedHistory: [Spot] {
+        Array(env.parkingHistory.prefix(visibleHistoryLimit))
+    }
 
     var body: some View {
         Group {
@@ -21,8 +27,22 @@ struct ParkingHistoryView: View {
             } else {
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: AppDimens.space12) {
-                        ForEach(env.parkingHistory) { item in
+                        ForEach(paginatedHistory) { item in
                             historyCard(item: item)
+                                .onAppear {
+                                    if item.id == paginatedHistory.last?.id && visibleHistoryLimit < env.parkingHistory.count {
+                                        visibleHistoryLimit += pageSize
+                                    }
+                                }
+                        }
+
+                        if visibleHistoryLimit < env.parkingHistory.count {
+                            ProgressView()
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 14)
+                                .onAppear {
+                                    visibleHistoryLimit += pageSize
+                                }
                         }
                     }
                     .padding(.horizontal, AppDimens.space16)
@@ -38,10 +58,17 @@ struct ParkingHistoryView: View {
             if isEmbedded {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        env.closeDetail()
+                        Haptics.tap()
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            env.closeDetail()
+                        }
                     } label: {
-                        Image(systemName: "xmark")
+                        Image(systemName: "chevron.backward")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(env.palette.textPrimary)
+                            .frame(width: 36, height: 36)
                     }
+                    .accessibilityLabel(env.l10n.t("backTooltip"))
                 }
             }
 

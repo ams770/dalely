@@ -1,2 +1,5 @@
-NSLocationWhenInUseUsageDescription = "Dalely uses your location to calculate distance to your parked car, guide you back, and show a live walking distance notification.";
 CFBundleDisplayName = "Dalely";
+CFBundleName = "Dalely";
+NSLocationWhenInUseUsageDescription = "Dalely uses your location to show where you are on the map, calculate distances to your saved spots, and guide you back to your parked car.";
+NSLocationAlwaysAndWhenInUseUsageDescription = "Dalely uses your location in the background to show live distance updates and guide you back to your parked car with Live Activities.";
+NSLocationAlwaysUsageDescription = "Dalely uses your location in the background to update your distance to your parked car.";

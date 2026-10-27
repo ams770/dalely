@@ -1,4 +1,4 @@
-import ActivityKit
+    import ActivityKit
 import CoreLocation
 import UserNotifications
 import WidgetKit
@@ -7,18 +7,32 @@ enum AppNotifications {
     static let parkingId = "1001"
     static let arrivalId = "1002"
 
-    static func requestPermission() {
+    static func requestPermission(l10n: L10n? = nil) {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
-        let onMap = UNNotificationAction(identifier: "action_on_map", title: "On map", options: [.foreground])
-        let found = UNNotificationAction(identifier: "action_found_car", title: "Found it", options: [.foreground])
+        let onMapTitle = l10n?.t("onMap") ?? "On map"
+        let foundTitle = l10n?.t("foundMyCar") ?? "Found it"
+        let onMap = UNNotificationAction(
+            identifier: "action_on_map",
+            title: onMapTitle,
+            options: [.foreground],
+            icon: UNNotificationActionIcon(systemImageName: "map.fill")
+        )
+        let found = UNNotificationAction(
+            identifier: "action_found_car",
+            title: foundTitle,
+            options: [.foreground],
+            icon: UNNotificationActionIcon(systemImageName: "checkmark.circle.fill")
+        )
         let category = UNNotificationCategory(identifier: "PARKING", actions: [onMap, found], intentIdentifiers: [])
         UNUserNotificationCenter.current().setNotificationCategories([category])
     }
 
     static func showParking(distanceText: String, l10n: L10n) {
         let content = UNMutableNotificationContent()
-        content.title = l10n.t("notificationParkingTitle")
-        content.body = l10n.format("notificationDistance", ["distance": distanceText])
+        content.title = l10n.isArabic ? "موقف السيارة" : "Parking"
+        content.body = distanceText.isEmpty
+            ? (l10n.isArabic ? "تم حفظ موقع ركن السيارة" : "Parking spot saved")
+            : l10n.format("notificationDistance", ["distance": distanceText])
         content.categoryIdentifier = "PARKING"
         content.sound = .default
         let request = UNNotificationRequest(identifier: parkingId, content: content, trigger: nil)
@@ -26,8 +40,10 @@ enum AppNotifications {
     }
 
     static func cancelParking() {
-        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [parkingId])
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [parkingId])
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [parkingId, arrivalId])
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [parkingId, arrivalId])
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }
 
     static func showArrival(l10n: L10n) {
@@ -114,13 +130,18 @@ final class CarTrackingService {
         isTracking = false
         isArrived = false
         trackedCar = nil
-        Task { await activity?.end(nil, dismissalPolicy: .immediate) }
+        Task {
+            for act in Activity<DalelyTrackingAttributes>.activities {
+                await act.end(nil, dismissalPolicy: .immediate)
+            }
+        }
         activity = nil
     }
 
     @available(iOS 16.2, *)
     private func startActivity(car: Spot, l10n: L10n) async {
-        let attributes = DalelyTrackingAttributes(carName: car.name.isEmpty ? l10n.t("myCar") : car.name)
+        let parkingTitle = l10n.isArabic ? "موقف السيارة" : "Parking"
+        let attributes = DalelyTrackingAttributes(carName: parkingTitle)
         let state = contentState(l10n: l10n)
         do {
             activity = try Activity.request(attributes: attributes, content: .init(state: state, staleDate: nil))
@@ -136,14 +157,17 @@ final class CarTrackingService {
 
     private func contentState(l10n: L10n) -> DalelyTrackingAttributes.ContentState {
         let minutes = CarTrackingCalculator.calculateWalkMinutes(currentDistance)
-        let distanceText = isTracking && currentDistance == 0 && startDistance == 0
-            ? l10n.t("carTrackingLookingForLocation")
-            : CarTrackingCalculator.formatDistance(currentDistance, isArabic: l10n.isArabic)
-        let detail = isArrived ? l10n.t("carTrackingArrivedBody") : l10n.carTrackingAboutMinutes(minutes)
+        let formattedDist: String
+        if isArrived || currentDistance <= 25 {
+            formattedDist = ""
+        } else {
+            formattedDist = CarTrackingCalculator.formatDistance(currentDistance, isArabic: l10n.isArabic)
+        }
+        let detail = isArrived ? (l10n.isArabic ? "أنت عند سيارتك" : "You have arrived") : l10n.carTrackingAboutMinutes(minutes)
         let progress = CarTrackingCalculator.calculateProgress(currentDistance: currentDistance, startDistance: startDistance)
         return .init(
             state: isArrived ? "arrived" : "walking",
-            distanceText: isArrived ? l10n.t("carTrackingArrivedTitle") : l10n.format("carTrackingWalkingTitle", ["distance": distanceText]),
+            distanceText: formattedDist,
             detailText: detail,
             parkedText: trackedCar.map { TimeAgoFormatter.format($0.savedAt, l10n: l10n) } ?? "",
             progress: progress,

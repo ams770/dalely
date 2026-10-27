@@ -1,2 +1,5 @@
-NSLocationWhenInUseUsageDescription = "يستخدم دليلى موقعك لحساب المسافة إلى سيارتك المركونة، وإرشادك للعودة، وعرض إشعار مسافة المشي المباشر.";
 CFBundleDisplayName = "دليلى";
+CFBundleName = "دليلى";
+NSLocationWhenInUseUsageDescription = "يستخدم دليلى موقعك لتحديد مكانك على الخريطة، وحساب المسافة إلى أماكنك المحفوظة، وإرشادك للوصول إلى سيارتك المركونة.";
+NSLocationAlwaysAndWhenInUseUsageDescription = "يستخدم دليلى موقعك في الخلفية لتحديث المسافة مباشرة وإرشادك للعودة إلى سيارتك عبر الإشعارات والأنشطة المباشرة.";
+NSLocationAlwaysUsageDescription = "يستخدم دليلى موقعك في الخلفية لتحديث المسافة إلى سيارتك المركونة باستمرار.";

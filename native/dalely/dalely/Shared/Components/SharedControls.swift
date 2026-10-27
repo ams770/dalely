@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Liquid Glass Circle Icon Button (Native Glass, Uniform 44pt Size)
 struct CircleIconButton: View {
     let systemName: String
-    var size: CGFloat = 44
+    var size: CGFloat = 30
     var tint: Color? = nil
     var action: () -> Void
 
@@ -13,9 +13,11 @@ struct CircleIconButton: View {
             action()
         }) {
             Image(systemName: systemName)
-                .liquidGlassIconButton(size: size, tint: tint)
+                .font(.system(size: 16, weight: .medium))
+                .frame(width: size-5, height: size)
         }
-        .buttonStyle(LiquidGlassButtonStyle())
+        .buttonStyle(.glass)
+        .tint(tint)
         .frame(minWidth: size, minHeight: size)
     }
 }
@@ -255,155 +257,139 @@ struct LocationPermissionBanner: View {
 
 // MARK: - Liquid Glass Category Chips
 struct CategoryChips: View {
-    let selected: SpotCategory
+    let selected: SpotCategory?
     var includeCar: Bool = false
     var available: [SpotCategory]? = nil
-    var onSelect: (SpotCategory) -> Void
+    var onSelect: (SpotCategory?) -> Void
     @Environment(AppEnvironment.self) private var env
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(chips) { category in
-                    let isSelected = selected == category
-                    Button {
-                        Haptics.selection()
-                        onSelect(category)
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: category.systemImage)
-                                .font(.system(size: 13, weight: .semibold))
-                            Text(category.label(env.l10n))
-                                .font(.system(size: 13, weight: .bold, design: .rounded))
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(chips) { category in
+                        let isSelected = selected == category
+                        Button {
+                            Haptics.selection()
+                            if isSelected {
+                                onSelect(nil)
+                            } else {
+                                onSelect(category)
+                            }
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: category.systemImage)
+                                    .font(.system(size: 13, weight: .semibold))
+                                Text(category.label(env.l10n))
+                                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 9)
+                            .foregroundStyle(isSelected ? Color.white : env.palette.textPrimary)
+                            .liquidGlassPill(
+                                tint: isSelected ? env.palette.categoryColor(category) : nil,
+                                isProminent: isSelected
+                            )
                         }
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 9)
-                        .foregroundStyle(isSelected ? Color.white : env.palette.textPrimary)
-                        .liquidGlassPill(
-                            tint: isSelected ? env.palette.categoryColor(category) : nil,
-                            isProminent: isSelected
-                        )
+                        .buttonStyle(LiquidGlassButtonStyle())
+                        .id(category.rawValue)
                     }
-                    .buttonStyle(LiquidGlassButtonStyle())
+                }
+                .padding(.horizontal, AppDimens.space16)
+            }
+            .defaultScrollAnchor(.leading)
+            .environment(\.layoutDirection, env.layoutDirection)
+            .onAppear {
+                if let selected {
+                    proxy.scrollTo(selected.rawValue, anchor: .center)
                 }
             }
-            .padding(.horizontal, AppDimens.space16)
         }
     }
 
     private var chips: [SpotCategory] {
-        available ?? (includeCar ? SpotCategory.allCases : SpotCategory.selectable)
+        available ?? (includeCar ? SpotCategory.allCases : SpotCategory.selectable.filter { $0 != .other })
     }
 }
 
-// MARK: - Liquid Glass Floating Snackbar Host (Single-Sided & Dismissable)
+// MARK: - Minimalist Floating Toast / Snackbar Host
 struct SnackbarHost: View {
     @Environment(AppEnvironment.self) private var env
     @State private var dragOffset: CGFloat = 0
 
     var body: some View {
         if let snack = env.snack {
-            HStack(spacing: 0) {
-                HStack(spacing: 12) {
-                    Text(snack.text)
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .lineLimit(2)
+            HStack(spacing: 10) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(Color(hex: 0x0E9F75))
 
-                    Spacer(minLength: 8)
+                Text(snack.text)
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundStyle(env.palette.textPrimary)
+                    .lineLimit(1)
 
-                    if let undo = snack.undoSpot {
-                        Button(env.l10n.t("undo")) {
-                            env.restore(undo)
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                env.snack = nil
-                            }
-                        }
-                        .font(.system(size: 13, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color(hex: 0xFF8A65))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(Color(hex: 0xFF8A65).opacity(0.20))
-                        .clipShape(Capsule())
-                    }
-
-                    // Explicit Dismiss Button
-                    Button {
+                if let undo = snack.undoSpot {
+                    Button(env.l10n.t("undo")) {
                         Haptics.tap()
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        env.restore(undo)
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                             env.snack = nil
                         }
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(Color.white.opacity(0.85))
-                            .frame(width: 26, height: 26)
-                            .background(Color.white.opacity(0.18))
-                            .clipShape(Circle())
                     }
-                    .buttonStyle(.plain)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 13)
-                .frame(maxWidth: env.isTwoPane ? 340 : .infinity)
-                .background {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(.ultraThinMaterial)
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(Color(hex: 0x12263F).opacity(0.92))
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.white.opacity(0.18), Color.clear],
-                                    startPoint: .top,
-                                    endPoint: .center
-                                )
-                            )
-                    }
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .strokeBorder(Color.white.opacity(0.25), lineWidth: 0.75)
-                )
-                .shadow(color: Color.black.opacity(0.35), radius: 18, x: 0, y: 8)
-                .offset(y: dragOffset)
-                .gesture(
-                    DragGesture()
-                        .onChanged { value in
-                            if value.translation.height > 0 {
-                                dragOffset = value.translation.height
-                            }
-                        }
-                        .onEnded { value in
-                            if value.translation.height > 30 {
-                                withAnimation(.easeOut(duration: 0.2)) {
-                                    env.snack = nil
-                                    dragOffset = 0
-                                }
-                            } else {
-                                withAnimation(.spring()) {
-                                    dragOffset = 0
-                                }
-                            }
-                        }
-                )
-
-                // On wide two-pane, Spacer pushes to leading (Master pane on 1 side only, never crossing hinge)
-                if env.isTwoPane {
-                    Spacer()
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(env.palette.primary)
+                    .padding(.leading, 4)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 20)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
+            .padding(.horizontal, 18)
+            .padding(.vertical, 12)
+            .background(
+                Capsule()
+                    .fill(.regularMaterial)
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(env.palette.textPrimary.opacity(0.08), lineWidth: 0.5)
+                    )
+                    .shadow(color: Color.black.opacity(0.12), radius: 16, y: 6)
+            )
+            .offset(y: dragOffset)
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        if value.translation.height > 0 {
+                            dragOffset = value.translation.height
+                        }
+                    }
+                    .onEnded { value in
+                        if value.translation.height > 20 {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                env.snack = nil
+                                dragOffset = 0
+                            }
+                        } else {
+                            withAnimation(.spring()) {
+                                dragOffset = 0
+                            }
+                        }
+                    }
+            )
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
+            .transition(.asymmetric(
+                insertion: .move(edge: .bottom).combined(with: .opacity).animation(.spring(response: 0.4, dampingFraction: 0.75)),
+                removal: .scale(scale: 0.85).combined(with: .opacity).animation(.easeOut(duration: 0.2))
+            ))
             .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                     if env.snack?.id == snack.id {
-                        withAnimation { env.snack = nil }
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            env.snack = nil
+                        }
                     }
                 }
             }
         }
     }
 }
+

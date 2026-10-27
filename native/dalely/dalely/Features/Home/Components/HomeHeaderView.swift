@@ -5,16 +5,28 @@ struct HomeHeaderView: View {
 
     var body: some View {
         HStack(spacing: AppDimens.space12) {
-            CircleIconButton(systemName: "slider.horizontal.3", size: 42) {
+            
+            
+            // Settings Glass Icon Button
+            CircleIconButton(systemName: "slider.horizontal.3") {
+                Haptics.tap()
                 env.openSettings()
-            }
+            }.accessibilityLabel(Text(env.l10n.t("settingsTooltip")))
 
+            
+            
+  
+            
+    
+
+            // App Brand Title
             Text(env.l10n.t("appTitle"))
                 .font(.system(size: 22, weight: .bold, design: .rounded))
                 .foregroundStyle(env.palette.textPrimary)
 
             Spacer()
 
+            // Elegant Add Spot Pill Button
             Button {
                 Haptics.tap()
                 env.openSaveSpot()
@@ -35,14 +47,14 @@ struct HomeHeaderView: View {
                             Capsule()
                                 .strokeBorder(Color.white.opacity(0.25), lineWidth: 0.5)
                         )
-                        .shadow(color: Color.black.opacity(0.12), radius: 5, y: 2)
+                        .shadow(color: env.palette.primary.opacity(0.30), radius: 6, y: 2)
                 )
             }
             .buttonStyle(LiquidGlassButtonStyle())
             .accessibilityLabel(Text(env.l10n.t("addSpot")))
         }
         .padding(.horizontal, AppDimens.space16)
-        .padding(.top, AppDimens.space12)
-        .padding(.bottom, AppDimens.space8)
+        .padding(.top, 8)
+        .padding(.bottom, 6)
     }
 }

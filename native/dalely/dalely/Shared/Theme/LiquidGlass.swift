@@ -324,6 +324,42 @@ struct LiquidGlassSegmentedControl<T: Hashable>: View {
     }
 }
 
+// Uses native system controls and appearance for System / Light / Dark selection.
+struct LiquidGlassThemeSlider: View {
+    @Binding var selectedMode: AppThemeMode
+    @Environment(AppEnvironment.self) private var env
+
+    private let modes: [AppThemeMode] = [.system, .light, .dark]
+
+    var body: some View {
+        Picker(env.l10n.t("themeSystem"), selection: $selectedMode) {
+            ForEach(modes, id: \.self) { mode in
+                Label(title(for: mode), systemImage: icon(for: mode))
+                    .tag(mode)
+            }
+        }
+    
+        .pickerStyle(.segmented)
+        .labelsHidden()
+    }
+
+    private func icon(for mode: AppThemeMode) -> String {
+        switch mode {
+        case .system: return "circle.lefthalf.filled"
+        case .light: return "sun.max"
+        case .dark: return "moon"
+        }
+    }
+
+    private func title(for mode: AppThemeMode) -> String {
+        switch mode {
+        case .system: return env.l10n.t("themeSystem")
+        case .light: return env.l10n.t("themeLight")
+        case .dark: return env.l10n.t("themeDark")
+        }
+    }
+}
+
 // MARK: - View Extensions
 extension View {
     func appCardStyle(cornerRadius: CGFloat = AppDimens.radiusLarge, borderColor: Color? = nil) -> some View {

@@ -1,0 +1,1 @@
+../dalely/Core/Models/Spot.swift

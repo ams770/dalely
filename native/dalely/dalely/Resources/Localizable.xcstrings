@@ -1,10 +1,16 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
     "%lld" : {
 
     },
     "•" : {
+
+    },
+    "+201123225592" : {
 
     },
     "1.0.0" : {
@@ -794,6 +800,54 @@
         }
       }
     },
+    "edit" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعديل"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        }
+      }
+    },
+    "search" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بحث"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search"
+          }
+        }
+      }
+    },
+    "close" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إغلاق"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        }
+      }
+    },
     "distanceAway" : {
       "localizations" : {
         "ar" : {
@@ -938,6 +992,22 @@
         }
       }
     },
+    "edit" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعديل"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        }
+      }
+    },
     "editSpot" : {
       "localizations" : {
         "ar" : {
@@ -953,6 +1023,9 @@
           }
         }
       }
+    },
+    "Email Support" : {
+
     },
     "emptySpotsMessage" : {
       "localizations" : {
@@ -987,6 +1060,9 @@
       }
     },
     "English" : {
+
+    },
+    "Export" : {
 
     },
     "exportAsExcel" : {
@@ -1196,6 +1272,12 @@
           }
         }
       }
+    },
+    "https://dalely.firebaseapp.com/" : {
+
+    },
+    "https://dalely.firebaseapp.com/#privacy" : {
+
     },
     "iFoundMyCar" : {
       "localizations" : {
@@ -1613,6 +1695,9 @@
         }
       }
     },
+    "Official Website" : {
+
+    },
     "onboarding1Body" : {
       "localizations" : {
         "ar" : {
@@ -1965,6 +2050,9 @@
         }
       }
     },
+    "Privacy Policy" : {
+
+    },
     "privacyPolicy" : {
       "localizations" : {
         "ar" : {
@@ -2044,6 +2132,9 @@
           }
         }
       }
+    },
+    "salem.dev.77@gmail.com" : {
+
     },
     "save" : {
       "localizations" : {
@@ -2156,6 +2247,9 @@
           }
         }
       }
+    },
+    "Search" : {
+
     },
     "searchFailed" : {
       "localizations" : {
@@ -2396,6 +2490,9 @@
           }
         }
       }
+    },
+    "Sort" : {
+
     },
     "sortBy" : {
       "localizations" : {
@@ -2781,6 +2878,9 @@
         }
       }
     },
+    "WhatsApp Support" : {
+
+    },
     "whereMyCarTitle" : {
       "localizations" : {
         "ar" : {
@@ -2877,7 +2977,19 @@
         }
       }
     },
+    "البريد الإلكتروني" : {
+
+    },
     "العربية" : {
+
+    },
+    "الموقع الرسمي" : {
+
+    },
+    "تواصل عبر واتساب" : {
+
+    },
+    "سياسة الخصوصية" : {
 
     }
   },

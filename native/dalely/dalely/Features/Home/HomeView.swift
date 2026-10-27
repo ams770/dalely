@@ -2,7 +2,15 @@ import SwiftUI
 struct HomeView: View {
     @Environment(AppEnvironment.self) private var env
     @State private var showingExportSheet = false
+    @State private var visibleSpotsLimit: Int = 20
+    private let pageSize: Int = 20
+
+    private var paginatedSavedSpots: [Spot] {
+        Array(env.savedSpots.prefix(visibleSpotsLimit))
+    }
+
     var body: some View {
+        @Bindable var env = env
         GeometryReader { geometry in
             if geometry.size.width >= 700 {
                 twoPaneLayout
@@ -10,142 +18,148 @@ struct HomeView: View {
                 singlePaneLayout
             }
         }
+        .onChange(of: env.sortOrder) { _, _ in
+            visibleSpotsLimit = pageSize
+        }
+        .sheet(isPresented: $showingExportSheet) {
+            ExportSpotsSheetView()
+                .environment(\.layoutDirection, env.layoutDirection)
+        }
+        .sheet(isPresented: $env.isSearchPresented) {
+            SearchSpotsSheetView()
+                .environment(\.layoutDirection, env.layoutDirection)
+        }
     }
     // MARK: - Single Pane Layout
     private var singlePaneLayout: some View {
-        VStack(spacing: 0) {
-            ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
-                    // Top Cards
-                    VStack(spacing: AppDimens.space16) {
-                        LocationPermissionBanner()
-                        HStack(alignment: .top, spacing: AppDimens.space12) {
-                            CarCardView()
-                            HomeMapCardView()
-                        }
-                    }
-                    .padding(.horizontal, AppDimens.space16)
-                    .padding(.top, AppDimens.space8)
-                    .padding(.bottom, AppDimens.space16)
-                    // Saved Spots Section
-                    Section {
-                        if env.savedSpots.isEmpty {
-                            emptySpotsSection
-                        } else {
-                            savedSpotsList
-                        }
-                    } header: {
-                        if !env.savedSpots.isEmpty {
-                            savedSpotsHeader
-                        }
+        ScrollView(showsIndicators: false) {
+            LazyVStack(spacing: 0) {
+                // Top Cards
+                VStack(spacing: AppDimens.space16) {
+                    LocationPermissionBanner()
+                    HStack(alignment: .top, spacing: AppDimens.space12) {
+                        CarCardView()
+                        HomeMapCardView()
                     }
                 }
-                .padding(.bottom, 24)
-            }
-            if env.savedSpots.isEmpty {
-                PrimaryBottomButton(label: env.l10n.t("saveThisSpot"), systemImage: "plus") {
-                    env.openSaveSpot()
+                .padding(.horizontal, AppDimens.space16)
+                .padding(.top, AppDimens.space8)
+                .padding(.bottom, AppDimens.space16)
+
+                // Saved Spots Section
+                Section {
+                    if env.savedSpots.isEmpty {
+                        emptySpotsSection
+                    } else {
+                        savedSpotsList
+                    }
+                } header: {
+                    if !env.savedSpots.isEmpty {
+                        savedSpotsHeader
+                    }
                 }
             }
+            .padding(.bottom, 32)
         }
         .background(env.palette.background.ignoresSafeArea())
         .navigationTitle(env.l10n.t("appTitle"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
+                    Haptics.tap()
+                    env.openSaveSpot()
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .accessibilityLabel(Text(env.l10n.t("addSpot")))
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    Haptics.tap()
                     env.openSettings()
                 } label: {
                     Image(systemName: "slider.horizontal.3")
                 }
-                .buttonStyle(.plain)
+                .accessibilityLabel(Text(env.l10n.t("settingsTooltip")))
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: 8) {
-                    Button {
-                        Haptics.tap()
-                        env.openSearch()
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(env.palette.textPrimary)
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(env.palette.surfaceSecondary))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(Text(env.l10n.t("search")))
-
-                    Button {
-                        env.openSaveSpot()
-                    } label: {
-                        Label(env.l10n.t("addSpot"), systemImage: "plus")
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .buttonBorderShape(.capsule)
-                }
-            }
-        }
-        .sheet(isPresented: $showingExportSheet) {
-            ExportSpotsSheetView()
         }
     }
+
     // MARK: - Two-Pane Layout (iPad & Wide Foldables)
     private var twoPaneLayout: some View {
         GeometryReader { geometry in
             let isDualScreen = geometry.size.width < 900
             let masterWidth = isDualScreen ? (geometry.size.width * 0.5) : min(500, max(420, geometry.size.width * 0.46))
             HStack(spacing: 0) {
-                // Left: Home Pane
-                if !env.isMapExpanded {
-                    VStack(spacing: 0) {
-                        // Dedicated Master Header for Left Pane (iPhone Duo screen 1)
-                        HomeHeaderView()
-                        ScrollView(showsIndicators: false) {
-                            LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
-                                VStack(spacing: AppDimens.space16) {
-                                    LocationPermissionBanner()
-                                    HStack(alignment: .top, spacing: AppDimens.space12) {
-                                        CarCardView()
-                                        HomeMapCardView()
-                                    }
-                                }
-                                .padding(.horizontal, AppDimens.space16)
-                                .padding(.top, AppDimens.space8)
-                                .padding(.bottom, AppDimens.space16)
-                                Section {
-                                    if env.savedSpots.isEmpty {
-                                        emptySpotsSection
-                                    } else {
-                                        savedSpotsList
-                                    }
-                                } header: {
-                                    if !env.savedSpots.isEmpty {
-                                        savedSpotsHeader
-                                    }
+                // Left: Home Pane (Always showing the home page)
+                NavigationStack {
+                    ScrollView(showsIndicators: false) {
+                        LazyVStack(spacing: 0) {
+                            VStack(spacing: AppDimens.space16) {
+                                LocationPermissionBanner()
+                                HStack(alignment: .top, spacing: AppDimens.space12) {
+                                    CarCardView()
+                                    HomeMapCardView()
                                 }
                             }
-                            .padding(.bottom, 24)
+                            .padding(.horizontal, AppDimens.space16)
+                            .padding(.top, AppDimens.space8)
+                            .padding(.bottom, AppDimens.space16)
+
+                            Section {
+                                if env.savedSpots.isEmpty {
+                                    emptySpotsSection
+                                } else {
+                                    savedSpotsList
+                                }
+                            } header: {
+                                if !env.savedSpots.isEmpty {
+                                    savedSpotsHeader
+                                }
+                            }
+                        }
+                        .padding(.bottom, 24)
+                    }
+                    .background(env.effectiveColorScheme == .dark ? env.palette.background : Color.white)
+                    .navigationTitle(env.l10n.t("appTitle"))
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                Haptics.tap()
+                                env.openSaveSpot()
+                            } label: {
+                                Image(systemName: "plus")
+                            }
+                            .accessibilityLabel(Text(env.l10n.t("addSpot")))
+                        }
+
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                Haptics.tap()
+                                env.openSettings()
+                            } label: {
+                                Image(systemName: "slider.horizontal.3")
+                            }
+                            .accessibilityLabel(Text(env.l10n.t("settingsTooltip")))
                         }
                     }
-                    .frame(width: masterWidth)
-                    .background(env.effectiveColorScheme == .dark ? env.palette.background : Color.white)
-                    .transition(.move(edge: .leading).combined(with: .opacity))
-                    // Divider Separator aligned with device hinge
-                    Rectangle()
-                        .fill(env.palette.border.opacity(0.8))
-                        .frame(width: 1)
                 }
-                // Right: Detail Pane (Map / Search / Settings / History)
+                .frame(width: masterWidth)
+
+                // Divider Separator aligned with device hinge
+                Rectangle()
+                    .fill(env.palette.border.opacity(0.8))
+                    .frame(width: 1)
+
+                // Right: Detail Pane (Map / Settings / History)
                 ZStack {
                     switch env.detailPane {
                     case .map:
                         NavigationStack {
                             SpotsMapView(isEmbedded: true)
-                        }
-                    case .search:
-                        NavigationStack {
-                            SearchSpotsView(isEmbedded: true)
                         }
                     case .settings:
                         NavigationStack {
@@ -159,63 +173,87 @@ struct HomeView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: env.isMapExpanded)
         }
         .toolbar(.hidden, for: .navigationBar)
-        .sheet(isPresented: $showingExportSheet) {
-            ExportSpotsSheetView()
-        }
     }
     // MARK: - Section Header
     private var savedSpotsHeader: some View {
-        HStack {
+        HStack(spacing: 8) {
             Text(env.l10n.t("savedSpots"))
                 .font(.system(size: 18, weight: .bold, design: .rounded))
                 .foregroundStyle(env.palette.textPrimary)
+
             Spacer()
-            // Export Button (Plain)
+
+            // Export button
             Button {
                 showingExportSheet = true
             } label: {
                 Image(systemName: "square.and.arrow.up")
-                    .liquidGlassIconButton(size: 42)
+                    .font(.system(size: 16, weight: .medium))
+                    .frame(width: 25, height: 30)
+                    .contentShape(Rectangle())
             }
-            .buttonStyle(LiquidGlassButtonStyle())
-            // Sort Menu Button (Plain)
+            .buttonStyle(.glass)
+            .accessibilityLabel(Text("Export"))
+
+            // Sort menu button
             Menu {
                 Button {
                     env.sortOrder = .dateDesc
                 } label: {
-                    Label(env.l10n.t("sortByDateDesc"), systemImage: env.sortOrder == .dateDesc ? "checkmark" : "")
+                    Label(
+                        env.l10n.t("sortByDateDesc"),
+                        systemImage: env.sortOrder == .dateDesc ? "checkmark" : "calendar"
+                    )
                 }
+
                 Button {
                     env.sortOrder = .nearest
                 } label: {
-                    Label(env.l10n.t("sortByNearest"), systemImage: env.sortOrder == .nearest ? "checkmark" : "")
+                    Label(
+                        env.l10n.t("sortByNearest"),
+                        systemImage: env.sortOrder == .nearest ? "checkmark" : "location"
+                    )
                 }
+
                 Button {
                     env.sortOrder = .category
                 } label: {
-                    Label(env.l10n.t("sortByCategory"), systemImage: env.sortOrder == .category ? "checkmark" : "")
+                    Label(
+                        env.l10n.t("sortByCategory"),
+                        systemImage: env.sortOrder == .category ? "checkmark" : "square.grid.2x2"
+                    )
                 }
+
                 Button {
                     env.sortOrder = .name
                 } label: {
-                    Label(env.l10n.t("sortByName"), systemImage: env.sortOrder == .name ? "checkmark" : "")
+                    Label(
+                        env.l10n.t("sortByName"),
+                        systemImage: env.sortOrder == .name ? "checkmark" : "textformat.abc"
+                    )
                 }
             } label: {
                 Image(systemName: "line.3.horizontal.decrease")
-                    .liquidGlassIconButton(size: 42)
+                    .font(.system(size: 16, weight: .medium))
+                    .frame(width: 25, height: 30)
+                    .contentShape(Rectangle())
             }
-            .buttonStyle(LiquidGlassButtonStyle())
-            // Search Button (Plain)
+            .buttonStyle(.glass)
+            .accessibilityLabel(Text("Sort"))
+
+            // Search button
             Button {
                 env.openSearch()
             } label: {
                 Image(systemName: "magnifyingglass")
-                    .liquidGlassIconButton(size: 42)
+                    .font(.system(size: 16, weight: .medium))
+                    .frame(width: 25, height: 30)
+                    .contentShape(Rectangle())
             }
-            .buttonStyle(LiquidGlassButtonStyle())
+            .buttonStyle(.glass)
+            .accessibilityLabel(Text("Search"))
         }
         .padding(.horizontal, AppDimens.space16)
         .padding(.vertical, 8)
@@ -224,10 +262,9 @@ struct HomeView: View {
     // MARK: - Saved Spots List
     private var savedSpotsList: some View {
         VStack(spacing: AppDimens.space12) {
-            ForEach(env.savedSpots) { spot in
+            ForEach(paginatedSavedSpots) { spot in
                 SpotCardView(
                     spot: spot,
-                    isFavorite: env.settings.favoriteSpotId == spot.id,
                     onShowOnMap: {
                         env.openMap(spotId: spot.id)
                     },
@@ -242,11 +279,22 @@ struct HomeView: View {
                     },
                     onDelete: {
                         env.deleteSpot(spot)
-                    },
-                    onToggleFavorite: {
-                        env.toggleFavorite(spot)
                     }
                 )
+                .onAppear {
+                    if spot.id == paginatedSavedSpots.last?.id && visibleSpotsLimit < env.savedSpots.count {
+                        visibleSpotsLimit += pageSize
+                    }
+                }
+            }
+
+            if visibleSpotsLimit < env.savedSpots.count {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .onAppear {
+                        visibleSpotsLimit += pageSize
+                    }
             }
         }
         .padding(.horizontal, AppDimens.space16)

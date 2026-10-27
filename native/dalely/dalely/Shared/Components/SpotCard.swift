@@ -11,13 +11,11 @@ struct CardPressButtonStyle: ButtonStyle {
 
 struct SpotCardView: View {
     let spot: Spot
-    var isFavorite: Bool = false
     var onShowOnMap: () -> Void
     var onOpenInMaps: () -> Void
     var onShare: () -> Void
     var onEdit: (() -> Void)? = nil
     var onDelete: () -> Void
-    var onToggleFavorite: (() -> Void)? = nil
     @Environment(AppEnvironment.self) private var env
 
     var body: some View {
@@ -29,22 +27,10 @@ struct SpotCardView: View {
                 CategoryBadge(category: spot.category)
 
                 VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 6) {
-                        Text(spot.name)
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                            .foregroundStyle(env.palette.textPrimary)
-                            .lineLimit(1)
-
-                        if isFavorite {
-                            Text(env.l10n.t("favoriteBadge"))
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
-                                .foregroundStyle(env.palette.primary)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
-                                .background(env.palette.primaryContainer)
-                                .clipShape(Capsule())
-                        }
-                    }
+                    Text(spot.name)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(env.palette.textPrimary)
+                        .lineLimit(1)
 
                     Text(spot.category.label(env.l10n))
                         .font(.system(size: 13, design: .rounded))

@@ -112,6 +112,7 @@ struct ExportSpotsSheetView: View {
 
             Spacer()
         }
+        .environment(\.layoutDirection, env.layoutDirection)
         .presentationDetents([.height(290)])
         .presentationDragIndicator(.hidden)
     }
