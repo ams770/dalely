@@ -14,10 +14,10 @@ struct CircleIconButton: View {
         }) {
             Image(systemName: systemName)
                 .font(.system(size: 16, weight: .medium))
-                .frame(width: size-5, height: size)
+                .frame(width: size-6, height: size)
         }
         .buttonStyle(.glass)
-        .tint(tint)
+//        .tint(tint)
         .frame(minWidth: size, minHeight: size)
     }
 }
@@ -168,33 +168,47 @@ struct InfoPill: View {
 struct EmptyStateView: View {
     let title: String
     let message: String
+    var imageName: String? = nil
+    var lottieFilename: String? = nil
+    var systemImage: String = "mappin.and.ellipse"
     @Environment(AppEnvironment.self) private var env
 
     var body: some View {
         VStack(spacing: AppDimens.space12) {
-            ZStack {
-                Circle()
-                    .fill(.ultraThinMaterial)
-                    .frame(width: 80, height: 80)
-                Circle()
-                    .fill(env.palette.primary.opacity(0.10))
-                    .frame(width: 80, height: 80)
-                Circle()
-                    .stroke(
-                        LinearGradient(
-                            colors: [Color.white.opacity(0.6), Color.white.opacity(0.1)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1
-                    )
-                    .frame(width: 80, height: 80)
+            if let imageName {
+                Image(imageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 140, height: 140)
+                    .shadow(color: env.palette.primary.opacity(0.12), radius: 14, y: 5)
+            } else if let lottieFilename {
+                LottieAnimationView(filename: lottieFilename)
+                    .frame(width: 150, height: 150)
+            } else {
+                ZStack {
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 80, height: 80)
+                    Circle()
+                        .fill(env.palette.primary.opacity(0.10))
+                        .frame(width: 80, height: 80)
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.6), Color.white.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                        .frame(width: 80, height: 80)
 
-                Image(systemName: "mappin.and.ellipse")
-                    .font(.system(size: 38, weight: .semibold))
-                    .foregroundStyle(env.palette.primary)
+                    Image(systemName: systemImage)
+                        .font(.system(size: 38, weight: .semibold))
+                        .foregroundStyle(env.palette.primary)
+                }
+                .shadow(color: env.palette.primary.opacity(0.18), radius: 12, y: 4)
             }
-            .shadow(color: env.palette.primary.opacity(0.18), radius: 12, y: 4)
 
             Text(title)
                 .font(.system(size: 20, weight: .bold, design: .rounded))

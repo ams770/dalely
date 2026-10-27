@@ -15,6 +15,7 @@ struct ContentView: View {
                         .transition(.opacity)
                 } else if isWide {
                     HomeView()
+                        .ignoresSafeArea()
                 } else {
                     NavigationStack(path: $env.path) {
                         HomeView()
@@ -61,6 +62,7 @@ struct ContentView: View {
                 }
             }
         }
+        .ignoresSafeArea()
         .onAppear {
             env.updateSystemColorScheme(systemColorScheme)
             env.reloadFromDisk()

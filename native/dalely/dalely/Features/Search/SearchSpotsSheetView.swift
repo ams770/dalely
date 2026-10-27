@@ -149,7 +149,7 @@ struct SearchSpotsSheetView: View {
                     .padding(.top, 10)
                     .padding(.bottom, 24)
                 }
-                .scrollDismissesKeyboard(.immediately)
+                .scrollDismissesKeyboard(.interactively)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

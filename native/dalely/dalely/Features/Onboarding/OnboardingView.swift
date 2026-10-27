@@ -13,9 +13,14 @@ struct OnboardingView: View {
                 }
                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                 .foregroundStyle(env.palette.primaryDarker)
-                .buttonStyle(LiquidGlassButtonStyle())
+//                .buttonStyle(LiquidGlassButtonStyle())
+//                .background()
+//                .safeAreaPadding(AppDimens.space24)
             }
-            .padding(AppDimens.space16)
+            .safeAreaPadding()
+            .padding(.top, AppDimens.space24)
+            
+            
 
             TabView(selection: $page) {
                 OnboardingPage(
@@ -52,18 +57,20 @@ struct OnboardingView: View {
             if page < 2 {
                 PrimaryBottomButton(label: env.l10n.t("onboardingNext"), systemImage: nil) {
                     withAnimation { page += 1 }
-                }
+                }.frame(maxWidth: 600)
             } else {
                 VStack(spacing: 8) {
                     PrimaryBottomButton(label: env.l10n.t("onboardingAllowLocation"), systemImage: "location.fill") {
                         env.location.requestPermission()
                         env.completeOnboarding()
                     }
-                }
+                }.frame(maxWidth: 600)
             }
+                
         }
         .background(env.effectiveColorScheme == .dark ? env.palette.background : Color.white)
-        .frame(maxWidth: 600)
+        .safeAreaPadding()
+      
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

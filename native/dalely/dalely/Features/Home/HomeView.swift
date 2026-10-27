@@ -18,6 +18,7 @@ struct HomeView: View {
                 singlePaneLayout
             }
         }
+        .ignoresSafeArea(env.isTwoPane ? .all : [])
         .onChange(of: env.sortOrder) { _, _ in
             visibleSpotsLimit = pageSize
         }
@@ -82,6 +83,7 @@ struct HomeView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .buttonStyle(.glassProminent)
                 .accessibilityLabel(Text(env.l10n.t("addSpot")))
             }
         }
@@ -107,7 +109,7 @@ struct HomeView: View {
                                 }
                             }
                             .padding(.horizontal, AppDimens.space16)
-                            .padding(.top, AppDimens.space8)
+                            .padding(.top, max(geometry.safeAreaInsets.top, AppDimens.space12))
                             .padding(.bottom, AppDimens.space16)
 
                             // Saved Spots Section
@@ -123,22 +125,27 @@ struct HomeView: View {
                                 }
                             }
                         }
-                        .padding(.leading, 54)
-                        .padding(.bottom, 24)
+                        .padding(.leading, 58)
+                        .padding(.bottom, max(geometry.safeAreaInsets.bottom, AppDimens.space16))
                     }
 
                     // Floating Vertical Action Rail (Settings & Add Spot)
                     wideActionRail
-                        .padding(.leading, AppDimens.space16)
-                        .padding(.top, AppDimens.space12)
+                        .padding(.leading, max(geometry.safeAreaInsets.leading, AppDimens.space16))
+                        .padding(.top, max(geometry.safeAreaInsets.top, AppDimens.space20))
                 }
-                .frame(width: masterWidth)
-                .background(env.effectiveColorScheme == .dark ? env.palette.background : Color.white)
+                .frame(width: env.isMapExpanded ? 0 : masterWidth)
+                .clipped()
+                .opacity(env.isMapExpanded ? 0 : 1)
+                .allowsHitTesting(!env.isMapExpanded)
+                .background(env.palette.background)
 
                 // Divider Separator aligned with device hinge
                 Rectangle()
                     .fill(env.palette.border.opacity(0.8))
-                    .frame(width: 1)
+                    .frame(width: env.isMapExpanded ? 0 : 1)
+                    .opacity(env.isMapExpanded ? 0 : 1)
+                    .background(env.palette.primary)
 
                 // Right: Detail Pane (Map / Settings / History)
                 NavigationStack {
@@ -155,7 +162,9 @@ struct HomeView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+            .animation(.easeInOut(duration: 0.28), value: env.isMapExpanded)
         }
+        .ignoresSafeArea()
         .toolbar(.hidden, for: .navigationBar)
     }
     // MARK: - Section Header
@@ -239,7 +248,7 @@ struct HomeView: View {
         }
         .padding(.horizontal, AppDimens.space16)
         .padding(.vertical, 8)
-        .background(env.palette.background)
+//        .background(env.palette.background)
     }
     // MARK: - Saved Spots List
     private var savedSpotsList: some View {
@@ -287,7 +296,8 @@ struct HomeView: View {
         VStack(spacing: AppDimens.space16) {
             EmptyStateView(
                 title: env.l10n.t("emptySpotsTitle"),
-                message: env.l10n.t("emptySpotsMessage")
+                message: env.l10n.t("emptySpotsMessage"),
+                imageName: "earth"
             )
         }
         .padding(.vertical, 24)
@@ -305,11 +315,15 @@ struct HomeView: View {
             
             
             
-            CircleIconButton(systemName: "plus"){
+            Button {
                 Haptics.tap()
                 env.openSaveSpot()
-            }.accessibilityLabel(Text(env.l10n.t("addSpot")))
-            
+            } label: {
+                Image(systemName: "plus")
+                    .frame(width: 24, height: 30)
+            }
+            .buttonStyle(.glassProminent)
+            .accessibilityLabel(Text(env.l10n.t("addSpot")))
         }
     }
 }

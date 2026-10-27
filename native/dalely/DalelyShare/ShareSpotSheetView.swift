@@ -40,20 +40,20 @@ struct ShareSpotSheetView: View {
                         .padding(.top, 10)
                         .padding(.bottom, 10)
 
-                    // Sheet Header with App Logo
+                    // Sheet Header with App Icon
                     HStack(spacing: 12) {
-                        if let uiImage = UIImage(named: "AppLogo", in: Bundle.main, with: nil) ?? UIImage(named: "AppLogo") {
+                        if let uiImage = UIImage(named: "AppIcon", in: Bundle.main, with: nil) ?? UIImage(named: "AppIcon") ?? UIImage(named: "AppLogo") {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(width: 42, height: 42)
+                                .frame(width: 44, height: 44)
                                 .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
                                 .shadow(color: Color.black.opacity(0.15), radius: 4, y: 2)
                         } else {
                             Image(systemName: "mappin.and.ellipse")
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundStyle(Color(hex: 0x3C79F3))
-                                .frame(width: 42, height: 42)
+                                .frame(width: 44, height: 44)
                                 .background(Circle().fill(Color(hex: 0x3C79F3).opacity(0.14)))
                         }
 

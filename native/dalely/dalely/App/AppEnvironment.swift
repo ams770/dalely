@@ -346,6 +346,7 @@ final class AppEnvironment {
     }
 
     func openSettings() {
+        isMapExpanded = false
         if isTwoPane {
             detailPane = .settings
         } else {
@@ -354,6 +355,7 @@ final class AppEnvironment {
     }
 
     func openParkingHistory() {
+        isMapExpanded = false
         if isTwoPane {
             detailPane = .parkingHistory
         } else {

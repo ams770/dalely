@@ -15,8 +15,7 @@ struct SpotsMapView: View {
     @State private var newSpotName: String = ""
     @State private var newSpotCategory: SpotCategory? = nil
     @State private var editingSpot: Spot? = nil
-    @State private var isSearchExpanded: Bool = false
-    @State private var searchRawText: String = ""
+    @State private var isSearchSheetPresented: Bool = false
     @State private var searchService = PlaceSearchService()
     @State private var mapCenterCoordinate: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 24.7136, longitude: 46.6753)
     @State private var mapCameraDistance: CLLocationDistance = 1000
@@ -35,8 +34,13 @@ struct SpotsMapView: View {
                         centerPinOverlay(geometry: geometry)
                     }
 
-                    floatingControls(proxy: proxy, geometry: geometry)
+                    if !isAddingSpot && selectedSpotId == nil {
+                        floatingControls(proxy: proxy, geometry: geometry)
+                            .transition(.scale(scale: 0.85).combined(with: .opacity))
+                    }
                 }
+                .animation(.easeInOut(duration: 0.25), value: isAddingSpot)
+                .animation(.easeInOut(duration: 0.25), value: selectedSpotId == nil)
                 .sheet(isPresented: $isAddingSpot, onDismiss: {
                     exitAddSpotMode()
                 }) {
@@ -79,10 +83,36 @@ struct SpotsMapView: View {
                     )
                     .environment(\.layoutDirection, env.layoutDirection)
                 }
-                .overlay(alignment: .top) {
-                    if isSearchExpanded {
-                        searchOverlay(geometry: geometry, proxy: proxy)
-                    }
+                .sheet(isPresented: $isSearchSheetPresented) {
+                    MapSearchSheetView(
+                        searchService: searchService,
+                        onSelectSpot: { spot in
+                            withAnimation(.easeInOut(duration: 0.35)) {
+                                selectedSpotId = spot.id
+                                let screenCenter = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
+                                centerCameraOnPin(coordinate: spot.coordinate, pinPoint: screenCenter, geometry: geometry, proxy: proxy, targetDistance: 800)
+                            }
+                        },
+                        onSelectCoordinate: { coord, placeTitle in
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                if isAddingSpot {
+                                    let pinPoint = addSpotPinPoint(geometry: geometry)
+                                    centerCameraOnPin(coordinate: coord, pinPoint: pinPoint, geometry: geometry, proxy: proxy, targetDistance: 800)
+                                    mapCenterCoordinate = coord
+                                    if newSpotName.isEmpty {
+                                        newSpotName = placeTitle
+                                    }
+                                } else {
+                                    cameraPosition = .region(MKCoordinateRegion(
+                                        center: coord,
+                                        latitudinalMeters: 500,
+                                        longitudinalMeters: 500
+                                    ))
+                                }
+                            }
+                        }
+                    )
+                    .environment(\.layoutDirection, env.layoutDirection)
                 }
                 .onAppear {
                     setupInitialState(geometry: geometry, proxy: proxy)
@@ -121,13 +151,16 @@ struct SpotsMapView: View {
             if isEmbedded {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        withAnimation(.easeInOut(duration: 0.25)) {
-                            env.isMapExpanded.toggle()
-                        }
+                        Haptics.tap()
+                        env.toggleMapFullscreen()
                     } label: {
                         Image(systemName: env.isMapExpanded ? "arrow.down.right.and.arrow.up.left" : "arrow.up.left.and.arrow.down.right")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(env.palette.textPrimary)
+                            .frame(width: 36, height: 36)
+                            .contentShape(Rectangle())
                     }
-                    .accessibilityLabel(env.l10n.t("fullscreen"))
+                    .accessibilityLabel(env.l10n.t(env.isMapExpanded ? "collapse" : "fullscreen"))
                 }
             } else {
                 ToolbarItem(placement: .topBarLeading) {
@@ -145,20 +178,17 @@ struct SpotsMapView: View {
             }
 
             ToolbarItem(placement: .topBarTrailing) {
-                if !isSearchExpanded {
-                    Button {
-                        Haptics.tap()
-                        withAnimation(.spring(response: 0.32, dampingFraction: 0.78)) {
-                            isSearchExpanded = true
-                        }
-                    } label: {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundStyle(env.palette.textPrimary)
-                            .frame(width: 36, height: 36)
-                    }
-                    .accessibilityLabel(env.l10n.t("search"))
+                Button {
+                    Haptics.tap()
+                    isSearchSheetPresented = true
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(env.palette.textPrimary)
+                        .frame(width: 36, height: 36)
+                        .contentShape(Rectangle())
                 }
+                .accessibilityLabel(env.l10n.t("search"))
             }
         }
         .background(InteractiveBackGestureHandler(isEnabled: !hasOpenSheet))
@@ -268,145 +298,30 @@ struct SpotsMapView: View {
             HStack {
                 Spacer()
                 VStack(spacing: 14) {
-              
-                    if !isAddingSpot {
-                        Button {
-                            Haptics.tap()
-                            enterAddSpotMode(geometry: geometry, proxy: proxy)
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 22, weight: .bold))
-                                .foregroundStyle(.white)
-                                .frame(width: 52, height: 52)
-                                .liquidGlassProminent(cornerRadius: 26, tint: env.palette.primary)
-                        }
-                        .buttonStyle(LiquidGlassButtonStyle())
+                    Button {
+                        Haptics.tap()
+                        enterAddSpotMode(geometry: geometry, proxy: proxy)
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 52, height: 52)
+                            .liquidGlassProminent(cornerRadius: 26, tint: env.palette.primary)
                     }
-                    
-                    
+                    .buttonStyle(LiquidGlassButtonStyle())
+
                     CircleIconButton(systemName: "location.fill", size: 32, tint: env.palette.primary) {
                         if let coord = env.location.coordinate {
-                            let targetPoint = isAddingSpot ? pinPoint : CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
+                            let targetPoint = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
                             centerCameraOnPin(coordinate: coord, pinPoint: targetPoint, geometry: geometry, proxy: proxy, targetDistance: 800)
                         } else {
                             env.location.requestPermission()
                         }
                     }
-
                 }
                 .padding(.trailing, 16)
-                .padding(.bottom, isAddingSpot || selectedSpot != nil ? 285 : (30 + geometry.safeAreaInsets.bottom))
+                .padding(.bottom, 30 + geometry.safeAreaInsets.bottom)
             }
-        }
-    }
-
-    // MARK: - Search Overlay
-    @ViewBuilder
-    private func searchOverlay(geometry: GeometryProxy, proxy: MapProxy) -> some View {
-        VStack(spacing: 8) {
-            AppSearchBar(
-                text: $searchRawText,
-                placeholder: env.l10n.t("searchPlaceHint"),
-                isExpanded: $isSearchExpanded,
-                autoFocus: true,
-                debounceDuration: 0.35,
-                onDebouncedChange: { debouncedQuery in
-                    searchService.query = debouncedQuery
-                },
-                onCancel: {
-                    searchRawText = ""
-                    searchService.query = ""
-                    withAnimation(.spring(response: 0.32, dampingFraction: 0.78)) {
-                        isSearchExpanded = false
-                    }
-                }
-            )
-
-            if !searchService.results.isEmpty {
-                placeSearchResultsCard(geometry: geometry, proxy: proxy)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, geometry.safeAreaInsets.top + 8)
-        .transition(.move(edge: .top).combined(with: .opacity))
-    }
-
-    // MARK: - Place Search Results Dropdown
-    private func placeSearchResultsCard(geometry: GeometryProxy, proxy: MapProxy) -> some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(searchService.results.enumerated()), id: \.offset) { _, result in
-                    Button {
-                        Haptics.tap()
-                        Task {
-                            if let coord = await searchService.resolveCoordinate(for: result) {
-                                await MainActor.run {
-                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                                        isSearchExpanded = false
-                                        searchRawText = ""
-                                        searchService.query = ""
-                                        if isAddingSpot {
-                                            let pinPoint = addSpotPinPoint(geometry: geometry)
-                                            centerCameraOnPin(coordinate: coord, pinPoint: pinPoint, geometry: geometry, proxy: proxy, targetDistance: 800)
-                                            mapCenterCoordinate = coord
-                                            if newSpotName.isEmpty {
-                                                newSpotName = result.title
-                                            }
-                                        } else {
-                                            cameraPosition = .region(MKCoordinateRegion(
-                                                center: coord,
-                                                latitudinalMeters: 500,
-                                                longitudinalMeters: 500
-                                            ))
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: "mappin.circle.fill")
-                                .font(.system(size: 20))
-                                .foregroundStyle(env.palette.primary)
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(result.title)
-                                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                                    .foregroundStyle(env.palette.textPrimary)
-                                    .lineLimit(1)
-                                if !result.subtitle.isEmpty {
-                                    Text(result.subtitle)
-                                        .font(.system(size: 12, design: .rounded))
-                                        .foregroundStyle(env.palette.textSecondary)
-                                        .lineLimit(1)
-                                }
-                            }
-
-                            Spacer()
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 11)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-
-                    Divider()
-                        .padding(.leading, 48)
-                }
-            }
-        }
-        .frame(maxHeight: 220)
-        .background {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(env.effectiveColorScheme == .dark ? Color(hex: 0x162232) : Color.white)
-                .shadow(color: Color.black.opacity(env.effectiveColorScheme == .dark ? 0.30 : 0.08), radius: 8, y: 3)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(
-                    env.effectiveColorScheme == .dark ? Color.white.opacity(0.12) : env.palette.border,
-                    lineWidth: 0.75
-                )
         }
     }
 
@@ -707,7 +622,7 @@ struct SpotsMapView: View {
 
     // MARK: - Back Navigation Handling
     private var hasOpenSheet: Bool {
-        isAddingSpot || selectedSpotId != nil || isSearchExpanded
+        isAddingSpot || selectedSpotId != nil || isSearchSheetPresented
     }
 
     private func handleBackAction() {
@@ -725,11 +640,8 @@ struct SpotsMapView: View {
             }
             return
         }
-        if isSearchExpanded {
-            withAnimation(.spring(response: 0.32, dampingFraction: 0.78)) {
-                isSearchExpanded = false
-                searchRawText = ""
-            }
+        if isSearchSheetPresented {
+            isSearchSheetPresented = false
             return
         }
         dismiss()

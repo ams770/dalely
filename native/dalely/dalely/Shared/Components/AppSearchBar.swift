@@ -172,6 +172,9 @@ struct AppSearchBar: View {
                     Text(env.l10n.t("cancel"))
                         .font(.system(size: 15, weight: .medium, design: .rounded))
                         .foregroundStyle(env.palette.primary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 8)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .transition(.move(edge: .trailing).combined(with: .opacity))
