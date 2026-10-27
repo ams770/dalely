@@ -90,6 +90,12 @@ class DistancePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    try {
+      context.read<LocationCubit>();
+    } catch (_) {
+      return const SizedBox.shrink();
+    }
+
     return BlocSelector<LocationCubit, LocationState, double?>(
       selector: (state) {
         final pos = state.position;

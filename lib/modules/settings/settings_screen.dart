@@ -1,15 +1,17 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../shared/constants/app_links.dart';
+import '../../shared/cubits/adaptive_nav/adaptive_nav_cubit.dart';
 import '../../shared/cubits/settings/settings_cubit.dart';
 import '../../shared/cubits/settings/settings_state.dart';
 import '../../shared/services/maps_launcher.dart';
 import '../../shared/theme/app_dimens.dart';
 import '../../shared/utils/adaptive_layout_ext.dart';
 import '../../shared/utils/context_ext.dart';
-import '../../shared/widgets/adaptive/adaptive_ui.dart';
+import '../../shared/widgets/adaptive_expand_listener.dart';
 import '../../shared/widgets/circle_icon_button.dart';
 import '../../shared/widgets/settings_group.dart';
 
@@ -20,11 +22,23 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        right: context.height > 500 && context.width < 600,
-        left: context.height > 500 && context.width < 600,
+    return AdaptiveExpandListener(
+      enabled: onClose == null,
+      onExpandToTwoPane: () {
+        AdaptiveNavCubit? navCubit;
+        try {
+          navCubit = context.read<AdaptiveNavCubit>();
+        } catch (_) {}
+        navCubit?.openSettings();
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          right: (context.isRtl && !context.isWideScreen) || !context.isRtl,
+          left: (!context.isRtl && !context.isWideScreen) || context.isRtl,
 
         child: Column(
           children: [
@@ -35,7 +49,9 @@ class SettingsScreen extends StatelessWidget {
                 removeLeft: true,
                 removeRight: true,
                 child: ListView(
-                  physics: const BouncingScrollPhysics(),
+                  physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
+                  ),
                   padding: const EdgeInsetsDirectional.all(AppDimens.space16),
                   children: const [
                     _AppearanceSection(),
@@ -53,8 +69,9 @@ class SettingsScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 class _SettingsHeader extends StatelessWidget {
@@ -104,9 +121,9 @@ class _AppearanceSection extends StatelessWidget {
     return BlocBuilder<SettingsCubit, SettingsState>(
       builder: (context, state) {
         return SettingsGroup(
-          title: l10n.appearance,
+          // title: l10n.appearance,
           children: [
-            // Theme Mode Adaptive Segmented Selector
+            // Theme Mode Cupertino Sliding Segmented Selector
             Padding(
               padding: const EdgeInsetsDirectional.all(AppDimens.space16),
               child: Column(
@@ -114,63 +131,122 @@ class _AppearanceSection extends StatelessWidget {
                 children: [
                   Text(l10n.theme, style: context.textTheme.titleMedium),
                   const SizedBox(height: AppDimens.space12),
-                  AdaptiveSegmentedControl(
-                    labels: [
-                      l10n.themeSystem,
-                      l10n.themeLight,
-                      l10n.themeDark,
-                    ],
-                    selectedIndex: switch (state.themeMode) {
-                      ThemeMode.system => 0,
-                      ThemeMode.light => 1,
-                      ThemeMode.dark => 2,
-                    },
-                    onValueChanged: (index) {
-                      final mode = switch (index) {
-                        0 => ThemeMode.system,
-                        1 => ThemeMode.light,
-                        2 => ThemeMode.dark,
-                        _ => ThemeMode.system,
-                      };
-                      cubit.setThemeMode(mode);
-                    },
-                    color: context.colorScheme.primary,
+                  SizedBox(
+                    width: double.infinity,
+                    child: CupertinoSlidingSegmentedControl<ThemeMode>(
+                      groupValue: state.themeMode,
+                      children: {
+                        ThemeMode.system: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppDimens.space8,
+                            horizontal: AppDimens.space12,
+                          ),
+                          child: Text(
+                            l10n.themeSystem,
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              fontWeight: state.themeMode == ThemeMode.system
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        ThemeMode.light: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppDimens.space8,
+                            horizontal: AppDimens.space12,
+                          ),
+                          child: Text(
+                            l10n.themeLight,
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              fontWeight: state.themeMode == ThemeMode.light
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        ThemeMode.dark: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppDimens.space8,
+                            horizontal: AppDimens.space12,
+                          ),
+                          child: Text(
+                            l10n.themeDark,
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              fontWeight: state.themeMode == ThemeMode.dark
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      },
+                      onValueChanged: (mode) {
+                        if (mode != null) {
+                          cubit.setThemeMode(mode);
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // Language Adaptive Popup Menu Tile
-            AdaptivePopupMenuButton.widget<String?>(
-              items: [
-                AdaptivePopupMenuItem<String?>(
-                  label: l10n.languageSystem,
-                  value: null,
-                  selected: state.localeCode == null,
+            // Language Pure Flutter Popup Menu Tile
+            PopupMenuButton<String?>(
+              tooltip: l10n.language,
+              clipBehavior: Clip.antiAlias,
+              elevation: 10,
+              shadowColor: Colors.black.withAlpha(context.isDarkMode ? 80 : 35),
+              surfaceTintColor: Colors.transparent,
+              color: context.isDarkMode
+                  ? const Color(0xF21E293B)
+                  : const Color(0xF8FFFFFF),
+              shape: RoundedRectangleBorder(
+                borderRadius: AppDimens.borderRadiusMedium,
+                side: BorderSide(
+                  color: context.isDarkMode
+                      ? Colors.white.withAlpha(25)
+                      : Colors.black.withAlpha(15),
+                  width: 0.5,
                 ),
-                AdaptivePopupMenuItem<String?>(
-                  label: l10n.languageArabic,
-                  value: 'ar',
-                  selected: state.localeCode == 'ar',
-                ),
-                AdaptivePopupMenuItem<String?>(
-                  label: l10n.languageArabicEg,
-                  value: 'ar_EG',
-                  selected: state.localeCode == 'ar_EG',
-                ),
-                AdaptivePopupMenuItem<String?>(
-                  label: l10n.languageArabicSa,
-                  value: 'ar_SA',
-                  selected: state.localeCode == 'ar_SA',
-                ),
-                AdaptivePopupMenuItem<String?>(
-                  label: l10n.languageEnglish,
-                  value: 'en',
-                  selected: state.localeCode == 'en',
-                ),
-              ],
-              onSelected: (index, item) {
-                cubit.setLocaleCode(item.value);
+              ),
+              onSelected: (localeCode) {
+                cubit.setLocaleCode(localeCode);
+              },
+              itemBuilder: (menuContext) {
+                final textStyle = context.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.1,
+                );
+                return [
+                  _buildLanguageItem(
+                    context: menuContext,
+                    value: null,
+                    label: l10n.languageSystem,
+                    isSelected: state.localeCode == null,
+                    textStyle: textStyle,
+                  ),
+                  _buildLanguageItem(
+                    context: menuContext,
+                    value: 'ar_EG',
+                    label: l10n.languageArabicEg,
+                    isSelected: state.localeCode == 'ar_EG',
+                    textStyle: textStyle,
+                  ),
+                  _buildLanguageItem(
+                    context: menuContext,
+                    value: 'ar_SA',
+                    label: l10n.languageArabicSa,
+                    isSelected: state.localeCode == 'ar_SA',
+                    textStyle: textStyle,
+                  ),
+                  _buildLanguageItem(
+                    context: menuContext,
+                    value: 'en',
+                    label: l10n.languageEnglish,
+                    isSelected: state.localeCode == 'en',
+                    textStyle: textStyle,
+                  ),
+                ];
               },
               child: SettingsTile(
                 leading: const Icon(Icons.language_rounded),
@@ -187,6 +263,40 @@ class _AppearanceSection extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  PopupMenuItem<String?> _buildLanguageItem({
+    required BuildContext context,
+    required String? value,
+    required String label,
+    required bool isSelected,
+    required TextStyle? textStyle,
+  }) {
+    return PopupMenuItem<String?>(
+      value: value,
+      height: 44,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 22,
+            child: isSelected
+                ? Icon(
+                    Icons.check_rounded,
+                    size: 18,
+                    color: context.colorScheme.primary,
+                  )
+                : null,
+          ),
+          const SizedBox(width: AppDimens.space8),
+          Text(
+            label,
+            style: textStyle?.copyWith(
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -221,15 +331,14 @@ class _CarTrackingSection extends StatelessWidget {
           curr.carDistanceNotificationEnabled,
       builder: (context, state) {
         return SettingsGroup(
-          title: l10n.carTrackingNotificationSettingTitle,
           children: [
             SettingsTile(
               leading: const Icon(Icons.directions_walk_rounded),
               title: l10n.carTrackingNotificationSettingTitle,
               subtitle: l10n.carTrackingNotificationSettingSubtitle,
-              trailing: AdaptiveSwitch(
+              trailing: Switch.adaptive(
                 value: state.carDistanceNotificationEnabled,
-                activeColor: context.colorScheme.primary,
+                activeTrackColor: context.colorScheme.primary,
                 onChanged: (enabled) {
                   cubit.setCarDistanceNotificationEnabled(enabled);
                 },
@@ -251,7 +360,7 @@ class _AboutSection extends StatelessWidget {
     const launcher = MapsLauncher();
 
     return SettingsGroup(
-      title: l10n.about,
+      // title: l10n.about,
       children: [
         SettingsTile(
           leading: const Icon(Icons.public_rounded),

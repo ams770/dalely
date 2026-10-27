@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../app/app_router.dart';
+import '../../shared/cubits/adaptive_nav/adaptive_nav_cubit.dart';
 import '../../shared/cubits/spots/spots_cubit.dart';
 import '../../shared/theme/app_dimens.dart';
 import '../../shared/utils/adaptive_layout_ext.dart';
 import '../../shared/utils/context_ext.dart';
+import '../../shared/widgets/adaptive_expand_listener.dart';
 import '../../shared/widgets/category_chips.dart';
 import '../../shared/widgets/circle_icon_button.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -15,16 +17,24 @@ import 'cubit/search_spots_state.dart';
 import 'widgets/search_bar_header.dart';
 
 class SearchSpotsScreen extends StatelessWidget {
-  const SearchSpotsScreen({super.key, this.onSpotSelected, this.onClose});
+  const SearchSpotsScreen({
+    super.key,
+    this.onSpotSelected,
+    this.onClose,
+    this.initialQuery,
+  });
 
   final ValueChanged<String>? onSpotSelected;
   final VoidCallback? onClose;
+  final String? initialQuery;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SearchSpotsCubit>(
-      create: (context) =>
-          SearchSpotsCubit(spotsCubit: context.read<SpotsCubit>()),
+      create: (context) => SearchSpotsCubit(
+        spotsCubit: context.read<SpotsCubit>(),
+        initialQuery: initialQuery,
+      ),
       child: _SearchSpotsView(onSpotSelected: onSpotSelected, onClose: onClose),
     );
   }
@@ -38,19 +48,37 @@ class _SearchSpotsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        right: context.height > 500,
-        left: context.height > 500,
+    return AdaptiveExpandListener(
+      enabled: onClose == null,
+      onExpandToTwoPane: () {
+        AdaptiveNavCubit? navCubit;
+        try {
+          navCubit = context.read<AdaptiveNavCubit>();
+        } catch (_) {}
+        if (navCubit != null) {
+          final query = context.read<SearchSpotsCubit>().state.query;
+          navCubit.openSearch(
+            query: query.isNotEmpty ? query : null,
+          );
+        }
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          right: (context.isRtl && !context.isWideScreen) || !context.isRtl,
+          left: (!context.isRtl && !context.isWideScreen) || context.isRtl,
 
-        child: Column(
-          children: [
-            SearchBarHeader(onBack: onClose),
+          child: Column(
+            children: [
+              SearchBarHeader(onBack: onClose),
 
-            const _CategoryFilterRow(),
-            Expanded(child: _SearchResultsList(onSpotSelected: onSpotSelected)),
-          ],
+              const _CategoryFilterRow(),
+              Expanded(child: _SearchResultsList(onSpotSelected: onSpotSelected)),
+            ],
+          ),
         ),
       ),
     );
@@ -91,7 +119,7 @@ class _CategoryFilterRow extends StatelessWidget {
                       child: TextField(
                         controller: cubit.textController,
                         autofocus: true,
-                        textInputAction: TextInputAction.search,
+                        textInputAction: .search,
                         style: theme.textTheme.bodyLarge,
                         decoration: InputDecoration(
                           hintText: context.l10n.searchSpotsPlaceholder,

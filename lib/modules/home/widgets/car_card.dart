@@ -471,7 +471,7 @@ class _EmptyCarContent extends StatelessWidget {
                 label: l10n.parkHere,
                 icon: Icons.local_parking_rounded,
                 backgroundColor: colors.primary.withAlpha(18),
-                foregroundColor: colors.primary,
+                foregroundColor: Colors.blueAccent,
                 onPressed: onPark,
               ),
             ],

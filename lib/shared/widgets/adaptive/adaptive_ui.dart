@@ -26,6 +26,7 @@ export 'package:adaptive_platform_ui/adaptive_platform_ui.dart'
 
         // Menus
         AdaptivePopupMenuButton,
+        AdaptivePopupMenuEntry,
         AdaptivePopupMenuItem,
         AdaptivePopupMenuDivider,
         PopupButtonStyle,

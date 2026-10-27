@@ -19,6 +19,7 @@ class AdaptiveNavState {
     this.editingSpot,
     this.requestTimestamp = 0,
     this.onlyShowSpot = false,
+    this.searchQuery,
   });
 
   final DetailPaneType detailPane;
@@ -26,6 +27,7 @@ class AdaptiveNavState {
   final Spot? editingSpot;
   final int requestTimestamp;
   final bool onlyShowSpot;
+  final String? searchQuery;
 
   AdaptiveNavState copyWith({
     DetailPaneType? detailPane,
@@ -33,6 +35,7 @@ class AdaptiveNavState {
     ValueGetter<Spot?>? editingSpot,
     int? requestTimestamp,
     bool? onlyShowSpot,
+    ValueGetter<String?>? searchQuery,
   }) {
     return AdaptiveNavState(
       detailPane: detailPane ?? this.detailPane,
@@ -42,6 +45,7 @@ class AdaptiveNavState {
       editingSpot: editingSpot != null ? editingSpot() : this.editingSpot,
       requestTimestamp: requestTimestamp ?? this.requestTimestamp,
       onlyShowSpot: onlyShowSpot ?? this.onlyShowSpot,
+      searchQuery: searchQuery != null ? searchQuery() : this.searchQuery,
     );
   }
 
@@ -53,7 +57,8 @@ class AdaptiveNavState {
           other.selectedSpotId == selectedSpotId &&
           other.editingSpot == editingSpot &&
           other.requestTimestamp == requestTimestamp &&
-          other.onlyShowSpot == onlyShowSpot;
+          other.onlyShowSpot == onlyShowSpot &&
+          other.searchQuery == searchQuery;
 
   @override
   int get hashCode => Object.hash(
@@ -62,5 +67,6 @@ class AdaptiveNavState {
         editingSpot,
         requestTimestamp,
         onlyShowSpot,
+        searchQuery,
       );
 }

@@ -21,6 +21,7 @@ class CircleIconButton extends StatelessWidget {
     this.backgroundColor,
     this.foregroundColor,
     this.border,
+    this.blur = false,
   });
 
   final Widget icon;
@@ -31,6 +32,7 @@ class CircleIconButton extends StatelessWidget {
   final Color? backgroundColor;
   final Color? foregroundColor;
   final BoxBorder? border;
+  final bool blur;
 
   @override
   Widget build(BuildContext context) {
@@ -44,44 +46,48 @@ class CircleIconButton extends StatelessWidget {
           ? context.colorScheme.surfaceContainerHigh
           : context.colorScheme.surfaceContainerLow;
 
-      // iOS: Authentic Liquid Glass with backdrop blur, highlight border and haptics
-      button = ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: backgroundColor ?? defaultBg,
-              border:
-                  border ??
-                  Border.all(
-                    color: isDark
-                        ? Colors.white.withAlpha(35)
-                        : Colors.white.withAlpha(180),
-                    width: 0.5,
-                  ),
-            ),
-            child: CupertinoButton(
-              padding: EdgeInsets.zero,
-              minimumSize: Size(size, size),
-              onPressed: onPressed == null
-                  ? null
-                  : () {
-                      HapticFeedback.lightImpact();
-                      onPressed!();
-                    },
-              child: Center(
-                child: IconTheme(
-                  data: IconThemeData(size: iconSize, color: fg),
-                  child: icon,
-                ),
+      final inner = Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: backgroundColor ?? defaultBg,
+          border:
+              border ??
+              Border.all(
+                color: isDark
+                    ? Colors.white.withAlpha(35)
+                    : Colors.white.withAlpha(180),
+                width: 0.5,
               ),
+        ),
+        child: CupertinoButton(
+          padding: EdgeInsets.zero,
+          minimumSize: Size(size, size),
+          onPressed: onPressed == null
+              ? null
+              : () {
+                  HapticFeedback.lightImpact();
+                  onPressed!();
+                },
+          child: Center(
+            child: IconTheme(
+              data: IconThemeData(size: iconSize, color: fg),
+              child: icon,
             ),
           ),
         ),
       );
+
+      // Only apply expensive GPU BackdropFilter when explicitly requested and not transparent
+      button = (blur && backgroundColor != Colors.transparent)
+          ? ClipOval(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                child: inner,
+              ),
+            )
+          : ClipOval(child: inner);
     } else {
       // Android / Other: Adaptive Material 3 tonal elevation with ink ripple
       final defaultBg = isDark

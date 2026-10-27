@@ -456,6 +456,17 @@ abstract final class AppTheme {
         thickness: 1,
         space: 1,
       ),
+
+      // PopupMenu
+      popupMenuTheme: PopupMenuThemeData(
+        elevation: 8,
+        shadowColor: Colors.black.withAlpha(isDark ? 80 : 35),
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          borderRadius: AppDimens.borderRadiusMedium,
+        ),
+        color: isDark ? const Color(0xF21E293B) : const Color(0xF8FFFFFF),
+      ),
     );
   }
 }

@@ -34,8 +34,11 @@ class AdaptiveNavCubit extends Cubit<AdaptiveNavState> {
     emit(state.copyWith(detailPane: DetailPaneType.settings));
   }
 
-  void openSearch() {
-    emit(state.copyWith(detailPane: DetailPaneType.search));
+  void openSearch({String? query}) {
+    emit(state.copyWith(
+      detailPane: DetailPaneType.search,
+      searchQuery: () => query,
+    ));
   }
 
   void openParkingHistory() {
@@ -43,6 +46,7 @@ class AdaptiveNavCubit extends Cubit<AdaptiveNavState> {
   }
 
   void closeDetail() {
+    emit(state.copyWith(searchQuery: () => null));
     showMap();
   }
 }

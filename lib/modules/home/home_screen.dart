@@ -3,19 +3,21 @@ import 'dart:ui' show DisplayFeature, DisplayFeatureType;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../app/app_router.dart';
 import '../../shared/constants/app_assets.dart';
 import '../../shared/cubits/adaptive_nav/adaptive_nav_cubit.dart';
 import '../../shared/cubits/adaptive_nav/adaptive_nav_state.dart';
 import '../../shared/cubits/spots/spots_cubit.dart';
 import '../../shared/cubits/spots/spots_state.dart';
 import '../../shared/models/spot.dart';
+import '../../shared/services/maps_launcher.dart';
+import '../../shared/services/share_service.dart';
 import '../../shared/theme/app_colors.dart';
 import '../../shared/theme/app_dimens.dart';
 import '../../shared/utils/adaptive_layout_ext.dart';
 import '../../shared/utils/adaptive_navigation.dart';
 import '../../shared/utils/app_snack_bar.dart';
 import '../../shared/utils/context_ext.dart';
-import '../../shared/widgets/adaptive/adaptive_ui.dart';
 import '../../shared/widgets/car_proximity_listener.dart';
 import '../../shared/widgets/circle_icon_button.dart';
 import '../../shared/widgets/duo_action_rail.dart';
@@ -41,13 +43,54 @@ class HomeScreen extends StatelessWidget {
     return BlocProvider<HomeCubit>(
       create: (context) => HomeCubit(spotsCubit: context.read<SpotsCubit>()),
       child: CarProximityListener(
-        child: context.isSplitLayout
-            ? const _AdaptiveTwoPaneHome()
-            : context.isDuoFolded
-            ? const _DuoFoldedHomeLayout()
-            : const _HomePane(),
+        child: _AdaptiveCollapseListener(
+          child: context.isTwoPaneLayout
+              ? const _AdaptiveTwoPaneHome()
+              : context.isDuoFolded
+              ? const _DuoFoldedHomeLayout()
+              : const _HomePane(),
+        ),
       ),
     );
+  }
+}
+
+class _AdaptiveCollapseListener extends StatelessWidget {
+  const _AdaptiveCollapseListener({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final isTwoPane = context.isTwoPaneLayout;
+    if (!isTwoPane) {
+      final navState = context.read<AdaptiveNavCubit>().state;
+      if (navState.detailPane != DetailPaneType.map) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          final modal = ModalRoute.of(context);
+          if (modal != null && !modal.isCurrent) return;
+
+          final cubit = context.read<AdaptiveNavCubit>();
+          final currentDetail = cubit.state.detailPane;
+          if (currentDetail == DetailPaneType.settings) {
+            cubit.closeDetail();
+            Navigator.of(context).pushNamed(AppRouter.settings);
+          } else if (currentDetail == DetailPaneType.search) {
+            final query = cubit.state.searchQuery;
+            cubit.closeDetail();
+            Navigator.of(context).pushNamed(
+              AppRouter.search,
+              arguments: query,
+            );
+          } else if (currentDetail == DetailPaneType.parkingHistory) {
+            cubit.closeDetail();
+            Navigator.of(context).pushNamed(AppRouter.parkingHistory);
+          }
+        });
+      }
+    }
+    return child;
   }
 }
 
@@ -100,7 +143,7 @@ class _AdaptiveTwoPaneHome extends StatelessWidget {
           // Left Pane: Home
           // On foldable/flip devices, each part takes exactly half (50%) of the device.
           // On tablets, home pane is a fixed sidebar so the map takes the largest area.
-          if (context.isFoldableDevice || context.isWideScreen)
+          if ((context.isFoldableDevice || context.isWideScreen) )
             Expanded(flex: context.isRtl ? 9 : 8, child: _HomePane())
           else
             const SizedBox(width: 440.0, child: _HomePane()),
@@ -166,6 +209,7 @@ class _AdaptiveDetailPane extends StatelessWidget {
     return BlocBuilder<AdaptiveNavCubit, AdaptiveNavState>(
       builder: (context, state) {
         return Stack(
+          fit: StackFit.expand,
           children: [
             // The single persistent Map across the entire app
             SpotsMapScreen(
@@ -181,6 +225,7 @@ class _AdaptiveDetailPane extends StatelessWidget {
             else if (state.detailPane == DetailPaneType.search)
               Positioned.fill(
                 child: SearchSpotsScreen(
+                  initialQuery: state.searchQuery,
                   onClose: cubit.closeDetail,
                   onSpotSelected: (id) => cubit.showMap(spotId: id),
                 ),
@@ -222,7 +267,7 @@ class _HomePane extends StatelessWidget {
                   SliverPadding(
                     padding: const EdgeInsetsDirectional.fromSTEB(
                       AppDimens.space16,
-                      AppDimens.space8,
+                      AppDimens.space16,
                       AppDimens.space16,
                       AppDimens.space16,
                     ),
@@ -230,11 +275,10 @@ class _HomePane extends StatelessWidget {
                       delegate: SliverChildListDelegate.fixed([
                         const LocationPermissionBanner(),
                         const _HomeCardsGrid(),
-                        const SizedBox(height: AppDimens.space24),
-                        const _SavedSpotsSectionHeader(),
                       ]),
                     ),
                   ),
+                  const _PinnedSavedSpotsHeader(),
                   const _SavedSpotsSliverList(),
                   const _BottomListSpacer(),
                 ],
@@ -288,11 +332,10 @@ class _DuoFoldedHomeLayout extends StatelessWidget {
                       delegate: SliverChildListDelegate.fixed([
                         const LocationPermissionBanner(),
                         const _HomeCardsGrid(),
-                        const SizedBox(height: AppDimens.space24),
-                        const _SavedSpotsSectionHeader(),
                       ]),
                     ),
                   ),
+                  const _PinnedSavedSpotsHeader(),
                   const _SavedSpotsSliverList(),
                   const _BottomListSpacer(),
                 ],
@@ -302,7 +345,7 @@ class _DuoFoldedHomeLayout extends StatelessWidget {
 
           // Vertical action rail positioned on the outer edge (away from the center hinge)
           Positioned(
-            top: context.height / 4,
+            bottom: context.height / 5,
             left: isLeft ? 22.0 : null,
             right: isLeft ? null : 22.0,
             child: DuoActionRail(
@@ -336,7 +379,7 @@ class _HomeCardsGrid extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(child: CarCard()),
-          if (!context.isSplitLayout) ...[
+          if (!context.isTwoPaneLayout) ...[
             SizedBox(width: AppDimens.space12),
             Expanded(child: HomeMapCard()),
           ],
@@ -364,7 +407,7 @@ class _BottomActionArea extends StatelessWidget {
       buildWhen: (prev, curr) => prev.spots.isEmpty != curr.spots.isEmpty,
       builder: (context, state) {
         if (state.spots.isEmpty &&
-            !context.isSplitLayout &&
+            !context.isTwoPaneLayout &&
             !context.isSmallScreen) {
           return SafeArea(
             child: PrimaryBottomButton(
@@ -383,40 +426,98 @@ class _BottomActionArea extends StatelessWidget {
   }
 }
 
-class _SavedSpotsSectionHeader extends StatelessWidget {
-  const _SavedSpotsSectionHeader();
+class _PinnedSavedSpotsHeader extends StatelessWidget {
+  const _PinnedSavedSpotsHeader();
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SpotsCubit, SpotsState>(
       buildWhen: (prev, curr) =>
-          prev.spots.length != curr.spots.length || prev.car != curr.car,
+          prev.spots.length != curr.spots.length ||
+          prev.car != curr.car ||
+          prev.sortOrder != curr.sortOrder,
       builder: (context, state) {
         if (state.spots.where((item) => !item.isParking).isEmpty) {
-          return const SizedBox.shrink();
+          return const SliverToBoxAdapter(child: SizedBox.shrink());
         }
 
-        return SectionHeader(
-          title: context.l10n.savedSpots,
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _ExportSpotsButton(spots: state.allSpots),
-              const SizedBox(width: AppDimens.space8),
-              const _SortSpotsButton(),
-              const SizedBox(width: AppDimens.space8),
-              CircleIconButton(
-                icon: const Icon(Icons.search_rounded),
-                tooltip: context.l10n.searchSpots,
-                onPressed: () {
-                  AdaptiveNavigation.openSearch(context);
-                },
-              ),
-            ],
+        return SliverPersistentHeader(
+          pinned: true,
+          delegate: _SavedSpotsHeaderDelegate(
+            spots: state.allSpots,
           ),
         );
       },
     );
+  }
+}
+
+class _SavedSpotsHeaderDelegate extends SliverPersistentHeaderDelegate {
+  const _SavedSpotsHeaderDelegate({required this.spots});
+
+  final List<Spot> spots;
+
+  static const double _headerHeight = 52.0;
+
+  @override
+  double get minExtent => _headerHeight;
+
+  @override
+  double get maxExtent => _headerHeight;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final theme = context.theme;
+    final isPinned = shrinkOffset > 0 || overlapsContent;
+
+    return Container(
+      height: _headerHeight,
+      decoration: BoxDecoration(
+        color: theme.scaffoldBackgroundColor,
+        border: isPinned
+            ? Border(
+                bottom: BorderSide(
+                  color: context.colorScheme.outlineVariant.withAlpha(
+                    context.isDarkMode ? 45 : 70,
+                  ),
+                  width: 0.5,
+                ),
+              )
+            : null,
+      ),
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: AppDimens.space16,
+      ),
+      alignment: AlignmentDirectional.centerStart,
+      child: SectionHeader(
+        title: context.l10n.savedSpots,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _ExportSpotsButton(spots: spots),
+            const SizedBox(width: AppDimens.space8),
+            const _SortSpotsButton(),
+            const SizedBox(width: AppDimens.space8),
+            CircleIconButton(
+              icon: const Icon(Icons.search_rounded),
+              tooltip: context.l10n.searchSpots,
+              onPressed: () {
+                AdaptiveNavigation.openSearch(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _SavedSpotsHeaderDelegate oldDelegate) {
+    return oldDelegate.spots != spots;
   }
 }
 
@@ -425,45 +526,106 @@ class _SortSpotsButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     final l10n = context.l10n;
+    final isDark = context.isDarkMode;
     final currentOrder = context.select<SpotsCubit, SpotSortOrder>(
       (c) => c.state.sortOrder,
     );
 
-    return AdaptivePopupMenuButton.widget<SpotSortOrder>(
-      items: [
-        AdaptivePopupMenuItem<SpotSortOrder>(
-          label: l10n.sortByDateDesc,
+    final surfaceColor = isDark
+        ? const Color(0xF21E293B)
+        : const Color(0xF8FFFFFF);
+    final borderColor = isDark
+        ? Colors.white.withAlpha(25)
+        : Colors.black.withAlpha(15);
+    final textStyle = theme.textTheme.bodyMedium?.copyWith(
+      fontWeight: FontWeight.w600,
+      letterSpacing: -0.1,
+    );
+
+    return PopupMenuButton<SpotSortOrder>(
+      tooltip: l10n.sortBy,
+      clipBehavior: Clip.antiAlias,
+      elevation: 10,
+      shadowColor: Colors.black.withAlpha(isDark ? 80 : 35),
+      surfaceTintColor: Colors.transparent,
+      color: surfaceColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: AppDimens.borderRadiusMedium,
+        side: BorderSide(color: borderColor, width: 0.5),
+      ),
+      onSelected: (order) {
+        context.read<SpotsCubit>().setSortOrder(order);
+      },
+      itemBuilder: (context) => [
+        _buildItem(
+          context: context,
           value: SpotSortOrder.dateDesc,
-          selected: currentOrder == SpotSortOrder.dateDesc,
+          label: l10n.sortByDateDesc,
+          isSelected: currentOrder == SpotSortOrder.dateDesc,
+          textStyle: textStyle,
         ),
-        AdaptivePopupMenuItem<SpotSortOrder>(
-          label: l10n.sortByNearest,
+        _buildItem(
+          context: context,
           value: SpotSortOrder.nearest,
-          selected: currentOrder == SpotSortOrder.nearest,
+          label: l10n.sortByNearest,
+          isSelected: currentOrder == SpotSortOrder.nearest,
+          textStyle: textStyle,
         ),
-        AdaptivePopupMenuItem<SpotSortOrder>(
-          label: l10n.sortByCategory,
+        _buildItem(
+          context: context,
           value: SpotSortOrder.category,
-          selected: currentOrder == SpotSortOrder.category,
+          label: l10n.sortByCategory,
+          isSelected: currentOrder == SpotSortOrder.category,
+          textStyle: textStyle,
         ),
-        AdaptivePopupMenuItem<SpotSortOrder>(
-          label: l10n.sortByName,
+        _buildItem(
+          context: context,
           value: SpotSortOrder.name,
-          selected: currentOrder == SpotSortOrder.name,
+          label: l10n.sortByName,
+          isSelected: currentOrder == SpotSortOrder.name,
+          textStyle: textStyle,
         ),
       ],
-      onSelected: (index, item) {
-        if (item.value != null) {
-          context.read<SpotsCubit>().setSortOrder(item.value!);
-        }
-      },
-      child: IgnorePointer(
-        child: CircleIconButton(
-          icon: const Icon(Icons.sort_rounded),
-          tooltip: l10n.sortBy,
-          onPressed: null,
-        ),
+      child: CircleIconButton(
+        icon: const Icon(Icons.sort_rounded),
+        tooltip: l10n.sortBy,
+        onPressed: null,
+      ),
+    );
+  }
+
+  PopupMenuItem<SpotSortOrder> _buildItem({
+    required BuildContext context,
+    required SpotSortOrder value,
+    required String label,
+    required bool isSelected,
+    required TextStyle? textStyle,
+  }) {
+    return PopupMenuItem<SpotSortOrder>(
+      value: value,
+      height: 44,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 22,
+            child: isSelected
+                ? Icon(
+                    Icons.check_rounded,
+                    size: 18,
+                    color: context.colorScheme.primary,
+                  )
+                : null,
+          ),
+          const SizedBox(width: AppDimens.space8),
+          Text(
+            label,
+            style: textStyle?.copyWith(
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -524,22 +686,37 @@ class _SavedSpotsSliverList extends StatelessWidget {
         final displayedSpots = state.spots.take(visibleCount).toList();
 
         return SliverPadding(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppDimens.space16,
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            AppDimens.space16,
+            AppDimens.space12,
+            AppDimens.space16,
+            0,
           ),
           sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final spot = displayedSpots[index];
-              return Padding(
-                padding: const EdgeInsetsDirectional.only(
-                  bottom: AppDimens.space12,
-                ),
-                child: _DismissibleSpotItem(
-                  spot: spot,
-                  isFavorite: spot.id == state.favoriteSpotId,
-                ),
-              );
-            }, childCount: displayedSpots.length),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final spot = displayedSpots[index];
+                return Padding(
+                  key: ValueKey(spot.id),
+                  padding: const EdgeInsetsDirectional.only(
+                    bottom: AppDimens.space12,
+                  ),
+                  child: _DismissibleSpotItem(
+                    spot: spot,
+                    isFavorite: spot.id == state.favoriteSpotId,
+                  ),
+                );
+              },
+              childCount: displayedSpots.length,
+              findChildIndexCallback: (Key key) {
+                if (key is ValueKey<String>) {
+                  final idx =
+                      displayedSpots.indexWhere((s) => s.id == key.value);
+                  return idx >= 0 ? idx : null;
+                }
+                return null;
+              },
+            ),
           ),
         );
       },
@@ -558,45 +735,48 @@ class _DismissibleSpotItem extends StatelessWidget {
     final spotsCubit = context.read<SpotsCubit>();
     final l10n = context.l10n;
 
-    return Dismissible(
-      key: ValueKey('spot_${spot.id}'),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: AlignmentDirectional.centerEnd,
-        padding: const EdgeInsetsDirectional.only(end: AppDimens.space20),
-        decoration: BoxDecoration(
-          color: context.colorScheme.error,
-          borderRadius: AppDimens.borderRadiusLarge,
+    void handleShowOnMap() {
+      AdaptiveNavigation.openMap(context, spotId: spot.id);
+    }
+
+    void handleOpenInMaps() {
+      const MapsLauncher().openDirections(
+        latitude: spot.latitude,
+        longitude: spot.longitude,
+        label: spot.name,
+      );
+    }
+
+    void handleShare() {
+      const ShareService().shareSpot(spot, l10n: l10n);
+    }
+
+    void handleEdit() {
+      AdaptiveNavigation.openEditSpot(context, spot);
+    }
+
+    void handleDelete() {
+      spotsCubit.deleteSpot(spot.id);
+      AppSnackBar.show(
+        context,
+        content: Text(l10n.spotDeleted(spot.name)),
+        action: SnackBarAction(
+          label: l10n.undo,
+          onPressed: () {
+            spotsCubit.restoreSpot(spot);
+          },
         ),
-        child: const Icon(
-          Icons.delete_outline_rounded,
-          color: Colors.white,
-          size: AppDimens.iconLarge,
-        ),
-      ),
-      onDismissed: (_) {
-        spotsCubit.deleteSpot(spot.id);
-        AppSnackBar.show(
-          context,
-          content: Text(l10n.spotDeleted(spot.name)),
-          action: SnackBarAction(
-            label: l10n.undo,
-            onPressed: () {
-              spotsCubit.restoreSpot(spot);
-            },
-          ),
-        );
-      },
-      child: SpotCard(
-        spot: spot,
-        isFavorite: isFavorite,
-        onShowOnMap: () {
-          AdaptiveNavigation.openMap(context, spotId: spot.id);
-        },
-        onLongPress: () {
-          AdaptiveNavigation.openEditSpot(context, spot);
-        },
-      ),
+      );
+    }
+
+    return SpotCard(
+      spot: spot,
+      isFavorite: isFavorite,
+      onShowOnMap: handleShowOnMap,
+      onOpenInMaps: handleOpenInMaps,
+      onShare: handleShare,
+      onEdit: handleEdit,
+      onDelete: handleDelete,
     );
   }
 }

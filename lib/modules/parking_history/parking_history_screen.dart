@@ -1,8 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../shared/constants/spot_categories.dart';
+import '../../shared/cubits/adaptive_nav/adaptive_nav_cubit.dart';
 import '../../shared/cubits/spots/spots_cubit.dart';
 import '../../shared/cubits/spots/spots_state.dart';
 import '../../shared/models/spot.dart';
@@ -14,9 +15,12 @@ import '../../shared/utils/app_snack_bar.dart';
 import '../../shared/utils/context_ext.dart';
 import '../../shared/utils/duration_formatter.dart';
 import '../../shared/widgets/adaptive/adaptive_ui.dart';
+import '../../shared/widgets/adaptive_expand_listener.dart';
+import '../../shared/widgets/category_badge.dart';
 import '../../shared/widgets/circle_icon_button.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/info_pill.dart';
+import '../../shared/widgets/spot_adaptive_menu.dart';
 import 'cubit/parking_history_cubit.dart';
 
 class ParkingHistoryScreen extends StatelessWidget {
@@ -42,14 +46,27 @@ class _ParkingHistoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            _HistoryHeader(onClose: onClose),
-            const Expanded(child: _HistoryBody()),
-          ],
+    return AdaptiveExpandListener(
+      enabled: onClose == null,
+      onExpandToTwoPane: () {
+        AdaptiveNavCubit? navCubit;
+        try {
+          navCubit = context.read<AdaptiveNavCubit>();
+        } catch (_) {}
+        navCubit?.openParkingHistory();
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              _HistoryHeader(onClose: onClose),
+              const Expanded(child: _HistoryBody()),
+            ],
+          ),
         ),
       ),
     );
@@ -202,6 +219,32 @@ class _HistoryCard extends StatelessWidget {
     final dateStr = DateFormat.yMMMd(locale).add_jm().format(spot.savedAt);
     final spotsCubit = context.read<SpotsCubit>();
 
+    void handleOpenInMaps() {
+      const MapsLauncher().openDirections(
+        latitude: spot.latitude,
+        longitude: spot.longitude,
+        label: l10n.myCar,
+      );
+    }
+
+    void handleShare() {
+      const ShareService().shareSpot(spot, l10n: l10n);
+    }
+
+    void handleDelete() {
+      spotsCubit.deleteSpot(spot.id);
+      AppSnackBar.show(
+        context,
+        content: Text(l10n.spotDeleted(l10n.myCar)),
+        action: SnackBarAction(
+          label: l10n.undo,
+          onPressed: () {
+            spotsCubit.restoreSpot(spot);
+          },
+        ),
+      );
+    }
+
     return Dismissible(
       key: ValueKey('parking_${spot.id}'),
       direction: DismissDirection.endToStart,
@@ -218,110 +261,89 @@ class _HistoryCard extends StatelessWidget {
           size: AppDimens.iconLarge,
         ),
       ),
-      onDismissed: (_) {
-        spotsCubit.deleteSpot(spot.id);
-        AppSnackBar.show(
-          context,
-          content: Text(l10n.spotDeleted(l10n.myCar)),
-          action: SnackBarAction(
-            label: l10n.undo,
-            onPressed: () {
-              spotsCubit.restoreSpot(spot);
+      onDismissed: (_) => handleDelete(),
+      child: Builder(
+        builder: (cardContext) => Card(
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            borderRadius: AppDimens.borderRadiusLarge,
+            onTap: () {
+              Feedback.forTap(cardContext);
+              AdaptiveNavigation.openMap(
+                context,
+                spotId: spot.id,
+                onlyShowSpot: true,
+              );
             },
-          ),
-        );
-      },
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () {
-            AdaptiveNavigation.openMap(
-              context,
-              spotId: spot.id,
-              onlyShowSpot: true,
-            );
-          },
-          borderRadius: AppDimens.borderRadiusLarge,
-          child: Padding(
-            padding: const EdgeInsetsDirectional.all(AppDimens.space16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            dateStr,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+            onLongPress: () {
+              Feedback.forLongPress(cardContext);
+              SpotAdaptiveMenu.show(
+                context: cardContext,
+                spot: spot,
+                onShare: handleShare,
+                onOpenInMaps: handleOpenInMaps,
+                onDelete: handleDelete,
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AppDimens.space16,
+                AppDimens.space12,
+                AppDimens.space12,
+                AppDimens.space12,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const CategoryBadge(category: SpotCategory.car),
+                  const SizedBox(width: AppDimens.space12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          dateStr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.2,
                           ),
-                          const SizedBox(height: AppDimens.space4),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.schedule_rounded,
-                                size: AppDimens.iconSmall,
-                                color: theme.colorScheme.primary,
-                              ),
-                              const SizedBox(width: AppDimens.space4),
-                              Flexible(
-                                child: Text(
-                                  DurationFormatter.formatHuman(
-                                    spot.calculatedParkedDuration,
-                                    l10n,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: theme.colorScheme.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                        ),
+                        const SizedBox(height: AppDimens.space4),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.schedule_rounded,
+                              size: AppDimens.iconSmall,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: AppDimens.space4),
+                            Flexible(
+                              child: Text(
+                                DurationFormatter.formatHuman(
+                                  spot.calculatedParkedDuration,
+                                  l10n,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    DistancePill(spot: spot, showSuffix: false),
-                  ],
-                ),
-                Divider(height: AppDimens.space24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _ActionPill(
-                        icon: CupertinoIcons.map,
-                        label: l10n.openInMaps,
-                        onPressed: () {
-                          const MapsLauncher().openDirections(
-                            latitude: spot.latitude,
-                            longitude: spot.longitude,
-                            label: l10n.myCar,
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: AppDimens.space8),
-                    Expanded(
-                      child: _ActionPill(
-                        icon: Icons.share_outlined,
-                        label: l10n.share,
-                        onPressed: () {
-                          const ShareService().shareSpot(spot, l10n: l10n);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(width: AppDimens.space8),
+                  DistancePill(spot: spot, showSuffix: false),
+                ],
+              ),
             ),
           ),
         ),
@@ -330,46 +352,3 @@ class _HistoryCard extends StatelessWidget {
   }
 }
 
-class _ActionPill extends StatelessWidget {
-  const _ActionPill({
-    required this.icon,
-    required this.label,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 36,
-      child: AdaptiveButton.child(
-        onPressed: onPressed,
-        style: AdaptiveButtonStyle.bordered,
-        borderRadius: BorderRadius.circular(AppDimens.radiusSmall),
-        padding: const EdgeInsets.symmetric(horizontal: AppDimens.space8),
-        minSize: const Size(0, 36),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16),
-            const SizedBox(width: AppDimens.space6),
-            Flexible(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

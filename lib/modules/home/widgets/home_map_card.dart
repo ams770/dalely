@@ -141,10 +141,12 @@ class _MapCardVisual extends StatelessWidget {
       children: [
         SizedBox(
           height: 52,
-          child: Lottie.asset(
-            AssetProvider.mapLottie,
-            fit: BoxFit.contain,
-            repeat: true,
+          child: RepaintBoundary(
+            child: Lottie.asset(
+              AssetProvider.mapLottie,
+              fit: BoxFit.contain,
+              repeat: true,
+            ),
           ),
         ),
         const SizedBox(height: AppDimens.space6),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/context_ext.dart';
+
 /// The single lookup for spot categories.
 ///
 /// Icon lives here, color comes from the theme extension
@@ -52,5 +54,43 @@ enum SpotCategory {
       if (category.name == name) return category;
     }
     return SpotCategory.other;
+  }
+}
+
+extension SpotCategoryLabel on SpotCategory {
+  String label(BuildContext context) {
+    final l10n = context.l10n;
+    switch (this) {
+      case SpotCategory.car:
+        return l10n.categoryCar;
+      case SpotCategory.market:
+        return l10n.categoryMarket;
+      case SpotCategory.home:
+        return l10n.categoryHome;
+      case SpotCategory.pharmacy:
+        return l10n.categoryPharmacy;
+      case SpotCategory.work:
+        return l10n.categoryWork;
+      case SpotCategory.restaurant:
+        return l10n.categoryRestaurant;
+      case SpotCategory.hospital:
+        return l10n.categoryHospital;
+      case SpotCategory.school:
+        return l10n.categorySchool;
+      case SpotCategory.gym:
+        return l10n.categoryGym;
+      case SpotCategory.mosque:
+        return l10n.categoryMosque;
+      case SpotCategory.fuel:
+        return l10n.categoryFuel;
+      case SpotCategory.park:
+        return l10n.categoryPark;
+      case SpotCategory.club:
+        return l10n.categoryClub;
+      case SpotCategory.beautyCenter:
+        return l10n.categoryBeautyCenter;
+      case SpotCategory.other:
+        return l10n.categoryOther;
+    }
   }
 }

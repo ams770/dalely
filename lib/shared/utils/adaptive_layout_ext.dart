@@ -20,6 +20,26 @@ extension AdaptiveLayoutContext on BuildContext {
   /// In portrait, the page is not split but shown as a normal page.
   bool get isSplitLayout => isWideScreen && isLandscape;
 
+  /// True if running on a foldable device with a vertical fold/hinge separating left and right displays.
+  bool get hasVerticalHinge {
+    final features = MediaQuery.displayFeaturesOf(this);
+    final size = MediaQuery.sizeOf(this);
+    return features.any(
+      (f) =>
+          (f.type == DisplayFeatureType.hinge ||
+              f.type == DisplayFeatureType.fold) &&
+          f.bounds.top <= 0 &&
+          f.bounds.bottom >= size.height &&
+          f.bounds.width > 1,
+    );
+  }
+
+  /// True if the device is expanded to the wide two-pane split layout
+  /// (either a wide landscape display or a foldable device with a vertical hinge,
+  /// with sufficient vertical height).
+  bool get isTwoPaneLayout =>
+      (isSplitLayout || hasVerticalHinge) && height > 500;
+
   /// True if running on a dual-screen device in folded mode with a right-hand rail,
   /// or compact width with hardware status rail.
   bool get isDuoFolded {

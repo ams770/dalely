@@ -1,8 +1,11 @@
 import 'package:feen/modules/search/cubit/search_spots_cubit.dart';
 import 'package:feen/modules/search/search_spots_screen.dart';
+import 'package:feen/modules/settings/settings_screen.dart';
 import 'package:feen/modules/spots_map/cubit/spots_map_state.dart';
 import 'package:feen/modules/spots_map/spots_map_screen.dart';
 import 'package:feen/shared/constants/spot_categories.dart';
+import 'package:feen/shared/cubits/settings/settings_cubit.dart';
+import 'package:feen/shared/cubits/settings/settings_state.dart';
 import 'package:feen/shared/widgets/center_pin.dart';
 import 'package:feen/shared/cubits/adaptive_nav/adaptive_nav_cubit.dart';
 import 'package:feen/shared/cubits/adaptive_nav/adaptive_nav_state.dart';
@@ -476,7 +479,149 @@ void main() {
       expect(find.text('Mosque'), findsNothing);
       expect(find.text('Fuel'), findsNothing);
     });
+
+    testWidgets(
+        'SettingsScreen automatically pops and activates detail pane when expanding to wide two-pane layout',
+        (tester) async {
+      // Start in compact portrait mode (small screen)
+      tester.view.physicalSize = const Size(400 * 2.0, 800 * 2.0);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final navCubit = AdaptiveNavCubit();
+      final settingsCubit = _FakeSettingsCubit();
+
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<AdaptiveNavCubit>.value(value: navCubit),
+            BlocProvider<SettingsCubit>.value(value: settingsCubit),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (context) => Scaffold(
+                body: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const SettingsScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Open Settings'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap to open Settings standalone
+      await tester.tap(find.text('Open Settings'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SettingsScreen), findsOneWidget);
+      expect(navCubit.state.detailPane, DetailPaneType.map);
+
+      // Expand to wide landscape screen (two-pane layout)
+      tester.view.physicalSize = const Size(1000 * 2.0, 700 * 2.0);
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      // Standalone SettingsScreen has popped
+      expect(find.text('Open Settings'), findsOneWidget);
+      expect(find.byType(SettingsScreen), findsNothing);
+      // AdaptiveNavCubit has updated to settings detail pane
+      expect(navCubit.state.detailPane, DetailPaneType.settings);
+    });
+
+    testWidgets(
+        'SearchSpotsScreen automatically pops, activates detail pane, and preserves search query on screen expansion',
+        (tester) async {
+      // Start in compact portrait mode (small screen)
+      tester.view.physicalSize = const Size(400 * 2.0, 800 * 2.0);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final navCubit = AdaptiveNavCubit();
+      final now = DateTime.now();
+      final spot = Spot(
+        id: 'spot_1',
+        name: 'Grand Hospital',
+        category: SpotCategory.hospital,
+        latitude: 30.0,
+        longitude: 31.0,
+        savedAt: now,
+      );
+      final fakeSpotsCubit = _FakeSpotsCubit([spot]);
+
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<AdaptiveNavCubit>.value(value: navCubit),
+            BlocProvider<SpotsCubit>.value(value: fakeSpotsCubit),
+            BlocProvider<LocationCubit>.value(value: _FakeLocationCubit()),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (context) => Scaffold(
+                body: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const SearchSpotsScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Open Search'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Open Search
+      await tester.tap(find.text('Open Search'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SearchSpotsScreen), findsOneWidget);
+      expect(navCubit.state.detailPane, DetailPaneType.map);
+
+      // Enter query
+      await tester.enterText(find.byType(TextField), 'Hospital');
+      await tester.pumpAndSettle();
+
+      // Expand to wide landscape screen (two-pane layout)
+      tester.view.physicalSize = const Size(1000 * 2.0, 700 * 2.0);
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      // Standalone SearchSpotsScreen popped
+      expect(find.text('Open Search'), findsOneWidget);
+      expect(find.byType(SearchSpotsScreen), findsNothing);
+      // AdaptiveNavCubit has updated to search detail pane with query preserved
+      expect(navCubit.state.detailPane, DetailPaneType.search);
+      expect(navCubit.state.searchQuery, 'Hospital');
+    });
   });
+}
+
+class _FakeSettingsCubit extends Cubit<SettingsState> implements SettingsCubit {
+  _FakeSettingsCubit() : super(const SettingsState());
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class _FakeLocationCubit extends Cubit<LocationState> implements LocationCubit {

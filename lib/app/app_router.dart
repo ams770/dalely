@@ -124,8 +124,12 @@ abstract final class AppRouter {
         );
 
       case search:
+        String? initialQuery;
+        if (settings.arguments is String) {
+          initialQuery = settings.arguments as String;
+        }
         return MaterialPageRoute<void>(
-          builder: (_) => const SearchSpotsScreen(),
+          builder: (_) => SearchSpotsScreen(initialQuery: initialQuery),
           settings: settings,
         );
 

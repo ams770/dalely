@@ -32,26 +32,24 @@ class DuoActionRail extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: AppDimens.space12),
-          // 1. Settings Action
-          CircleIconButton(
-            icon: const Icon(Icons.tune_rounded),
-            tooltip: l10n.settingsTooltip,
-            onPressed: onSettings,
-            size: 44.0,
-            iconSize: 20.0,
-          ),
-
-          const SizedBox(height: AppDimens.space16),
-          // 2. Primary Add Action
+             // 2. Primary Add Action
           CircleIconButton(
             icon: const Icon(Icons.add_rounded),
             tooltip: l10n.addSpot,
             onPressed: onAddSpot,
-            size: 46.0,
-            iconSize: 24.0,
+
             backgroundColor: AppColors.lightPrimary,
             foregroundColor: Colors.white,
           ),
+          // 1. Settings Action
+
+          const SizedBox(height: AppDimens.space16),
+          CircleIconButton(
+            icon: const Icon(Icons.tune_rounded),
+            tooltip: l10n.settingsTooltip,
+            onPressed: onSettings,
+          ),
+       
         ],
       ),
     );

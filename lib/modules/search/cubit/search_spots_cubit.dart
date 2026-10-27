@@ -10,14 +10,20 @@ import 'search_spots_state.dart';
 class SearchSpotsCubit extends Cubit<SearchSpotsState> {
   SearchSpotsCubit({
     required this.spotsCubit,
+    String? initialQuery,
   }) : super(
           SearchSpotsState(
             matchingSpots: spotsCubit.state.allSpots,
             availableCategories:
                 _computeAvailableCategories(spotsCubit.state.allSpots),
             visibleCount: pageSize,
+            query: initialQuery ?? '',
           ),
         ) {
+    if (initialQuery != null && initialQuery.isNotEmpty) {
+      textController.text = initialQuery;
+      _applyFilter();
+    }
     textController.addListener(_onControllerChanged);
     scrollController.addListener(_onScroll);
     _spotsSubscription = spotsCubit.stream.listen((_) {

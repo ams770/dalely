@@ -30,6 +30,7 @@ class HomeHeader extends StatelessWidget {
       child: SafeArea(
         left: !context.isRtl || !context.isSplitLayout,
         right: !context.isSplitLayout,
+        bottom: false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

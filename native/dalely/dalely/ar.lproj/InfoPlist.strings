@@ -1,0 +1,2 @@
+NSLocationWhenInUseUsageDescription = "يستخدم دليلى موقعك لحساب المسافة إلى سيارتك المركونة، وإرشادك للعودة، وعرض إشعار مسافة المشي المباشر.";
+CFBundleDisplayName = "دليلى";
