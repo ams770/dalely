@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">دليلى</string>
+    <string name="car_tracking_channel_name">تتبع السيارة</string>
+    <string name="car_tracking_channel_description">عرض المسافة والتقدم المباشر أثناء المشي إلى سيارتك.</string>
+    <string name="car_tracking_looking_for_location">جارٍ تحديد موقعك...</string>
+    <string name="car_tracking_waiting_for_gps">في انتظار إشارة GPS</string>
+    <string name="car_tracking_walking_title">سيارتك على بعد %1$s</string>
+    <string name="car_tracking_walking_body">%1$s</string>
+    <string name="car_tracking_arrived_title">سيارتك هنا</string>
+    <string name="car_tracking_arrived_body">أنت على بعد أقل من 15 م</string>
+    <string name="car_tracking_action_show_on_map">اعرض على الخريطة</string>
+    <string name="car_tracking_action_found_car">وجدتُ سيارتي</string>
+    <string name="car_tracking_action_done">تم</string>
+
+    <!-- Share Sheet -->
+    <string name="share_sheet_title">دليلى — إضافة مكان</string>
+    <string name="share_sheet_subtitle">حفظ المكان مباشرة في دليلى</string>
+    <string name="share_sheet_spot_name">اسم المكان</string>
+    <string name="share_sheet_spot_name_hint">مثال: بقالة، صيدلية، مطعم...</string>
+    <string name="share_sheet_category">التصنيف</string>
+    <string name="share_sheet_resolving">جارٍ تحديد الإحداثيات من الرابط...</string>
+    <string name="share_sheet_resolve_failed">تعذر استخراج الإحداثيات من الرابط</string>
+    <string name="share_sheet_save_button">حفظ المكان في دليلى</string>
+    <string name="share_sheet_saved_success">تم الحفظ بنجاح!</string>
+
+    <!-- Category Names -->
+    <string name="category_other">أخرى</string>
+    <string name="category_restaurant">مطعم / مقهى</string>
+    <string name="category_fuel">محطة وقود</string>
+    <string name="category_gym">نادي رياضي</string>
+    <string name="category_mosque">مسجد</string>
+    <string name="category_market">بقالة / متجر</string>
+    <string name="category_pharmacy">صيدلية</string>
+    <string name="category_home">المنزل</string>
+    <string name="category_work">العمل</string>
+    <string name="category_hospital">مستشفى</string>
+    <string name="category_school">مدرسة</string>
+    <string name="category_park">حديقة</string>
+    <string name="category_club">نادي</string>
+    <string name="category_beauty_center">مركز تجميل</string>
+</resources>

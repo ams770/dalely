@@ -1,3 +1,0 @@
-CFBundleDisplayName = "Dalely";
-CFBundleName = "Dalely";
-NSLocationWhenInUseUsageDescription = "Dalely uses your location to calculate distance to your parked car, guide you back, and show a live walking distance notification.";

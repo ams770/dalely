@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dalely</string>
+    <string name="car_tracking_channel_name">Car Tracking</string>
+    <string name="car_tracking_channel_description">Shows live distance and progress while walking to your parked car.</string>
+    <string name="car_tracking_looking_for_location">Looking for your location...</string>
+    <string name="car_tracking_waiting_for_gps">Waiting for GPS signal</string>
+    <string name="car_tracking_walking_title">Your car is %1$s away</string>
+    <string name="car_tracking_walking_body">%1$s</string>
+    <string name="car_tracking_arrived_title">Your car is right here</string>
+    <string name="car_tracking_arrived_body">You are within 15 m</string>
+    <string name="car_tracking_action_show_on_map">Show on map</string>
+    <string name="car_tracking_action_found_car">Found my car</string>
+    <string name="car_tracking_action_done">Done</string>
+
+    <!-- Share Sheet -->
+    <string name="share_sheet_title">Dalely — Add Spot</string>
+    <string name="share_sheet_subtitle">Save spot directly to Dalely</string>
+    <string name="share_sheet_spot_name">Spot name</string>
+    <string name="share_sheet_spot_name_hint">e.g. Pharmacy, Restaurant, Home...</string>
+    <string name="share_sheet_category">Category</string>
+    <string name="share_sheet_resolving">Resolving coordinates from link...</string>
+    <string name="share_sheet_resolve_failed">Could not find coordinates in link</string>
+    <string name="share_sheet_save_button">Save Spot to Dalely</string>
+    <string name="share_sheet_saved_success">Saved successfully!</string>
+
+    <!-- Category Names -->
+    <string name="category_other">Other</string>
+    <string name="category_restaurant">Restaurant</string>
+    <string name="category_fuel">Fuel</string>
+    <string name="category_gym">Gym</string>
+    <string name="category_mosque">Mosque</string>
+    <string name="category_market">Market</string>
+    <string name="category_pharmacy">Pharmacy</string>
+    <string name="category_home">Home</string>
+    <string name="category_work">Work</string>
+    <string name="category_hospital">Hospital</string>
+    <string name="category_school">School</string>
+    <string name="category_park">Park</string>
+    <string name="category_club">Club</string>
+    <string name="category_beauty_center">Beauty Center</string>
+</resources>
