@@ -22,6 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "dalely"
+rootProject.name = "android"
 include(":app")
- 
