@@ -5,14 +5,17 @@ enum MapsLauncher {
         let google = URL(string: "comgooglemaps://?daddr=\(latitude),\(longitude)&directionsmode=driving")
         let apple = URL(string: "https://maps.apple.com/?daddr=\(latitude),\(longitude)&dirflg=d")
         let web = URL(string: "https://www.google.com/maps/dir/?api=1&destination=\(latitude),\(longitude)")
-        if let google, UIApplication.shared.canOpenURL(google) {
-            UIApplication.shared.open(google)
-            return
-        }
+        
         if let apple {
             UIApplication.shared.open(apple)
             return
         }
+        
+        if let google, UIApplication.shared.canOpenURL(google) {
+            UIApplication.shared.open(google)
+            return
+        }
+      
         if let web {
             UIApplication.shared.open(web)
         }

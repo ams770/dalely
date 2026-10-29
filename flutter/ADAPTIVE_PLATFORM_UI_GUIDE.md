@@ -9,7 +9,7 @@
 1. [Package Setup](#1-package-setup)
 2. [App Entry Point — `AdaptiveApp`](#2-app-entry-point--adaptiveapp)
 3. [Single-Source Architecture — `AdaptiveUI` Wrapper](#3-single-source-architecture--adaptiveui-wrapper)
-4. [Scaffold & App Bar](#4-scaffold--app-bar)
+4. [Scaffold &amp; App Bar](#4-scaffold--app-bar)
 5. [Bottom Navigation Bar](#5-bottom-navigation-bar)
 6. [Navigation (Push / Pop / Back Button)](#6-navigation-push--pop--back-button)
 7. [Buttons](#7-buttons)
@@ -32,7 +32,7 @@
 24. [Drawer](#24-drawer)
 25. [Badges](#25-badges)
 26. [Tooltips](#26-tooltips)
-27. [Date & Time Pickers](#27-date--time-pickers)
+27. [Date &amp; Time Pickers](#27-date--time-pickers)
 28. [Migration Checklist](#28-migration-checklist)
 
 ---
@@ -51,6 +51,7 @@ dependencies:
 ```
 
 Run:
+
 ```bash
 flutter pub get
 ```
@@ -123,6 +124,7 @@ class MyApp extends StatelessWidget {
 ```
 
 > **Non-router version:**
+>
 > ```dart
 > AdaptiveApp(
 >   home: const MainPage(),
@@ -213,6 +215,7 @@ export 'package:adaptive_platform_ui/adaptive_platform_ui.dart'
 ```
 
 Then in every screen:
+
 ```dart
 import 'package:my_app/core/adaptive_ui.dart';  // only this import
 ```
@@ -411,6 +414,7 @@ class _MainPageState extends State<MainPage> {
 ```
 
 > **Plain (no go_router) version:**
+>
 > ```dart
 > int _currentIndex = 0;
 >
@@ -592,15 +596,15 @@ if (result != null && result.isNotEmpty) {
 
 ### `AlertActionStyle` reference
 
-| Style | Appearance |
-|---|---|
-| `defaultAction` | Regular label |
-| `primary` | Bold / tinted |
-| `cancel` | Dismissal button |
-| `destructive` | Red / danger |
-| `success` | Green |
-| `warning` | Orange |
-| `info` | Blue |
+| Style             | Appearance       |
+| ----------------- | ---------------- |
+| `defaultAction` | Regular label    |
+| `primary`       | Bold / tinted    |
+| `cancel`        | Dismissal button |
+| `destructive`   | Red / danger     |
+| `success`       | Green            |
+| `warning`       | Orange           |
+| `info`          | Blue             |
 
 ---
 
@@ -1161,17 +1165,20 @@ void _showTimePicker(BuildContext context) async {
 Use this checklist when migrating an **existing** Flutter app to `adaptive_platform_ui`.
 
 ### Setup
+
 - [ ] Add `adaptive_platform_ui: ^1.0.2` to `pubspec.yaml`
 - [ ] Add `flutter_localizations` and `intl` to `pubspec.yaml`
 - [ ] Create `lib/core/adaptive_ui.dart` with all re-exports (see Section 3)
 - [ ] Replace all direct `import 'package:adaptive_platform_ui/…'` with `import 'package:my_app/core/adaptive_ui.dart'`
 
 ### App Root
+
 - [ ] Replace `MaterialApp` / `CupertinoApp` with `AdaptiveApp` (or `AdaptiveApp.router`)
 - [ ] Add `cupertinoLightTheme`, `cupertinoDarkTheme`, `materialLightTheme`, `materialDarkTheme`
 - [ ] Add all three `localizationsDelegates`
 
 ### Scaffolds & Navigation
+
 - [ ] Replace every `Scaffold` with `AdaptiveScaffold`
 - [ ] Replace every `AppBar` with `AdaptiveAppBar`
 - [ ] Replace `BottomNavigationBar` / `NavigationBar` with `AdaptiveBottomNavigationBar`
@@ -1180,17 +1187,20 @@ Use this checklist when migrating an **existing** Flutter app to `adaptive_platf
 - [ ] Replace manual `leading: BackButton()` with automatic behavior or `AdaptiveButton.icon` / `AdaptiveButton.sfSymbol`
 
 ### Buttons
+
 - [ ] Replace `ElevatedButton` / `TextButton` / `OutlinedButton` / `CupertinoButton` with `AdaptiveButton`
 - [ ] Replace icon-only `IconButton` with `AdaptiveButton.icon` or `AdaptiveButton.sfSymbol`
 - [ ] Replace `FloatingActionButton` with `AdaptiveFloatingActionButton`
 - [ ] Replace `PopupMenuButton` / `CupertinoActionSheet` menus with `AdaptivePopupMenuButton`
 
 ### Dialogs & Feedback
+
 - [ ] Replace `showDialog(AlertDialog)` / `showCupertinoDialog` with `AdaptiveAlertDialog.show`
 - [ ] Replace input dialogs with `AdaptiveAlertDialog.inputShow`
 - [ ] Replace `ScaffoldMessenger.showSnackBar` / custom iOS toasts with `AdaptiveSnackBar.show`
 
 ### Inputs
+
 - [ ] Replace `TextField` / `CupertinoTextField` with `AdaptiveTextField`
 - [ ] Replace `Switch` / `CupertinoSwitch` with `AdaptiveSwitch`
 - [ ] Replace `Checkbox` / `CupertinoCheckbox` with `AdaptiveCheckbox`
@@ -1199,6 +1209,7 @@ Use this checklist when migrating an **existing** Flutter app to `adaptive_platf
 - [ ] Replace `SegmentedButton` / `CupertinoSegmentedControl` with `AdaptiveSegmentedControl`
 
 ### Content & Layout
+
 - [ ] Replace `Card` with `AdaptiveCard`
 - [ ] Replace `ListTile` / `CupertinoListTile` with `AdaptiveListTile`
 - [ ] Replace `ExpansionTile` with `AdaptiveExpansionTile`
@@ -1208,14 +1219,17 @@ Use this checklist when migrating an **existing** Flutter app to `adaptive_platf
 - [ ] Replace `Tooltip` with `AdaptiveTooltip`
 
 ### Pickers
+
 - [ ] Replace `showDatePicker` / `CupertinoDatePicker` with `AdaptiveDatePicker.show`
 - [ ] Replace `showTimePicker` / `CupertinoTimerPicker` with `AdaptiveTimePicker.show`
 
 ### App Bar Actions
+
 - [ ] Replace `AppBar.actions` `IconButton`s with `AdaptiveAppBarAction`
 - [ ] Replace `AppBar.actions` `PopupMenuButton`s with `AdaptiveAppBarAction(menuItems: …)`
 
 ### Context Menus
+
 - [ ] Replace `GestureDetector(onLongPress: showCupertinoActionSheet)` / `showModalBottomSheet` action sheets with `AdaptiveContextMenuRegion`
 
 ---
@@ -1232,13 +1246,14 @@ PlatformInfo.platformDescription  // descriptive string for debugging
 
 ## Icon Conventions
 
-| Platform | Icon type | Example |
-|---|---|---|
-| iOS 26+ | SF Symbol string | `'house.fill'` |
-| iOS <26 | `CupertinoIcons.*` | `CupertinoIcons.home` |
-| Android | `Icons.*` | `Icons.home` |
+| Platform | Icon type            | Example                 |
+| -------- | -------------------- | ----------------------- |
+| iOS 26+  | SF Symbol string     | `'house.fill'`        |
+| iOS <26  | `CupertinoIcons.*` | `CupertinoIcons.home` |
+| Android  | `Icons.*`          | `Icons.home`          |
 
 **Universal pattern for any icon field:**
+
 ```dart
 icon: PlatformInfo.isIOS26OrHigher()
     ? 'sf.symbol.name'          // SF Symbol string for iOS 26+
