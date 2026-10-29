@@ -3,74 +3,82 @@ import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
 
-final class TransparentHostingController<Content: View>: UIHostingController<Content> {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .clear
-        view.isOpaque = false
-    }
+final class ShareSpotViewModel: ObservableObject {
+    @Published var rawContent: String?
+    @Published var suggestedLabel: String?
+    @Published var isContentExtracted: Bool = false
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        view.backgroundColor = .clear
-        view.isOpaque = false
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        view.backgroundColor = .clear
-        view.isOpaque = false
+    func update(rawContent: String?, suggestedLabel: String?) {
+        self.rawContent = rawContent
+        self.suggestedLabel = suggestedLabel
+        self.isContentExtracted = true
     }
 }
 
 @objc(ShareViewController)
-final class ShareViewController: UIViewController {
-    override func loadView() {
-        let v = UIView()
-        v.backgroundColor = .clear
-        v.isOpaque = false
-        self.view = v
-    }
+final class ShareViewController: UIViewController, UISheetPresentationControllerDelegate {
+    private var hasFinished = false
+    private let viewModel = ShareSpotViewModel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .clear
-        view.isOpaque = false
+        view.backgroundColor = .systemGroupedBackground
 
         if let sheet = sheetPresentationController {
-            sheet.detents = [.large()]
-            sheet.prefersGrabberVisible = false
-            sheet.preferredCornerRadius = 28
+            let contentDetent = UISheetPresentationController.Detent.custom(identifier: .init("contentFit")) { _ in
+                return 390
+            }
+            sheet.detents = [contentDetent, .large()]
+            sheet.selectedDetentIdentifier = contentDetent.identifier
+            sheet.prefersGrabberVisible = true
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = true
+            sheet.delegate = self
         }
+        presentationController?.delegate = self
+
+        setupHostingController()
 
         extractSharedContent { [weak self] rawContent, defaultLabel in
             guard let self else { return }
-            self.presentShareSheet(rawContent: rawContent, defaultLabel: defaultLabel)
+            self.viewModel.update(rawContent: rawContent, suggestedLabel: defaultLabel)
         }
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        clearBackgrounds()
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        if !hasFinished {
+            cancelAndFinish()
+        }
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        clearBackgrounds()
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        cancelAndFinish()
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        clearBackgrounds()
-    }
+    private func setupHostingController() {
+        let sheetView = ShareSpotSheetView(
+            viewModel: viewModel,
+            onSave: { [weak self] spot in
+                self?.saveSpotAndFinish(spot)
+            },
+            onCancel: { [weak self] in
+                self?.cancelAndFinish()
+            }
+        )
 
-    private func clearBackgrounds() {
-        view.backgroundColor = .clear
-        view.isOpaque = false
-        view.superview?.backgroundColor = .clear
-        view.superview?.isOpaque = false
-        view.window?.backgroundColor = .clear
-        view.window?.isOpaque = false
+        let hosting = UIHostingController(rootView: sheetView)
+        hosting.view.backgroundColor = .clear
+
+        addChild(hosting)
+        view.addSubview(hosting.view)
+        hosting.view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            hosting.view.topAnchor.constraint(equalTo: view.topAnchor),
+            hosting.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hosting.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hosting.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        hosting.didMove(toParent: self)
     }
 
     private func extractSharedContent(completion: @escaping (String?, String?) -> Void) {
@@ -120,41 +128,14 @@ final class ShareViewController: UIViewController {
         completion(nil, label)
     }
 
-    private func presentShareSheet(rawContent: String?, defaultLabel: String?) {
-        let sheetView = ShareSpotSheetView(
-            rawSharedText: rawContent,
-            suggestedLabel: defaultLabel,
-            onSave: { [weak self] spot in
-                self?.saveSpotAndFinish(spot)
-            },
-            onCancel: { [weak self] in
-                self?.cancelAndFinish()
-            }
-        )
-
-        let hosting = TransparentHostingController(rootView: sheetView)
-        hosting.modalPresentationStyle = .overFullScreen
-        hosting.view.backgroundColor = .clear
-        hosting.view.isOpaque = false
-
-        addChild(hosting)
-        view.addSubview(hosting.view)
-        hosting.view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            hosting.view.topAnchor.constraint(equalTo: view.topAnchor),
-            hosting.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            hosting.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            hosting.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-        hosting.didMove(toParent: self)
-    }
-
     private func saveSpotAndFinish(_ spot: Spot) {
+        guard !hasFinished else { return }
+        hasFinished = true
+
         var existing = LocalStore.loadSpots()
         existing.append(spot)
         LocalStore.saveSpots(existing)
 
-        // Haptic feedback
         let feedback = UINotificationFeedbackGenerator()
         feedback.notificationOccurred(.success)
 
@@ -162,6 +143,8 @@ final class ShareViewController: UIViewController {
     }
 
     private func cancelAndFinish() {
+        guard !hasFinished else { return }
+        hasFinished = true
         extensionContext?.cancelRequest(withError: NSError(domain: "UserCancelled", code: 0, userInfo: nil))
     }
 }

@@ -3,7 +3,6 @@ import SwiftUI
 struct ContentView: View {
     @Environment(AppEnvironment.self) private var env
     @Environment(\.colorScheme) private var systemColorScheme
-    @State private var showSplash: Bool = true
 
     var body: some View {
         @Bindable var env = env
@@ -45,12 +44,6 @@ struct ContentView: View {
 
                 // Global Snackbar Host
                 SnackbarHost()
-
-                if showSplash {
-                    SplashView(isPresented: $showSplash)
-                        .transition(.opacity)
-                        .zIndex(100)
-                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onAppear {

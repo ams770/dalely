@@ -37,7 +37,7 @@ struct HomeMapCardView: View {
                 // Center visual: Lottie Animation from map.json
                 VStack(spacing: 4) {
                     LottieAnimationView(filename: "map")
-                        .frame(height: 52)
+                        .frame(height: 56)
 
                     Text(spotsCountSubtitle)
                         .font(.system(size: 12, weight: .medium, design: .rounded))
