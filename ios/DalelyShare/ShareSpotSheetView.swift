@@ -9,7 +9,8 @@ struct ShareSpotSheetView: View {
     @State private var name: String = ""
     @State private var category: SpotCategory = .other
     @State private var coordinate: CLLocationCoordinate2D? = nil
-    @State private var addressText: String = ""
+    @State private var isApproximate: Bool = false
+    @State private var fallbackName: String? = nil
     @State private var isResolving: Bool = true
     @State private var resolveFailed: Bool = false
     @State private var isSaved: Bool = false
@@ -28,37 +29,47 @@ struct ShareSpotSheetView: View {
         [.other] + SpotCategory.selectable.filter { $0 != .other }
     }
 
+    /// The card is only shown while resolving, on failure, or when the point is approximate.
+    /// A correctly fetched point shows nothing.
+    private var showStatusCard: Bool {
+        isResolving || resolveFailed || (coordinate != nil && isApproximate)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
                 Color(uiColor: .systemGroupedBackground)
                     .ignoresSafeArea()
 
-                ScrollView {
+                VStack(spacing: 14) {
+                    // Pinned top section
                     VStack(spacing: 14) {
-                        // 1. Location Status Component
-                        locationStatusCard
-
-                        // 2. Spot Name Input Component
+                        if showStatusCard {
+                            locationStatusCard
+                        }
                         spotNameSection
-
-                        // 3. Category Selector Component
-                        categorySection
-
-                        // 4. Primary Save Action Button
-                        saveButton
-                            .padding(.top, 4)
+                        categoryHeader
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 12)
-                    .padding(.bottom, 20)
+
+                    // Only the categories scroll
+                    ScrollView {
+                        categoryList
+                            .padding(.horizontal, 16)
+                            .padding(.top, 2)
+                            .padding(.bottom, 12)
+                    }
+                    .scrollDismissesKeyboard(.interactively)
+                    .pinnedBottomBar {
+                        saveButton
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                    }
                 }
-                .scrollDismissesKeyboard(.interactively)
             }
             .navigationTitle(isArabic ? "إضافة مكان" : "Add Spot")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Color(uiColor: .systemGroupedBackground), for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(isArabic ? "إلغاء" : "Cancel") {
@@ -70,8 +81,8 @@ struct ShareSpotSheetView: View {
                     Button(isArabic ? "حفظ" : "Save") {
                         handleSave()
                     }
-                    .fontWeight(.bold)
-                    .foregroundStyle(Color(hex: 0x3C79F3))
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color(hex: 0x3C79F3))
                     .disabled(coordinate == nil || isSaved)
                 }
             }
@@ -89,7 +100,7 @@ struct ShareSpotSheetView: View {
         }
     }
 
-    // MARK: - Location Status Component
+    // MARK: - Location Status Component (resolving / failed / approximate only)
     private var locationStatusCard: some View {
         HStack(spacing: 12) {
             if isResolving {
@@ -98,32 +109,18 @@ struct ShareSpotSheetView: View {
                 Text(isArabic ? "جارٍ تحديد الإحداثيات من الرابط..." : "Resolving coordinates from link...")
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(Color(hex: 0x3C79F3))
-            } else if let coord = coordinate {
-                ZStack {
-                    Circle()
-                        .fill(Color(hex: 0x0E9F75).opacity(0.14))
-                        .frame(width: 36, height: 36)
-                    Image(systemName: "mappin.and.ellipse")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color(hex: 0x0E9F75))
-                }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    if !addressText.isEmpty {
-                        Text(addressText)
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
-                            .foregroundStyle(Color(uiColor: .label))
-                            .lineLimit(1)
-                    }
-                    Text(String(format: "%.5f, %.5f", coord.latitude, coord.longitude))
-                        .font(.system(size: 11, weight: .medium, design: .monospaced))
-                        .foregroundStyle(Color(uiColor: .secondaryLabel))
-                }
             } else if resolveFailed {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .font(.system(size: 20))
                     .foregroundStyle(Color.orange)
                 Text(isArabic ? "تعذر استخراج الإحداثيات من الرابط" : "Could not find coordinates in link")
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundStyle(Color.orange)
+            } else if isApproximate {
+                Image(systemName: "location.magnifyingglass")
+                    .font(.system(size: 18))
+                    .foregroundStyle(Color.orange)
+                Text(isArabic ? "الموقع تقريبي، تأكد منه قبل الحفظ" : "Approximate location, double check before saving")
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(Color.orange)
             }
@@ -186,68 +183,65 @@ struct ShareSpotSheetView: View {
         }
     }
 
-    // MARK: - Category Selector Component
-    private var categorySection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(isArabic ? "التصنيف" : "Category")
-                .font(.system(size: 13, weight: .semibold, design: .rounded))
-                .foregroundStyle(Color(uiColor: .secondaryLabel))
-                .padding(.horizontal, 2)
+    // MARK: - Category Selector Component (single scrollable column)
+    private var categoryHeader: some View {
+        Text(isArabic ? "التصنيف" : "Category")
+            .font(.system(size: 13, weight: .semibold, design: .rounded))
+            .foregroundStyle(Color(uiColor: .secondaryLabel))
+            .padding(.horizontal, 2)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
 
-            ScrollViewReader { proxy in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(categories, id: \.self) { cat in
-                            let isSelected = category == cat
-                            let catColor = cat.color(isDark: isDark)
-                            Button {
-                                let generator = UISelectionFeedbackGenerator()
-                                generator.selectionChanged()
-                                withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
-                                    category = cat
-                                }
-                            } label: {
-                                HStack(spacing: 6) {
-                                    Image(systemName: cat.iconName)
-                                        .font(.system(size: 13, weight: .semibold))
-
-                                    Text(cat.localizedName(isArabic: isArabic))
-                                        .font(.system(size: 13, weight: isSelected ? .bold : .medium, design: .rounded))
-
-                                    if isSelected {
-                                        Image(systemName: "checkmark")
-                                            .font(.system(size: 10, weight: .bold))
-                                    }
-                                }
-                                .padding(.horizontal, 13)
-                                .frame(height: 38)
-                                .foregroundStyle(isSelected ? Color.white : Color(uiColor: .label))
-                                .background(
-                                    Capsule()
-                                        .fill(isSelected ? catColor : Color(uiColor: .secondarySystemGroupedBackground))
-                                )
-                                .overlay(
-                                    Capsule()
-                                        .strokeBorder(isSelected ? Color.clear : Color(uiColor: .separator).opacity(0.35), lineWidth: 0.8)
-                                )
-                            }
-                            .buttonStyle(.plain)
-                            .id(cat.rawValue)
-                        }
-                    }
-                    .padding(.horizontal, 1)
-                    .padding(.vertical, 2)
-                }
-                .onAppear {
-                    if category != .other {
-                        proxy.scrollTo(category.rawValue, anchor: .center)
-                    }
+    private var categoryList: some View {
+        GlassContainer(spacing: 8) {
+            VStack(spacing: 8) {
+                ForEach(categories, id: \.self) { cat in
+                    categoryRow(cat)
                 }
             }
         }
     }
 
-    // MARK: - Save Action Button
+    private func categoryRow(_ cat: SpotCategory) -> some View {
+        let isSelected = category == cat
+        let catColor = cat.color(isDark: isDark)
+
+        return Button {
+            let generator = UISelectionFeedbackGenerator()
+            generator.selectionChanged()
+            withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
+                category = cat
+            }
+        } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(isSelected ? Color.white.opacity(0.22) : catColor.opacity(0.16))
+                        .frame(width: 34, height: 34)
+                    Image(systemName: cat.iconName)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(isSelected ? Color.white : catColor)
+                }
+
+                Text(cat.localizedName(isArabic: isArabic))
+                    .font(.system(size: 15, weight: isSelected ? .bold : .medium, design: .rounded))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 13, weight: .bold))
+                }
+            }
+            .padding(.horizontal, 14)
+            .frame(height: 52)
+            .foregroundStyle(isSelected ? Color.white : Color(uiColor: .label))
+            .contentShape(Rectangle())
+            .glassRowBackground(isSelected: isSelected, tint: catColor)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Save Action Button (pinned at the bottom)
     private var saveButton: some View {
         Button {
             handleSave()
@@ -265,29 +259,20 @@ struct ShareSpotSheetView: View {
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                 }
             }
-            .foregroundStyle(Color.white)
             .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(
-                Capsule()
-                    .fill(isSaved ? Color(hex: 0x0E9F75) : (coordinate == nil ? Color.gray.opacity(0.4) : Color(hex: 0x3C79F3)))
-            )
-            .shadow(
-                color: (coordinate == nil || isSaved) ? Color.clear : Color(hex: 0x3C79F3).opacity(0.25),
-                radius: 6,
-                y: 2
-            )
+            .padding(.vertical, 6)
         }
-        .buttonStyle(.plain)
+        .glassProminentButton(tint: isSaved ? Color(hex: 0x0E9F75) : Color(hex: 0x3C79F3))
+        .controlSize(.large)
+        .buttonBorderShape(.capsule)
         .disabled(coordinate == nil || isSaved)
     }
 
     // MARK: - Actions & Resolution
     private func handleSave() {
         guard let coord = coordinate, !isSaved else { return }
-        let finalName = name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            ? (category.localizedName(isArabic: isArabic))
-            : name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let finalName = trimmedName.isEmpty ? category.localizedName(isArabic: isArabic) : trimmedName
 
         let spot = Spot(
             id: UUID().uuidString,
@@ -305,40 +290,44 @@ struct ShareSpotSheetView: View {
         }
     }
 
+    private func usableName(_ text: String) -> String? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let isDigitsOnly = !trimmed.isEmpty && trimmed.allSatisfy { $0.isNumber || $0 == "-" || $0 == " " }
+        return (trimmed.isEmpty || isDigitsOnly) ? nil : trimmed
+    }
+
+    private func apply(_ parsed: ParsedGeoLocation, suggested: String?) {
+        let coord = CLLocationCoordinate2D(latitude: parsed.latitude, longitude: parsed.longitude)
+        coordinate = coord
+        isApproximate = parsed.isApproximate
+
+        // 1. The place name from the link is the preferred name.
+        if let label = parsed.label, let usable = usableName(label) {
+            name = usable
+        }
+        // 2. No place name: the reverse-geocoded address fills the field (see reverseGeocode).
+        // 3. Geocoding returned nothing: use the address that came with the link, then the suggested label.
+        fallbackName = [parsed.address, suggested]
+            .compactMap { $0 }
+            .compactMap { usableName($0) }
+            .first
+        isResolving = false
+        reverseGeocode(coord)
+    }
+
     private func resolveCoordinates() {
         let raw = viewModel.rawContent
         let suggested = viewModel.suggestedLabel
 
         if let direct = GeoUriParser.parse(raw) {
-            let coord = CLLocationCoordinate2D(latitude: direct.latitude, longitude: direct.longitude)
-            coordinate = coord
-
-            if let label = direct.label ?? suggested {
-                let trimmed = label.trimmingCharacters(in: .whitespacesAndNewlines)
-                let isDigitsOnly = !trimmed.isEmpty && trimmed.allSatisfy { $0.isNumber || $0 == "-" || $0 == " " }
-                if !isDigitsOnly {
-                    name = trimmed
-                }
-            }
-            isResolving = false
-            reverseGeocode(coord)
+            apply(direct, suggested: suggested)
             return
         }
 
         Task {
             if let asyncParsed = await GeoUriParser.parseAsync(raw) {
                 await MainActor.run {
-                    let coord = CLLocationCoordinate2D(latitude: asyncParsed.latitude, longitude: asyncParsed.longitude)
-                    self.coordinate = coord
-                    if let label = asyncParsed.label ?? suggested {
-                        let trimmed = label.trimmingCharacters(in: .whitespacesAndNewlines)
-                        let isDigitsOnly = !trimmed.isEmpty && trimmed.allSatisfy { $0.isNumber || $0 == "-" || $0 == " " }
-                        if !isDigitsOnly {
-                            self.name = trimmed
-                        }
-                    }
-                    self.isResolving = false
-                    self.reverseGeocode(coord)
+                    self.apply(asyncParsed, suggested: suggested)
                 }
             } else {
                 await MainActor.run {
@@ -349,26 +338,21 @@ struct ShareSpotSheetView: View {
         }
     }
 
+    /// Runs only when no place name is available yet. Fills the name field with the
+    /// reverse-geocoded address. A name already in the field (from the link or typed by
+    /// the user) is left alone. If geocoding returns nothing, the link's address is used.
     private func reverseGeocode(_ coord: CLLocationCoordinate2D) {
         let loc = CLLocation(latitude: coord.latitude, longitude: coord.longitude)
         CLGeocoder().reverseGeocodeLocation(loc) { placemarks, _ in
+            var resolved = ""
+
             if let p = placemarks?.first {
                 let placeTitle: String = {
-                    if let aoi = p.areasOfInterest?.first, !aoi.isEmpty {
-                        return aoi
-                    }
-                    if let n = p.name, !n.isEmpty {
-                        return n
-                    }
-                    if let street = p.thoroughfare, !street.isEmpty {
-                        return street
-                    }
-                    if let subLoc = p.subLocality, !subLoc.isEmpty {
-                        return subLoc
-                    }
-                    if let city = p.locality, !city.isEmpty {
-                        return city
-                    }
+                    if let aoi = p.areasOfInterest?.first, !aoi.isEmpty { return aoi }
+                    if let n = p.name, !n.isEmpty { return n }
+                    if let street = p.thoroughfare, !street.isEmpty { return street }
+                    if let subLoc = p.subLocality, !subLoc.isEmpty { return subLoc }
+                    if let city = p.locality, !city.isEmpty { return city }
                     return ""
                 }()
 
@@ -377,17 +361,84 @@ struct ShareSpotSheetView: View {
                 if let subLocality = p.subLocality, subLocality != placeTitle { addressParts.append(subLocality) }
                 if let city = p.locality, city != placeTitle { addressParts.append(city) }
 
-                DispatchQueue.main.async {
-                    self.addressText = addressParts.isEmpty ? placeTitle : addressParts.joined(separator: ", ")
+                resolved = addressParts.isEmpty ? placeTitle : addressParts.joined(separator: ", ")
+            }
 
-                    let currentTrimmed = self.name.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let isDigitsOnly = !currentTrimmed.isEmpty && currentTrimmed.allSatisfy { $0.isNumber || $0 == "-" || $0 == " " }
-
-                    if (currentTrimmed.isEmpty || isDigitsOnly) && !placeTitle.isEmpty {
-                        self.name = placeTitle
-                    }
+            DispatchQueue.main.async {
+                guard self.usableName(self.name) == nil else { return }
+                if let address = self.usableName(resolved) {
+                    self.name = address
+                } else if let fallback = self.fallbackName {
+                    self.name = fallback
                 }
             }
+        }
+    }
+}
+
+// MARK: - Liquid Glass helpers (iOS 26+, with fallbacks for earlier versions)
+
+/// Groups glass elements so they render and blend consistently on iOS 26.
+private struct GlassContainer<Content: View>: View {
+    let spacing: CGFloat
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        if #available(iOS 26.0, *) {
+            GlassEffectContainer(spacing: spacing) {
+                content()
+            }
+        } else {
+            content()
+        }
+    }
+}
+
+private struct GlassRowBackground: ViewModifier {
+    let isSelected: Bool
+    let tint: Color
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.glassEffect(
+                isSelected ? .regular.tint(tint).interactive() : .regular.interactive(),
+                in: .rect(cornerRadius: 16)
+            )
+        } else {
+            content
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(isSelected ? tint : Color(uiColor: .secondarySystemGroupedBackground))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(isSelected ? Color.clear : Color(uiColor: .separator).opacity(0.35), lineWidth: 0.8)
+                )
+        }
+    }
+}
+
+private extension View {
+    func glassRowBackground(isSelected: Bool, tint: Color) -> some View {
+        modifier(GlassRowBackground(isSelected: isSelected, tint: tint))
+    }
+
+    @ViewBuilder
+    func glassProminentButton(tint: Color) -> some View {
+        if #available(iOS 26.0, *) {
+            self.buttonStyle(.glassProminent).tint(tint)
+        } else {
+            self.buttonStyle(.borderedProminent).tint(tint)
+        }
+    }
+
+    /// Pins a bar to the bottom edge. On iOS 26 the scroll content gets the soft edge effect under it.
+    @ViewBuilder
+    func pinnedBottomBar<Bar: View>(@ViewBuilder _ bar: () -> Bar) -> some View {
+        if #available(iOS 26.0, *) {
+            self.safeAreaBar(edge: .bottom) { bar() }
+        } else {
+            self.safeAreaInset(edge: .bottom) { bar().background(.bar) }
         }
     }
 }

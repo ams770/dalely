@@ -388,6 +388,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get themeDark => 'داكن';
 
   @override
+  String get pickHere => 'اختر هنا';
+
+  @override
   String get language => 'اللغة';
 
   @override
@@ -703,6 +706,21 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get fullscreen => 'ملء الشاشة';
+
+  @override
+  String get spotName => 'اسم المكان';
+
+  @override
+  String get spotNamePlaceholder => 'مثال: الصيدلية';
+
+  @override
+  String get spotCategory => 'الفئة';
+
+  @override
+  String get saveSpotToDalely => 'احفظ المكان في دليلى';
+
+  @override
+  String get savedSuccessfully => 'تم الحفظ';
 }
 
 /// The translations for Arabic, as used in Egypt (`ar_EG`).
@@ -1088,6 +1106,9 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
   String get themeDark => 'داكن';
 
   @override
+  String get pickHere => 'اختار هنا';
+
+  @override
   String get language => 'اللغة';
 
   @override
@@ -1328,6 +1349,21 @@ class AppLocalizationsArEg extends AppLocalizationsAr {
 
   @override
   String get fullscreen => 'شاشة كاملة';
+
+  @override
+  String get spotName => 'اسم المكان';
+
+  @override
+  String get spotNamePlaceholder => 'مثال: الصيدلية';
+
+  @override
+  String get spotCategory => 'الفئة';
+
+  @override
+  String get saveSpotToDalely => 'احفظ المكان في دليلى';
+
+  @override
+  String get savedSuccessfully => 'اتحفظ';
 }
 
 /// The translations for Arabic, as used in Saudi Arabia (`ar_SA`).
@@ -1713,6 +1749,9 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
   String get themeDark => 'داكن';
 
   @override
+  String get pickHere => 'اختر هنا';
+
+  @override
   String get language => 'اللغة';
 
   @override
@@ -1953,4 +1992,19 @@ class AppLocalizationsArSa extends AppLocalizationsAr {
 
   @override
   String get fullscreen => 'ملء الشاشة';
+
+  @override
+  String get spotName => 'اسم المكان';
+
+  @override
+  String get spotNamePlaceholder => 'مثال: الصيدلية';
+
+  @override
+  String get spotCategory => 'التصنيف';
+
+  @override
+  String get saveSpotToDalely => 'احفظ المكان في دليلى';
+
+  @override
+  String get savedSuccessfully => 'تم الحفظ';
 }

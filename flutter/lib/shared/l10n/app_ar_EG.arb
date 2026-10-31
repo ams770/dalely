@@ -25,6 +25,7 @@
   "whereMyCarTitle": "عربيتي فين؟",
   "saveThisSpot": "ضيف مكان جديد",
   "addSpot": "ضيف مكان",
+  "pickHere": "اختار هنا",
   "savedAgo": "اتحفظ {time}",
   "timeJustNow": "دلوقتي",
   "timeMinutesAgo": "{count, plural, =1{من دقيقة} =2{من دقيقتين} few{من {count} دقائق} many{من {count} دقيقة} other{من {count} دقيقة}}",
@@ -158,5 +159,11 @@
   "durationHoursAndMinutes": "{hours} و{minutes}",
   "durationDays": "{count, plural, =1{يوم} =2{يومين} few{{count} أيام} many{{count} يوم} other{{count} يوم}}",
   "durationDaysAndHours": "{days} و{hours}",
-  "fullscreen": "شاشة كاملة"
+  "fullscreen": "شاشة كاملة",
+  "pickHere": "اختار هنا",
+  "spotName": "اسم المكان",
+  "spotNamePlaceholder": "مثال: الصيدلية",
+  "spotCategory": "الفئة",
+  "saveSpotToDalely": "احفظ المكان في دليلى",
+  "savedSuccessfully": "اتحفظ"
 }

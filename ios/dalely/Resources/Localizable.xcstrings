@@ -128,6 +128,9 @@
         }
       }
     },
+    "Cancel" : {
+
+    },
     "cantSeeCar" : {
       "localizations" : {
         "ar" : {
@@ -432,6 +435,9 @@
         }
       }
     },
+    "Category" : {
+
+    },
     "categoryBeautyCenter" : {
       "localizations" : {
         "ar" : {
@@ -720,6 +726,22 @@
         }
       }
     },
+    "close" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إغلاق"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        }
+      }
+    },
     "contactSupport" : {
       "localizations" : {
         "ar" : {
@@ -796,54 +818,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete"
-          }
-        }
-      }
-    },
-    "edit" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تعديل"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit"
-          }
-        }
-      }
-    },
-    "search" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "بحث"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search"
-          }
-        }
-      }
-    },
-    "close" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "إغلاق"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Close"
           }
         }
       }
@@ -1696,7 +1670,14 @@
       }
     },
     "Official Website" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الموقع الرسمي"
+          }
+        }
+      }
     },
     "onboarding1Body" : {
       "localizations" : {
@@ -2050,8 +2031,32 @@
         }
       }
     },
+    "pickHere" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختار هنا"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick here"
+          }
+        }
+      }
+    },
     "Privacy Policy" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "سياسة الخصوصية"
+          }
+        }
+      }
     },
     "privacyPolicy" : {
       "localizations" : {
@@ -2152,6 +2157,16 @@
         }
       }
     },
+    "Save" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حفظ"
+          }
+        }
+      }
+    },
     "savedAgo" : {
       "localizations" : {
         "ar" : {
@@ -2216,6 +2231,23 @@
         }
       }
     },
+    "savedSuccessfully" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تم الحفظ بنجاح!"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved successfully!"
+          }
+        }
+      }
+    },
     "saveHere" : {
       "localizations" : {
         "ar" : {
@@ -2228,6 +2260,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Save here"
+          }
+        }
+      }
+    },
+    "saveSpotToDalely" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حفظ المكان"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save Spot"
           }
         }
       }
@@ -2248,8 +2297,31 @@
         }
       }
     },
+    "search" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بحث"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search"
+          }
+        }
+      }
+    },
     "Search" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "بحث"
+          }
+        }
+      }
     },
     "searchFailed" : {
       "localizations" : {
@@ -2492,7 +2564,14 @@
       }
     },
     "Sort" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ترتيب"
+          }
+        }
+      }
     },
     "sortBy" : {
       "localizations" : {
@@ -2586,6 +2665,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "{name} deleted"
+          }
+        }
+      }
+    },
+    "spotNamePlaceholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مثال: بقالة، صيدلية، مطعم..."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "e.g. Pharmacy, Restaurant, Home..."
           }
         }
       }
@@ -2879,7 +2975,14 @@
       }
     },
     "WhatsApp Support" : {
-
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "دعم عبر واتساب"
+          }
+        }
+      }
     },
     "whereMyCarTitle" : {
       "localizations" : {
@@ -2977,6 +3080,9 @@
         }
       }
     },
+    "إلغاء" : {
+
+    },
     "البريد الإلكتروني" : {
 
     },
@@ -2987,6 +3093,9 @@
 
     },
     "تواصل عبر واتساب" : {
+
+    },
+    "حفظ" : {
 
     },
     "سياسة الخصوصية" : {

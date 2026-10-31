@@ -7,6 +7,7 @@
   "settingsTooltip": "الإعدادات",
   "backTooltip": "رجوع",
   "myCar": "ركنتى",
+  "pickHere": "اختار هنا",
   "parkedAgo": "{time}     ",
   "noCarTitle": "أين ركنت سيارتك؟",
   "noCarMessage": "غير مركونة",
@@ -178,5 +179,11 @@
   "durationHoursAndMinutes": "{hours} و{minutes}",
   "durationDays": "{count, plural, =1{يوم} =2{يومين} few{{count} أيام} many{{count} يوم} other{{count} يوم}}",
   "durationDaysAndHours": "{days} و{hours}",
-  "fullscreen": "ملء الشاشة"
+  "fullscreen": "ملء الشاشة",
+  "pickHere": "اختر هنا",
+  "spotName": "اسم المكان",
+  "spotNamePlaceholder": "مثال: الصيدلية",
+  "spotCategory": "الفئة",
+  "saveSpotToDalely": "احفظ المكان في دليلى",
+  "savedSuccessfully": "تم الحفظ"
 }

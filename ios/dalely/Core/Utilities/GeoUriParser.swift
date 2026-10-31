@@ -1,12 +1,46 @@
 import Foundation
+import CoreLocation
 
 struct ParsedGeoLocation: Equatable {
     var latitude: Double
     var longitude: Double
     var label: String?
+    /// True when the coordinate came from geocoding a name/address instead of an exact coordinate.
+    /// Use it to force the "confirm on map" screen before saving.
+    var isApproximate: Bool = false
+    /// Address text that came with the link, used as a fallback name when there is no place name.
+    var address: String? = nil
+}
+
+/// Stops URLSession from following redirects so we can read every hop ourselves.
+private final class NoRedirectDelegate: NSObject, URLSessionTaskDelegate {
+    func urlSession(_ session: URLSession,
+                    task: URLSessionTask,
+                    willPerformHTTPRedirection response: HTTPURLResponse,
+                    newRequest request: URLRequest,
+                    completionHandler: @escaping (URLRequest?) -> Void) {
+        completionHandler(nil)
+    }
 }
 
 enum GeoUriParser {
+
+    // MARK: - Debug logging (stripped from release builds)
+
+    @inline(__always)
+    private static func dlog(_ message: @autoclosure () -> String) {
+        #if DEBUG
+        print("[GeoParse] \(message())")
+        #endif
+    }
+
+    private static func describe(_ r: ParsedGeoLocation?) -> String {
+        guard let r else { return "nil" }
+        return "lat=\(r.latitude) lng=\(r.longitude) label=\(r.label ?? "-") approx=\(r.isApproximate)"
+    }
+
+    // MARK: - Regexes
+
     private static let coordRegex = try! NSRegularExpression(
         pattern: #"([+-]?\d{1,2}(?:\.\d+)?)\s*,\s*([+-]?\d{1,3}(?:\.\d+)?)"#
     )
@@ -22,7 +56,60 @@ enum GeoUriParser {
     )
     private static let placePathRegex = try! NSRegularExpression(pattern: #"/(?:place|search)/([^/@?]+)"#)
 
+    /// Used to scan an HTML body for an Apple Maps coordinate parameter.
+    private static let bodyCoordRegex = try! NSRegularExpression(
+        pattern: #"(?:coordinate|sll|ll)=(-?\d{1,2}(?:\.\d+)?)(?:,|%2C)(-?\d{1,3}(?:\.\d+)?)"#
+    )
+
+    private static let userAgent =
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
+
+    // MARK: - Public API
+
+    /// Synchronous, offline parse. Returns nil for short links that need network resolution.
     static func parse(_ raw: String?) -> ParsedGeoLocation? {
+        let result = parseInternal(raw)
+        dlog("parse(\(String(raw?.prefix(120) ?? "nil"))) -> \(describe(result))")
+        return result
+    }
+
+    /// Offline parse first, then resolves short links (Apple Maps maps.apple/p/..., Google short links).
+    static func parseAsync(_ raw: String?) async -> ParsedGeoLocation? {
+        dlog("parseAsync input: \(raw ?? "nil")")
+
+        if let parsed = parse(raw) {
+            dlog("resolved offline, no network needed")
+            return parsed
+        }
+
+        guard let raw else { return nil }
+        let decoded = safeDecode(raw)
+
+        guard let match = first(embeddedURLRegex, in: decoded),
+              let range = Range(match.range, in: decoded),
+              let url = URL(string: String(decoded[range])),
+              url.scheme?.hasPrefix("http") == true else {
+            dlog("no http(s) link found inside the input, giving up")
+            return nil
+        }
+
+        let linkText = String(decoded[range])
+        let textLabel = extractTextLabel(decoded, embeddedURL: linkText)
+        dlog("extracted link: \(linkText)")
+
+        var result = await resolveShortLink(url)
+        if result != nil, result?.label == nil { result?.label = textLabel }
+        dlog("parseAsync final -> \(describe(result))")
+        return result
+    }
+
+    static func extractLabel(_ raw: String?) -> String? {
+        cleanPlaceName(raw)
+    }
+
+    // MARK: - Core offline parser
+
+    private static func parseInternal(_ raw: String?) -> ParsedGeoLocation? {
         guard let raw, !raw.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         let decoded = safeDecode(trimmed)
@@ -33,8 +120,12 @@ enum GeoUriParser {
         if !isDirect || decoded.contains("\n"),
            let match = first(embeddedURLRegex, in: decoded) ?? first(embeddedURLRegex, in: trimmed) {
             let embedded = String(decoded[Range(match.range, in: decoded)!])
-            if embedded != decoded, let nested = parse(embedded) {
-                return ParsedGeoLocation(latitude: nested.latitude, longitude: nested.longitude, label: extractTextLabel(decoded, embeddedURL: embedded) ?? nested.label)
+            if embedded != decoded, let nested = parseInternal(embedded) {
+                return ParsedGeoLocation(
+                    latitude: nested.latitude,
+                    longitude: nested.longitude,
+                    label: extractTextLabel(decoded, embeddedURL: embedded) ?? nested.label
+                )
             }
         }
 
@@ -50,8 +141,13 @@ enum GeoUriParser {
             }
         }
 
-        if decoded.contains("maps.apple.com") {
+        // Matches maps.apple.com/... and the short form maps.apple/p/...
+        if decoded.contains("maps.apple") {
             if let apple = parseApple(trimmed, decoded: decoded, label: label) { return apple }
+            dlog("Apple Maps link has no coordinate in the URL itself (short link?)")
+            // Do not fall through to generic coordinate guessing for Apple links:
+            // short links cannot contain coordinates and the loose regex could match junk.
+            return nil
         }
 
         if decoded.contains("maps.google.") || decoded.contains("google.com/maps") || decoded.contains("maps.app.goo.gl") || decoded.contains("goo.gl/maps") {
@@ -73,26 +169,121 @@ enum GeoUriParser {
         return nil
     }
 
-    static func parseAsync(_ raw: String?) async -> ParsedGeoLocation? {
-        if let parsed = parse(raw) { return parsed }
-        guard let raw, let url = URL(string: raw), url.scheme?.hasPrefix("http") == true else { return nil }
-        var request = URLRequest(url: url)
-        request.httpMethod = "HEAD"
-        request.setValue("Mozilla/5.0", forHTTPHeaderField: "User-Agent")
-        do {
-            let (_, response) = try await URLSession.shared.data(for: request)
-            if let http = response as? HTTPURLResponse, let location = http.url?.absoluteString {
-                return parse(location)
+    // MARK: - Short link resolution
+
+    private static func resolveShortLink(_ start: URL, maxHops: Int = 8) async -> ParsedGeoLocation? {
+        let session = URLSession(configuration: .ephemeral,
+                                 delegate: NoRedirectDelegate(),
+                                 delegateQueue: nil)
+        defer { session.finishTasksAndInvalidate() }
+
+        var current = start
+        var hintName: String?
+        var hintAddress: String?
+
+        for hop in 0..<maxHops {
+            dlog("---- hop \(hop) ----")
+            dlog("url: \(current.absoluteString)")
+
+            // 1. Coordinate or hints already inside this hop's URL?
+            if let comps = URLComponents(url: current, resolvingAgainstBaseURL: false) {
+                let items = comps.queryItems ?? []
+                dlog("query params: \(items.map { "\($0.name)=\($0.value ?? "")" }.joined(separator: " | "))")
+
+                if let n = items.first(where: { $0.name == "name" })?.value, !n.isEmpty { hintName = n }
+                if let a = items.first(where: { $0.name == "address" })?.value, !a.isEmpty { hintAddress = a }
             }
-        } catch {
-            return nil
+
+            if var apple = parseApple(current.absoluteString,
+                                      decoded: safeDecode(current.absoluteString),
+                                      label: nil) {
+                dlog("coordinate found in hop \(hop) URL")
+                if apple.label == nil { apple.label = cleanPlaceName(hintName) }
+                if apple.address == nil { apple.address = hintAddress }
+                return apple
+            }
+
+            // 2. Fetch this hop without following redirects.
+            var req = URLRequest(url: current)
+            req.httpMethod = "GET"           // not HEAD
+            req.timeoutInterval = 8
+            req.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+
+            let data: Data
+            let response: URLResponse
+            do {
+                (data, response) = try await session.data(for: req)
+            } catch {
+                dlog("request failed: \(error.localizedDescription)")
+                break
+            }
+
+            guard let http = response as? HTTPURLResponse else {
+                dlog("not an HTTP response")
+                break
+            }
+
+            dlog("status: \(http.statusCode)")
+            for (key, value) in http.allHeaderFields {
+                dlog("header: \(key) = \(value)")
+            }
+
+            // 3. Redirect: move to the next hop.
+            if (300..<400).contains(http.statusCode),
+               let loc = http.value(forHTTPHeaderField: "Location"),
+               let next = URL(string: loc, relativeTo: current)?.absoluteURL {
+                dlog("redirect -> \(next.absoluteString)")
+                current = next
+                continue
+            }
+
+            // 4. Not a redirect: look inside the body for a coordinate parameter.
+            let bodyText = String(data: data.prefix(20_000), encoding: .utf8) ?? ""
+            dlog("body length: \(data.count) bytes")
+            dlog("body snippet: \(String(bodyText.prefix(300)).replacingOccurrences(of: "\n", with: " "))")
+
+            if let m = first(bodyCoordRegex, in: bodyText),
+               let latR = Range(m.range(at: 1), in: bodyText),
+               let lngR = Range(m.range(at: 2), in: bodyText),
+               let lat = Double(bodyText[latR]), let lng = Double(bodyText[lngR]),
+               isValid(lat, lng) {
+                dlog("coordinate found in response body")
+                return ParsedGeoLocation(latitude: lat, longitude: lng,
+                                         label: cleanPlaceName(hintName), address: hintAddress)
+            }
+            break
         }
-        return nil
+
+        // 5. Fallback: geocode name/address collected along the way.
+        dlog("no exact coordinate found. hints: name=\(hintName ?? "-") address=\(hintAddress ?? "-")")
+        return await geocodeFallback(name: hintName, address: hintAddress)
     }
 
-    static func extractLabel(_ raw: String?) -> String? {
-        cleanPlaceName(raw)
+    private static func geocodeFallback(name: String?, address: String?) async -> ParsedGeoLocation? {
+        let query = [address, name].compactMap { $0 }.first(where: { !$0.isEmpty })
+        guard let query else {
+            dlog("geocode fallback skipped: no name or address available")
+            return nil
+        }
+        dlog("geocoding: \(query)")
+        do {
+            let placemarks = try await CLGeocoder().geocodeAddressString(query)
+            guard let coord = placemarks.first?.location?.coordinate else {
+                dlog("geocoder returned no results")
+                return nil
+            }
+            return ParsedGeoLocation(latitude: coord.latitude,
+                                     longitude: coord.longitude,
+                                     label: cleanPlaceName(name),
+                                     isApproximate: true,
+                                     address: address)
+        } catch {
+            dlog("geocoder error: \(error.localizedDescription)")
+            return nil
+        }
     }
+
+    // MARK: - Label cleanup
 
     static func cleanPlaceName(_ raw: String?) -> String? {
         guard var text = raw.map(safeDecode)?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return nil }
@@ -113,6 +304,8 @@ enum GeoUriParser {
         text = text.trimmingCharacters(in: CharacterSet(charactersIn: "\"'`[](){}"))
         return text.isEmpty ? nil : text
     }
+
+    // MARK: - Per-scheme parsers
 
     private static func parseFeen(_ decoded: String) -> ParsedGeoLocation? {
         guard decoded.hasPrefix("feen:") || decoded.hasPrefix("dalely:") else { return nil }
@@ -140,12 +333,22 @@ enum GeoUriParser {
 
     private static func parseApple(_ trimmed: String, decoded: String, label: String?) -> ParsedGeoLocation? {
         guard let uri = URLComponents(string: trimmed) ?? URLComponents(string: decoded) else { return nil }
-        let ll = uri.queryItems?.first(where: { ["ll", "sll", "daddr"].contains($0.name) })?.value
+        let items = uri.queryItems ?? []
+
+        // "coordinate" is used by the long maps.apple.com/place?... links (iOS 26 and recent versions).
+        let ll = items.first(where: { ["coordinate", "ll", "sll", "daddr"].contains($0.name) })?.value
+        // Prefer the place name explicitly. In Apple links "address" comes before "name" in the URL,
+        // so taking the first match would return the address instead of the name.
+        func value(_ key: String) -> String? { items.first(where: { $0.name == key })?.value }
+        let placeName = cleanPlaceName(value("name")) ?? cleanPlaceName(value("q"))
+        let rawAddress = value("address")?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let addressText = (rawAddress?.isEmpty == false) ? rawAddress : nil
+
         if let ll, let coords = firstCoords(in: ll) {
-            let qLabel = cleanPlaceName(uri.queryItems?.first(where: { ["q", "address"].contains($0.name) })?.value)
-            return ParsedGeoLocation(latitude: coords.0, longitude: coords.1, label: label ?? qLabel)
+            return ParsedGeoLocation(latitude: coords.0, longitude: coords.1,
+                                     label: label ?? placeName, address: addressText)
         }
-        if let q = uri.queryItems?.first(where: { $0.name == "q" })?.value, let coords = firstCoords(in: q) {
+        if let q = items.first(where: { $0.name == "q" })?.value, let coords = firstCoords(in: q) {
             return ParsedGeoLocation(latitude: coords.0, longitude: coords.1, label: label)
         }
         return nil
@@ -174,6 +377,8 @@ enum GeoUriParser {
         }
         return nil
     }
+
+    // MARK: - Helpers
 
     private static func extractTextLabel(_ decoded: String, embeddedURL: String) -> String? {
         cleanPlaceName(decoded.replacingOccurrences(of: embeddedURL, with: ""))

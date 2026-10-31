@@ -1,6 +1,17 @@
 import MapKit
 import SwiftUI
 
+/// Everything the "Add / Edit Spot" sheet needs, captured at the moment "Pick here" is tapped.
+/// Used with `.sheet(item:)` so the sheet content always receives fresh data and can never
+/// render empty because of stale `@State`.
+private struct PickedSpot: Identifiable {
+    let id = UUID()
+    let coordinate: CLLocationCoordinate2D
+    let name: String
+    let category: SpotCategory?
+    let editingId: String?
+}
+
 struct SpotsMapView: View {
     var isEmbedded: Bool = false
     var initialSpotId: String? = nil
@@ -11,7 +22,11 @@ struct SpotsMapView: View {
 
     @State private var cameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedSpotId: String? = nil
+    /// True while the user is choosing a point (center pin + "Pick here" button).
     @State private var isAddingSpot: Bool = false
+    /// The details sheet (name, category, save) that opens after "Pick here".
+    /// Non-nil means the sheet is presented.
+    @State private var pickedSpot: PickedSpot? = nil
     @State private var newSpotName: String = ""
     @State private var newSpotCategory: SpotCategory? = nil
     @State private var editingSpot: Spot? = nil
@@ -32,6 +47,7 @@ struct SpotsMapView: View {
 
                     if isAddingSpot {
                         centerPinOverlay(geometry: geometry)
+                        pickHereBar(proxy: proxy, geometry: geometry)
                     }
 
                     if !isAddingSpot && selectedSpotId == nil {
@@ -41,19 +57,18 @@ struct SpotsMapView: View {
                 }
                 .animation(.easeInOut(duration: 0.25), value: isAddingSpot)
                 .animation(.easeInOut(duration: 0.25), value: selectedSpotId == nil)
-                .sheet(isPresented: $isAddingSpot, onDismiss: {
-                    exitAddSpotMode()
-                }) {
-                    SaveSpotBottomPanelView(
-                        name: $newSpotName,
-                        category: $newSpotCategory,
-                        coordinate: mapCenterCoordinate,
-                        isEditing: editingSpot != nil,
-                        onSave: {
-                            saveSpotAction(proxy: proxy, geometry: geometry)
+                .sheet(item: $pickedSpot) { picked in
+                    AddSpotSheetView(
+                        coordinate: picked.coordinate,
+                        initialName: picked.name,
+                        initialCategory: picked.category,
+                        isEditing: picked.editingId != nil,
+                        onSave: { name, category in
+                            saveSpotAction(name: name, category: category, picked: picked)
                         },
-                        onClose: {
-                            exitAddSpotMode()
+                        onCancel: {
+                            // Back to picking: the pin and the "Pick here" button stay.
+                            pickedSpot = nil
                         }
                     )
                     .environment(\.layoutDirection, env.layoutDirection)
@@ -74,11 +89,9 @@ struct SpotsMapView: View {
                             newSpotName = spot.name
                             newSpotCategory = spot.category
                             mapCenterCoordinate = spot.coordinate
+                            isAddingSpot = true
                             let pinPoint = addSpotPinPoint(geometry: geometry)
                             centerCameraOnPin(coordinate: spot.coordinate, pinPoint: pinPoint, geometry: geometry, proxy: proxy)
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                                isAddingSpot = true
-                            }
                         }
                     )
                     .environment(\.layoutDirection, env.layoutDirection)
@@ -179,6 +192,23 @@ struct SpotsMapView: View {
                 }
             }
 
+            // Embedded mode has no back button, so give the user a way out of the picking mode.
+            if isAddingSpot && isEmbedded {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        Haptics.tap()
+                        exitAddSpotMode()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(env.palette.textPrimary)
+                            .frame(width: 36, height: 36)
+                            .contentShape(Rectangle())
+                    }
+                    .accessibilityLabel(env.l10n.t("cancel"))
+                }
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     Haptics.tap()
@@ -206,7 +236,7 @@ struct SpotsMapView: View {
     @ViewBuilder
     private func mapContent(proxy: MapProxy, geometry: GeometryProxy) -> some View {
         let pinPoint = addSpotPinPoint(geometry: geometry)
-        Map(position: $cameraPosition, selection: $selectedSpotId) {
+        Map(position: $cameraPosition, selection: mapSelectionBinding) {
             UserAnnotation()
 
             ForEach(visibleMapSpots, id: \.id) { (spot: Spot) in
@@ -217,6 +247,10 @@ struct SpotsMapView: View {
                         .onTapGesture {
                             onSpotTapped(spot, geometry: geometry, proxy: proxy)
                         }
+                        // While adding a spot, markers are inactive: taps pass through to the map.
+                        .allowsHitTesting(!isAddingSpot)
+                        .opacity(isAddingSpot ? 0.45 : 1)
+                        .animation(.easeInOut(duration: 0.2), value: isAddingSpot)
                 }
             }
         }
@@ -291,6 +325,48 @@ struct SpotsMapView: View {
         .transition(.scale(scale: 0.85).combined(with: .opacity))
     }
 
+    // MARK: - Pick Here Button
+    @ViewBuilder
+    private func pickHereBar(proxy: MapProxy, geometry: GeometryProxy) -> some View {
+        VStack {
+            Spacer()
+            Button {
+                Haptics.tap()
+                pickCurrentPoint(proxy: proxy, geometry: geometry)
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "mappin.and.ellipse")
+                        .font(.system(size: 17, weight: .bold))
+                    Text(env.l10n.t("pickHere"))
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 54)
+                .liquidGlassProminent(cornerRadius: 27, tint: env.palette.primary)
+            }
+            .buttonStyle(LiquidGlassButtonStyle())
+            .padding(.horizontal, 16)
+            .padding(.bottom, max(16, geometry.safeAreaInsets.bottom))
+            .safeAreaPadding(.all, 24)
+            .frame(maxWidth: 300)
+        }
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+    }
+
+    /// Snapshots everything the details sheet needs into `pickedSpot`.
+    /// Setting it to non-nil is what presents the sheet.
+    private func pickCurrentPoint(proxy: MapProxy, geometry: GeometryProxy) {
+        let pinPoint = addSpotPinPoint(geometry: geometry)
+        let coordinate = proxy.convert(pinPoint, from: .local) ?? mapCenterCoordinate
+        pickedSpot = PickedSpot(
+            coordinate: coordinate,
+            name: newSpotName,
+            category: newSpotCategory,
+            editingId: editingSpot?.id
+        )
+    }
+
     // MARK: - Floating Controls (Recenter & Add Spot FAB)
     @ViewBuilder
     private func floatingControls(proxy: MapProxy, geometry: GeometryProxy) -> some View {
@@ -360,7 +436,19 @@ struct SpotsMapView: View {
         }
     }
 
+    /// Blocks the Map's built-in selection while the user is picking a point.
+    private var mapSelectionBinding: Binding<String?> {
+        Binding(
+            get: { selectedSpotId },
+            set: { newValue in
+                guard !isAddingSpot else { return }
+                selectedSpotId = newValue
+            }
+        )
+    }
+
     private func onSpotTapped(_ spot: Spot, geometry: GeometryProxy, proxy: MapProxy) {
+        guard !isAddingSpot else { return }
         Haptics.tap()
         withAnimation(.spring(response: 0.35, dampingFraction: 0.72)) {
             selectedSpotId = spot.id
@@ -477,11 +565,10 @@ struct SpotsMapView: View {
     }
 
     // MARK: - Pin Positioning
+    /// The pin sits at the exact center of the screen. There is no bottom sheet while picking,
+    /// so nothing needs to be avoided.
     private func addSpotPinPoint(geometry: GeometryProxy) -> CGPoint {
-        let topOffset = geometry.safeAreaInsets.top + 60
-        let sheetHeight: CGFloat = 275
-        let visibleHeight = max(100, geometry.size.height - topOffset - sheetHeight)
-        return CGPoint(x: geometry.size.width / 2, y: topOffset + visibleHeight / 2)
+        CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
     }
 
     // MARK: - Camera Movement
@@ -545,6 +632,7 @@ struct SpotsMapView: View {
 
     private func enterAddSpotMode(draft: AppEnvironment.SaveDraft? = nil, geometry: GeometryProxy, proxy: MapProxy) {
         selectedSpotId = nil
+        pickedSpot = nil
         isAddingSpot = true
         let pinPoint = addSpotPinPoint(geometry: geometry)
 
@@ -570,6 +658,7 @@ struct SpotsMapView: View {
         }
     }
 
+    /// Long press drops the pin on that point and shows "Pick here".
     private func handleMapLongPress(at touchPoint: CGPoint, proxy: MapProxy, geometry: GeometryProxy) {
         guard let exactCoord = proxy.convert(touchPoint, from: .local) else { return }
         Haptics.success()
@@ -577,21 +666,16 @@ struct SpotsMapView: View {
         newSpotName = ""
         newSpotCategory = nil
         mapCenterCoordinate = exactCoord
+        selectedSpotId = nil
+        pickedSpot = nil
+        isAddingSpot = true
 
         let pinPoint = addSpotPinPoint(geometry: geometry)
         centerCameraOnPin(coordinate: exactCoord, pinPoint: pinPoint, geometry: geometry, proxy: proxy)
-
-        if selectedSpotId != nil {
-            selectedSpotId = nil
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                isAddingSpot = true
-            }
-        } else {
-            isAddingSpot = true
-        }
     }
 
     private func exitAddSpotMode() {
+        pickedSpot = nil
         isAddingSpot = false
         editingSpot = nil
         env.saveDraft = nil
@@ -617,25 +701,16 @@ struct SpotsMapView: View {
         }
     }
 
-    private func saveSpotAction(proxy: MapProxy, geometry: GeometryProxy) {
-        let finalCategory = newSpotCategory ?? .other
-        let trimmed = newSpotName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let finalName = trimmed.isEmpty ? finalCategory.label(env.l10n) : trimmed
-
-        let pinPoint = addSpotPinPoint(geometry: geometry)
-        let exactCoordinate: CLLocationCoordinate2D
-        if let converted = proxy.convert(pinPoint, from: .local) {
-            exactCoordinate = converted
-        } else {
-            exactCoordinate = mapCenterCoordinate
-        }
+    private func saveSpotAction(name: String, category: SpotCategory, picked: PickedSpot) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let finalName = trimmed.isEmpty ? category.label(env.l10n) : trimmed
 
         env.saveSpot(
             name: finalName,
-            category: finalCategory,
-            latitude: exactCoordinate.latitude,
-            longitude: exactCoordinate.longitude,
-            editingId: editingSpot?.id
+            category: category,
+            latitude: picked.coordinate.latitude,
+            longitude: picked.coordinate.longitude,
+            editingId: picked.editingId
         )
 
         exitAddSpotMode()
@@ -643,7 +718,7 @@ struct SpotsMapView: View {
 
     // MARK: - Back Navigation Handling
     private var hasOpenSheet: Bool {
-        isAddingSpot || selectedSpotId != nil || isSearchSheetPresented
+        isAddingSpot || selectedSpotId != nil || isSearchSheetPresented || pickedSpot != nil
     }
 
     private func handleBackAction() {

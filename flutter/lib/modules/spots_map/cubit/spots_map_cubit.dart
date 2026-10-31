@@ -19,6 +19,9 @@ import 'spots_map_state.dart';
 class SpotsMapCubit extends Cubit<SpotsMapState> {
   static const double defaultZoom = 17.0;
 
+  /// Opacity of the other spots while the user is picking a point.
+  static const double _inactiveMarkerOpacity = 0.45;
+
   SpotsMapCubit({
     required this.spotsCubit,
     required this.locationCubit,
@@ -325,10 +328,11 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     }
   }
 
+  /// Other spots are inactive while the user is adding a spot.
   void _handleSymbolTapped(Symbol symbol) {
-    if (isClosed) return;
+    if (isClosed || state.isAddingSpot) return;
     final spotId = symbol.data?['spotId'] as String?;
-    if (spotId != null && !state.isAddingSpot) {
+    if (spotId != null) {
       selectSpotById(spotId, onlyShowSpot: state.onlyShowSpotId != null);
     }
   }
@@ -460,8 +464,11 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
         isSaving: false,
         isCameraMoving: false,
         openedToAdd: false,
+        isDetailsSheetOpen: false,
       ),
     );
+    // Dim the other spots and make them inactive.
+    _rebuildMarkers();
 
     // If an explicit target was provided (e.g. from onMapLongClick),
     // smoothly scroll it to the pin center.
@@ -501,8 +508,11 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
         isSaving: false,
         isCameraMoving: false,
         openedToAdd: false,
+        isDetailsSheetOpen: false,
       ),
     );
+    // Hide the edited spot (the pin replaces it) and dim the others.
+    _rebuildMarkers();
     final controller = _mapController;
     if (controller != null && !controller.isDisposed) {
       _animateTargetToPin(spot.latLng, zoom: defaultZoom);
@@ -525,9 +535,44 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
         isSaving: false,
         isCameraMoving: false,
         openedToAdd: false,
+        isDetailsSheetOpen: false,
       ),
     );
     _rebuildMarkers();
+  }
+
+  /// Called when the user taps "Pick here".
+  ///
+  /// Resolves the exact coordinate under the pin, stores it in the state and marks the
+  /// details sheet as open. Returns `false` when the sheet must not be opened
+  /// (not in add mode, or it is already open), so a double tap can't open two sheets.
+  Future<bool> pickCurrentPoint() async {
+    if (isClosed || !state.isAddingSpot || state.isDetailsSheetOpen) {
+      return false;
+    }
+    // Set the flag first so a second tap is ignored while the coordinate resolves.
+    emit(state.copyWith(isDetailsSheetOpen: true));
+
+    var location = state.pickedLocation;
+    final controller = _mapController;
+    if (controller != null && !controller.isDisposed) {
+      try {
+        location = await controller.toLatLng(
+          _toPlatformScreenPoint(pinScreenPoint),
+        );
+      } catch (_) {}
+    }
+
+    if (isClosed || !state.isAddingSpot) return false;
+    emit(state.copyWith(pickedLocation: location));
+    return true;
+  }
+
+  /// Called when the details sheet is dismissed (cancel button, swipe down or back).
+  /// The user returns to picking: the pin and the "Pick here" button stay.
+  void closeDetailsSheet() {
+    if (isClosed || !state.isDetailsSheetOpen) return;
+    emit(state.copyWith(isDetailsSheetOpen: false));
   }
 
   void setCategory(SpotCategory category) {
@@ -586,6 +631,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
       if (!isClosed) {
         nameController.clear();
+        // Leaving add mode also closes the details sheet (the screen listens for it).
         emit(
           state.copyWith(
             mode: SpotsMapMode.viewing,
@@ -593,6 +639,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
             selectedSpot: spot,
             clearEditingSpot: true,
             openedToAdd: false,
+            isDetailsSheetOpen: false,
           ),
         );
         _rebuildMarkers();
@@ -682,6 +729,8 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
       final locState = locationCubit.state;
       final selected = state.selectedSpot;
+      final isAdding = state.isAddingSpot;
+      final editingId = state.editingSpot?.id;
 
       final options = <SymbolOptions>[];
       final data = <Map<String, dynamic>>[];
@@ -726,6 +775,9 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       // 2. Spot markers (zIndex higher than user location; selected spot sits topmost)
       // iconAnchor: 'bottom' places the marker tip directly on the exact coordinates
       for (final spot in spotsToRender) {
+        // While editing, the center pin replaces the edited spot.
+        if (isAdding && editingId != null && spot.id == editingId) continue;
+
         final isSelected = selected?.id == spot.id;
         final imageName = spot.isCar
             ? (isSelected ? 'car_pin_selected' : 'car_pin')
@@ -739,6 +791,8 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
             iconImage: imageName,
             iconSize: isSelected ? 1.05 : 0.85,
             iconAnchor: 'bottom',
+            // Dimmed while picking a point (taps are ignored in _handleSymbolTapped).
+            iconOpacity: isAdding ? _inactiveMarkerOpacity : 1.0,
             zIndex: isSelected ? 10 : (spot.isCar ? 8 : 4),
           ),
         );

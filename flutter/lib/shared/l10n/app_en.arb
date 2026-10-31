@@ -169,6 +169,7 @@
   "themeSystem": "System",
   "themeLight": "Light",
   "themeDark": "Dark",
+  "pickHere": "Pick here",
   "language": "Language",
   "languageSystem": "Device language",
   "languageEnglish": "English",
@@ -305,5 +306,11 @@
       "hours": { "type": "String" }
     }
   },
-  "fullscreen": "Full screen"
+  "fullscreen": "Full screen",
+  "pickHere": "Pick here",
+  "spotName": "Spot name",
+  "spotNamePlaceholder": "e.g. Pharmacy",
+  "spotCategory": "Category",
+  "saveSpotToDalely": "Save spot to Dalely",
+  "savedSuccessfully": "Saved"
 }

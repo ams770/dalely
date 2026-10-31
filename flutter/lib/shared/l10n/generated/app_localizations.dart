@@ -664,6 +664,12 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get themeDark;
 
+  /// No description provided for @pickHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick here'**
+  String get pickHere;
+
   /// No description provided for @language.
   ///
   /// In en, this message translates to:
@@ -1173,6 +1179,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Full screen'**
   String get fullscreen;
+
+  /// No description provided for @spotName.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot name'**
+  String get spotName;
+
+  /// No description provided for @spotNamePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Pharmacy'**
+  String get spotNamePlaceholder;
+
+  /// No description provided for @spotCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get spotCategory;
+
+  /// No description provided for @saveSpotToDalely.
+  ///
+  /// In en, this message translates to:
+  /// **'Save spot to Dalely'**
+  String get saveSpotToDalely;
+
+  /// No description provided for @savedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get savedSuccessfully;
 }
 
 class _AppLocalizationsDelegate

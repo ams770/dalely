@@ -367,6 +367,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
+  String get pickHere => 'Pick here';
+
+  @override
   String get language => 'Language';
 
   @override
@@ -671,4 +674,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fullscreen => 'Full screen';
+
+  @override
+  String get spotName => 'Spot name';
+
+  @override
+  String get spotNamePlaceholder => 'e.g. Pharmacy';
+
+  @override
+  String get spotCategory => 'Category';
+
+  @override
+  String get saveSpotToDalely => 'Save spot to Dalely';
+
+  @override
+  String get savedSuccessfully => 'Saved';
 }

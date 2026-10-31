@@ -22,9 +22,14 @@ class SpotsMapState {
     this.isMapReady = false,
     this.editingSpot,
     this.openedToAdd = false,
+    this.isDetailsSheetOpen = false,
   });
 
   final bool isMapReady;
+
+  /// True while the details sheet (name, category, save) is open.
+  /// The sheet opens after the user taps "Pick here" while adding a spot.
+  final bool isDetailsSheetOpen;
   final SpotsMapMode mode;
   final Spot? selectedSpot;
   final String? onlyShowSpotId;
@@ -62,6 +67,7 @@ class SpotsMapState {
     bool? isSaving,
     bool? isMapReady,
     bool? openedToAdd,
+    bool? isDetailsSheetOpen,
   }) {
     return SpotsMapState(
       mode: mode ?? this.mode,
@@ -81,6 +87,7 @@ class SpotsMapState {
       isSaving: isSaving ?? this.isSaving,
       isMapReady: isMapReady ?? this.isMapReady,
       openedToAdd: openedToAdd ?? this.openedToAdd,
+      isDetailsSheetOpen: isDetailsSheetOpen ?? this.isDetailsSheetOpen,
     );
   }
 
@@ -101,7 +108,8 @@ class SpotsMapState {
           other.isCameraMoving == isCameraMoving &&
           other.isSaving == isSaving &&
           other.isMapReady == isMapReady &&
-          other.openedToAdd == openedToAdd;
+          other.openedToAdd == openedToAdd &&
+          other.isDetailsSheetOpen == isDetailsSheetOpen;
 
   @override
   int get hashCode => Object.hash(
@@ -119,5 +127,6 @@ class SpotsMapState {
     isSaving,
     isMapReady,
     openedToAdd,
+    isDetailsSheetOpen,
   );
 }
