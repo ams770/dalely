@@ -23,7 +23,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class _FakeSpotsRepository implements SpotsRepository {
   final Map<String, Spot> _data = {};
@@ -106,28 +106,27 @@ class _FakeNotificationService implements NotificationService {
   dynamic noSuchMethod(Invocation invocation) => Future<void>.value();
 }
 
-class _FakeLocationCubit extends Cubit<LocationState>
-    implements LocationCubit {
+class _FakeLocationCubit extends Cubit<LocationState> implements LocationCubit {
   _FakeLocationCubit({LatLng? userLatLng})
-      : super(
-          LocationState(
-            access: LocationAccess.granted,
-            position: userLatLng != null
-                ? Position(
-                    latitude: userLatLng.latitude,
-                    longitude: userLatLng.longitude,
-                    timestamp: DateTime.now(),
-                    accuracy: 5.0,
-                    altitude: 0.0,
-                    altitudeAccuracy: 0.0,
-                    heading: 0.0,
-                    headingAccuracy: 0.0,
-                    speed: 0.0,
-                    speedAccuracy: 0.0,
-                  )
-                : null,
-          ),
-        );
+    : super(
+        LocationState(
+          access: LocationAccess.granted,
+          position: userLatLng != null
+              ? Position(
+                  latitude: userLatLng.latitude,
+                  longitude: userLatLng.longitude,
+                  timestamp: DateTime.now(),
+                  accuracy: 5.0,
+                  altitude: 0.0,
+                  altitudeAccuracy: 0.0,
+                  heading: 0.0,
+                  headingAccuracy: 0.0,
+                  speed: 0.0,
+                  speedAccuracy: 0.0,
+                )
+              : null,
+        ),
+      );
 
   void setPosition(double lat, double lng) {
     emit(
@@ -264,21 +263,37 @@ void main() {
 
       // 1. dateDesc
       spotsCubit.setSortOrder(SpotSortOrder.dateDesc);
-      expect(spotsCubit.state.spots.map((s) => s.id).toList(), ['s2', 's3', 's1']);
+      expect(spotsCubit.state.spots.map((s) => s.id).toList(), [
+        's2',
+        's3',
+        's1',
+      ]);
 
       // 2. nearest (user at 30.0, 31.0)
       spotsCubit.setSortOrder(SpotSortOrder.nearest);
-      expect(spotsCubit.state.spots.map((s) => s.id).toList(), ['s2', 's3', 's1']);
+      expect(spotsCubit.state.spots.map((s) => s.id).toList(), [
+        's2',
+        's3',
+        's1',
+      ]);
 
       // Move user closer to s1
       locationCubit.setPosition(30.11, 31.0);
       await Future<void>.delayed(Duration.zero);
       // Triggers resort
-      expect(spotsCubit.state.spots.map((s) => s.id).toList(), ['s1', 's3', 's2']);
+      expect(spotsCubit.state.spots.map((s) => s.id).toList(), [
+        's1',
+        's3',
+        's2',
+      ]);
 
       // 3. name
       spotsCubit.setSortOrder(SpotSortOrder.name);
-      expect(spotsCubit.state.spots.map((s) => s.id).toList(), ['s2', 's3', 's1']); // Alpha, Beta, Zebra
+      expect(spotsCubit.state.spots.map((s) => s.id).toList(), [
+        's2',
+        's3',
+        's1',
+      ]); // Alpha, Beta, Zebra
 
       // 4. category
       spotsCubit.setSortOrder(SpotSortOrder.category);
@@ -310,7 +325,10 @@ void main() {
       expect(archived.latitude, 30.05);
       expect(archived.longitude, 31.05);
       expect(archived.parkedDuration, isNotNull);
-      expect(archived.calculatedParkedDuration, greaterThanOrEqualTo(Duration.zero));
+      expect(
+        archived.calculatedParkedDuration,
+        greaterThanOrEqualTo(Duration.zero),
+      );
 
       // Undo / restore spot
       await spotsCubit.restoreSpot(archived);
@@ -329,27 +347,84 @@ void main() {
   group('DurationFormatter.formatHuman', () {
     test('formats durations in English correctly', () async {
       final l10n = await AppLocalizations.delegate.load(const Locale('en'));
-      expect(DurationFormatter.formatHuman(const Duration(seconds: 15), l10n), 'Less than a minute');
-      expect(DurationFormatter.formatHuman(const Duration(minutes: 1), l10n), '1 minute');
-      expect(DurationFormatter.formatHuman(const Duration(minutes: 2), l10n), '2 minutes');
-      expect(DurationFormatter.formatHuman(const Duration(minutes: 45), l10n), '45 minutes');
-      expect(DurationFormatter.formatHuman(const Duration(hours: 1), l10n), '1 hour');
-      expect(DurationFormatter.formatHuman(const Duration(hours: 2, minutes: 15), l10n), '2 hours, 15 minutes');
-      expect(DurationFormatter.formatHuman(const Duration(days: 1), l10n), '1 day');
-      expect(DurationFormatter.formatHuman(const Duration(days: 2, hours: 3), l10n), '2 days, 3 hours');
+      expect(
+        DurationFormatter.formatHuman(const Duration(seconds: 15), l10n),
+        'Less than a minute',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(minutes: 1), l10n),
+        '1 minute',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(minutes: 2), l10n),
+        '2 minutes',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(minutes: 45), l10n),
+        '45 minutes',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(hours: 1), l10n),
+        '1 hour',
+      );
+      expect(
+        DurationFormatter.formatHuman(
+          const Duration(hours: 2, minutes: 15),
+          l10n,
+        ),
+        '2 hours, 15 minutes',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(days: 1), l10n),
+        '1 day',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(days: 2, hours: 3), l10n),
+        '2 days, 3 hours',
+      );
     });
 
     test('formats durations in Arabic correctly', () async {
       final l10n = await AppLocalizations.delegate.load(const Locale('ar'));
-      expect(DurationFormatter.formatHuman(const Duration(seconds: 15), l10n), 'أقل من دقيقة');
-      expect(DurationFormatter.formatHuman(const Duration(minutes: 1), l10n), 'دقيقة');
-      expect(DurationFormatter.formatHuman(const Duration(minutes: 2), l10n), 'دقيقتين');
-      expect(DurationFormatter.formatHuman(const Duration(minutes: 5), l10n), '5 دقائق');
-      expect(DurationFormatter.formatHuman(const Duration(minutes: 15), l10n), '15 دقيقة');
-      expect(DurationFormatter.formatHuman(const Duration(hours: 1), l10n), 'ساعة');
-      expect(DurationFormatter.formatHuman(const Duration(hours: 2, minutes: 15), l10n), 'ساعتين و15 دقيقة');
-      expect(DurationFormatter.formatHuman(const Duration(days: 1), l10n), 'يوم');
-      expect(DurationFormatter.formatHuman(const Duration(days: 2, hours: 3), l10n), 'يومين و3 ساعات');
+      expect(
+        DurationFormatter.formatHuman(const Duration(seconds: 15), l10n),
+        'أقل من دقيقة',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(minutes: 1), l10n),
+        'دقيقة',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(minutes: 2), l10n),
+        'دقيقتين',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(minutes: 5), l10n),
+        '5 دقائق',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(minutes: 15), l10n),
+        '15 دقيقة',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(hours: 1), l10n),
+        'ساعة',
+      );
+      expect(
+        DurationFormatter.formatHuman(
+          const Duration(hours: 2, minutes: 15),
+          l10n,
+        ),
+        'ساعتين و15 دقيقة',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(days: 1), l10n),
+        'يوم',
+      );
+      expect(
+        DurationFormatter.formatHuman(const Duration(days: 2, hours: 3), l10n),
+        'يومين و3 ساعات',
+      );
     });
   });
 }

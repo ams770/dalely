@@ -20,9 +20,4 @@ samples, guidance on mobile development, and a full API reference.
 2. make the grid at the [CategoriesGrid.tsx](file;file:///Users/salem/Mobile/feen/landing/src/components/CategoriesGrid.tsx) max items is 6 then the next on smaller screens is 4 , in all cases no 5.
 3. on small screeens the nav items menu text is always black even in dark mode then fix this.
 
-
-
-
 KEY
-
-AIzaSyBWy4QuQiZclG9ssBBcCSjlNgzt4Dj4oL8

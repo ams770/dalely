@@ -40,38 +40,38 @@ class SettingsScreen extends StatelessWidget {
           right: (context.isRtl && !context.isWideScreen) || !context.isRtl,
           left: (!context.isRtl && !context.isWideScreen) || context.isRtl,
 
-        child: Column(
-          children: [
-            _SettingsHeader(onClose: onClose),
-            Expanded(
-              child: MediaQuery.removePadding(
-                context: context,
-                removeLeft: true,
-                removeRight: true,
-                child: ListView(
-                  physics: const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              _SettingsHeader(onClose: onClose),
+              Expanded(
+                child: MediaQuery.removePadding(
+                  context: context,
+                  removeLeft: true,
+                  removeRight: true,
+                  child: ListView(
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
+                    padding: const EdgeInsetsDirectional.all(AppDimens.space16),
+                    children: const [
+                      _AppearanceSection(),
+                      SizedBox(height: AppDimens.space24),
+                      _CarTrackingSection(),
+                      SizedBox(height: AppDimens.space24),
+                      _AboutSection(),
+                      SizedBox(height: AppDimens.space32),
+                      _SettingsFooter(),
+                      SizedBox(height: AppDimens.space24),
+                    ],
                   ),
-                  padding: const EdgeInsetsDirectional.all(AppDimens.space16),
-                  children: const [
-                    _AppearanceSection(),
-                    SizedBox(height: AppDimens.space24),
-                    _CarTrackingSection(),
-                    SizedBox(height: AppDimens.space24),
-                    _AboutSection(),
-                    SizedBox(height: AppDimens.space32),
-                    _SettingsFooter(),
-                    SizedBox(height: AppDimens.space24),
-                  ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class _SettingsHeader extends StatelessWidget {
@@ -149,11 +149,14 @@ class _AppearanceSection extends StatelessWidget {
               tooltip: l10n.language,
               clipBehavior: Clip.antiAlias,
               elevation: 10,
+
               shadowColor: Colors.black.withAlpha(context.isDarkMode ? 80 : 35),
               surfaceTintColor: Colors.transparent,
+
               color: context.isDarkMode
                   ? const Color(0xF21E293B)
                   : const Color(0xF8FFFFFF),
+
               shape: RoundedRectangleBorder(
                 borderRadius: AppDimens.borderRadiusMedium,
                 side: BorderSide(
@@ -201,6 +204,7 @@ class _AppearanceSection extends StatelessWidget {
               child: SettingsTile(
                 leading: const Icon(Icons.language_rounded),
                 title: l10n.language,
+
                 trailing: Text(
                   _getLanguageDisplayName(context, state.localeCode),
                   style: context.textTheme.bodyMedium?.copyWith(
@@ -240,13 +244,13 @@ class _LanguageMenuItem extends PopupMenuItem<String?> {
     required bool isSelected,
     required TextStyle? textStyle,
   }) : super(
-          height: 44,
-          child: _LanguageMenuItemContent(
-            label: label,
-            isSelected: isSelected,
-            textStyle: textStyle,
-          ),
-        );
+         height: 44,
+         child: _LanguageMenuItemContent(
+           label: label,
+           isSelected: isSelected,
+           textStyle: textStyle,
+         ),
+       );
 }
 
 class _LanguageMenuItemContent extends StatelessWidget {

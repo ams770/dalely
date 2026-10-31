@@ -14,7 +14,7 @@ import 'package:feen/shared/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class _FakeSpotsCubit extends Cubit<SpotsState> implements SpotsCubit {
   _FakeSpotsCubit() : super(const SpotsState());
@@ -32,75 +32,79 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Location Intent Routing - AppRouter', () {
-    testWidgets('saveSpot route parses SaveSpotArgs and creates SpotsMapScreen',
-        (tester) async {
-      const target = LatLng(30.0444, 31.2357);
-      const args = SaveSpotArgs(target: target, name: 'Downtown Pharmacy');
+    testWidgets(
+      'saveSpot route parses SaveSpotArgs and creates SpotsMapScreen',
+      (tester) async {
+        const target = LatLng(30.0444, 31.2357);
+        const args = SaveSpotArgs(target: target, name: 'Downtown Pharmacy');
 
-      final route = AppRouter.onGenerateRoute(
-        const RouteSettings(name: AppRouter.saveSpot, arguments: args),
-      );
+        final route = AppRouter.onGenerateRoute(
+          const RouteSettings(name: AppRouter.saveSpot, arguments: args),
+        );
 
-      expect(route, isA<MaterialPageRoute>());
-      final pageRoute = route as MaterialPageRoute;
+        expect(route, isA<MaterialPageRoute>());
+        final pageRoute = route as MaterialPageRoute;
 
-      late Widget builtWidget;
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light(),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          locale: const Locale('en'),
-          home: Builder(
-            builder: (context) {
-              builtWidget = pageRoute.builder(context);
-              return const SizedBox();
-            },
+        late Widget builtWidget;
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('en'),
+            home: Builder(
+              builder: (context) {
+                builtWidget = pageRoute.builder(context);
+                return const SizedBox();
+              },
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(builtWidget, isA<SpotsMapScreen>());
-      final mapScreen = builtWidget as SpotsMapScreen;
-      expect(mapScreen.initialMode, SpotsMapMode.addSpot);
-      expect(mapScreen.initialTarget, target);
-      expect(mapScreen.initialSpotName, 'Downtown Pharmacy');
-    });
+        expect(builtWidget, isA<SpotsMapScreen>());
+        final mapScreen = builtWidget as SpotsMapScreen;
+        expect(mapScreen.initialMode, SpotsMapMode.addSpot);
+        expect(mapScreen.initialTarget, target);
+        expect(mapScreen.initialSpotName, 'Downtown Pharmacy');
+      },
+    );
 
-    testWidgets('spotsMap route parses SpotsMapArgs and creates full-page SpotsMapScreen',
-        (tester) async {
-      const target = LatLng(30.0444, 31.2357);
-      const args = SpotsMapArgs(spotId: 'spot_123', initialTarget: target);
+    testWidgets(
+      'spotsMap route parses SpotsMapArgs and creates full-page SpotsMapScreen',
+      (tester) async {
+        const target = LatLng(30.0444, 31.2357);
+        const args = SpotsMapArgs(spotId: 'spot_123', initialTarget: target);
 
-      final route = AppRouter.onGenerateRoute(
-        const RouteSettings(name: AppRouter.spotsMap, arguments: args),
-      );
+        final route = AppRouter.onGenerateRoute(
+          const RouteSettings(name: AppRouter.spotsMap, arguments: args),
+        );
 
-      expect(route, isA<MaterialPageRoute>());
-      final pageRoute = route as MaterialPageRoute;
+        expect(route, isA<MaterialPageRoute>());
+        final pageRoute = route as MaterialPageRoute;
 
-      late Widget builtWidget;
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light(),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          locale: const Locale('en'),
-          home: Builder(
-            builder: (context) {
-              builtWidget = pageRoute.builder(context);
-              return const SizedBox();
-            },
+        late Widget builtWidget;
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.light(),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('en'),
+            home: Builder(
+              builder: (context) {
+                builtWidget = pageRoute.builder(context);
+                return const SizedBox();
+              },
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(builtWidget, isA<SpotsMapScreen>());
-      final mapScreen = builtWidget as SpotsMapScreen;
-      expect(mapScreen.isEmbedded, isFalse);
-      expect(mapScreen.initialSpotId, 'spot_123');
-      expect(mapScreen.initialTarget, target);
-    });
+        expect(builtWidget, isA<SpotsMapScreen>());
+        final mapScreen = builtWidget as SpotsMapScreen;
+        expect(mapScreen.isEmbedded, isFalse);
+        expect(mapScreen.initialSpotId, 'spot_123');
+        expect(mapScreen.initialTarget, target);
+      },
+    );
   });
 
   group('Location Intent Routing - SpotsMapCubit', () {
@@ -127,45 +131,49 @@ void main() {
   });
 
   group('Location Intent Routing - NotificationActionRouter', () {
-    testWidgets('OPEN_LOCATION action navigates to saveSpot with parsed coordinates',
-        (tester) async {
-      final navKey = GlobalKey<NavigatorState>();
-      final router = NotificationActionRouter(navigatorKey: navKey);
+    testWidgets(
+      'OPEN_LOCATION action navigates to saveSpot with parsed coordinates',
+      (tester) async {
+        final navKey = GlobalKey<NavigatorState>();
+        final router = NotificationActionRouter(navigatorKey: navKey);
 
-      await tester.pumpWidget(
-        MultiBlocProvider(
-          providers: [
-            BlocProvider<SpotsCubit>.value(value: _FakeSpotsCubit()),
-            BlocProvider<LocationCubit>.value(value: _FakeLocationCubit()),
-          ],
-          child: MaterialApp(
-            theme: AppTheme.light(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            locale: const Locale('en'),
-            navigatorKey: navKey,
-            onGenerateRoute: AppRouter.onGenerateRoute,
-            home: const Scaffold(body: Text('Home')),
+        await tester.pumpWidget(
+          MultiBlocProvider(
+            providers: [
+              BlocProvider<SpotsCubit>.value(value: _FakeSpotsCubit()),
+              BlocProvider<LocationCubit>.value(value: _FakeLocationCubit()),
+            ],
+            child: MaterialApp(
+              theme: AppTheme.light(),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: const Locale('en'),
+              navigatorKey: navKey,
+              onGenerateRoute: AppRouter.onGenerateRoute,
+              home: const Scaffold(body: Text('Home')),
+            ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // Trigger location action with geo URI containing coordinates and label
-      await router.handleAction(
-        action: 'OPEN_LOCATION',
-        data: 'geo:0,0?q=30.0444,31.2357(Central Market)',
-      );
-      await tester.pumpAndSettle();
+        // Trigger location action with geo URI containing coordinates and label
+        await router.handleAction(
+          action: 'OPEN_LOCATION',
+          data: 'geo:0,0?q=30.0444,31.2357(Central Market)',
+        );
+        await tester.pumpAndSettle();
 
-      // Verify SpotsMapScreen is pushed in addSpot mode
-      expect(find.byType(SpotsMapScreen), findsOneWidget);
-      final mapScreen = tester.widget<SpotsMapScreen>(find.byType(SpotsMapScreen));
-      expect(mapScreen.initialMode, SpotsMapMode.addSpot);
-      expect(mapScreen.initialTarget?.latitude, closeTo(30.0444, 0.0001));
-      expect(mapScreen.initialTarget?.longitude, closeTo(31.2357, 0.0001));
-      expect(mapScreen.initialSpotName, 'Central Market');
-    });
+        // Verify SpotsMapScreen is pushed in addSpot mode
+        expect(find.byType(SpotsMapScreen), findsOneWidget);
+        final mapScreen = tester.widget<SpotsMapScreen>(
+          find.byType(SpotsMapScreen),
+        );
+        expect(mapScreen.initialMode, SpotsMapMode.addSpot);
+        expect(mapScreen.initialTarget?.latitude, closeTo(30.0444, 0.0001));
+        expect(mapScreen.initialTarget?.longitude, closeTo(31.2357, 0.0001));
+        expect(mapScreen.initialSpotName, 'Central Market');
+      },
+    );
 
     testWidgets('handleUri handles geo: and feen://save URIs', (tester) async {
       final navKey = GlobalKey<NavigatorState>();
@@ -194,46 +202,51 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(SpotsMapScreen), findsOneWidget);
-      final mapScreen = tester.widget<SpotsMapScreen>(find.byType(SpotsMapScreen));
+      final mapScreen = tester.widget<SpotsMapScreen>(
+        find.byType(SpotsMapScreen),
+      );
       expect(mapScreen.initialTarget?.latitude, closeTo(25.2048, 0.0001));
       expect(mapScreen.initialTarget?.longitude, closeTo(55.2708, 0.0001));
     });
 
-    testWidgets('OPEN_LOCATION action with text-only payload pre-fills name and opens saveSpot',
-        (tester) async {
-      final navKey = GlobalKey<NavigatorState>();
-      final router = NotificationActionRouter(navigatorKey: navKey);
+    testWidgets(
+      'OPEN_LOCATION action with text-only payload pre-fills name and opens saveSpot',
+      (tester) async {
+        final navKey = GlobalKey<NavigatorState>();
+        final router = NotificationActionRouter(navigatorKey: navKey);
 
-      await tester.pumpWidget(
-        MultiBlocProvider(
-          providers: [
-            BlocProvider<SpotsCubit>.value(value: _FakeSpotsCubit()),
-            BlocProvider<LocationCubit>.value(value: _FakeLocationCubit()),
-          ],
-          child: MaterialApp(
-            theme: AppTheme.light(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            locale: const Locale('en'),
-            navigatorKey: navKey,
-            onGenerateRoute: AppRouter.onGenerateRoute,
-            home: const Scaffold(body: Text('Home')),
+        await tester.pumpWidget(
+          MultiBlocProvider(
+            providers: [
+              BlocProvider<SpotsCubit>.value(value: _FakeSpotsCubit()),
+              BlocProvider<LocationCubit>.value(value: _FakeLocationCubit()),
+            ],
+            child: MaterialApp(
+              theme: AppTheme.light(),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: const Locale('en'),
+              navigatorKey: navKey,
+              onGenerateRoute: AppRouter.onGenerateRoute,
+              home: const Scaffold(body: Text('Home')),
+            ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      await router.handleAction(
-        action: 'OPEN_LOCATION',
-        data: 'Cairo Festival City Mall\nhttps://example.com/offline',
-      );
-      await tester.pumpAndSettle();
+        await router.handleAction(
+          action: 'OPEN_LOCATION',
+          data: 'Cairo Festival City Mall\nhttps://example.com/offline',
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.byType(SpotsMapScreen), findsOneWidget);
-      final mapScreen =
-          tester.widget<SpotsMapScreen>(find.byType(SpotsMapScreen));
-      expect(mapScreen.initialMode, SpotsMapMode.addSpot);
-      expect(mapScreen.initialSpotName, 'Cairo Festival City Mall');
-    });
+        expect(find.byType(SpotsMapScreen), findsOneWidget);
+        final mapScreen = tester.widget<SpotsMapScreen>(
+          find.byType(SpotsMapScreen),
+        );
+        expect(mapScreen.initialMode, SpotsMapMode.addSpot);
+        expect(mapScreen.initialSpotName, 'Cairo Festival City Mall');
+      },
+    );
   });
 }

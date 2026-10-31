@@ -1,4 +1,4 @@
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../constants/spot_categories.dart';
 import '../constants/storage_keys.dart';
@@ -98,13 +98,13 @@ class Spot {
 
   @override
   int get hashCode => Object.hash(
-        id,
-        name,
-        category,
-        latitude,
-        longitude,
-        savedAt,
-        status,
-        parkedDuration,
-      );
+    id,
+    name,
+    category,
+    latitude,
+    longitude,
+    savedAt,
+    status,
+    parkedDuration,
+  );
 }

@@ -14,7 +14,7 @@ import 'package:feen/shared/theme/app_theme_extension.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class _FakeMapLibrePlatform extends MapLibrePlatform {
   @override

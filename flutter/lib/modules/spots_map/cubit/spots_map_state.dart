@@ -1,4 +1,4 @@
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../shared/constants/spot_categories.dart';
 import '../../../shared/models/spot.dart';
@@ -75,8 +75,7 @@ class SpotsMapState {
       onlyShowSpotId: clearOnlyShowSpot
           ? null
           : (onlyShowSpotId ?? this.onlyShowSpotId),
-      editingSpot:
-          clearEditingSpot ? null : (editingSpot ?? this.editingSpot),
+      editingSpot: clearEditingSpot ? null : (editingSpot ?? this.editingSpot),
       initialTarget: initialTarget ?? this.initialTarget,
       initialZoom: initialZoom ?? this.initialZoom,
       currentZoom: currentZoom ?? this.currentZoom,

@@ -1,4 +1,4 @@
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../shared/constants/spot_categories.dart';
 import '../../../shared/models/place_result.dart';
@@ -75,17 +75,17 @@ class SaveSpotState {
 
   @override
   int get hashCode => Object.hash(
-        status,
-        target,
-        name,
-        category,
-        isCameraMoving,
-        isSearching,
-        searchQuery,
-        showResults,
-        errorMessage,
-        Object.hashAll(searchResults),
-      );
+    status,
+    target,
+    name,
+    category,
+    isCameraMoving,
+    isSearching,
+    searchQuery,
+    showResults,
+    errorMessage,
+    Object.hashAll(searchResults),
+  );
 
   static bool _listEquals(List<PlaceResult> a, List<PlaceResult> b) {
     if (identical(a, b)) return true;

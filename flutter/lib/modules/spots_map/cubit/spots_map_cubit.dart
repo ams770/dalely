@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../shared/constants/spot_categories.dart';
 import '../../../shared/cubits/location/location_cubit.dart';
@@ -13,7 +14,6 @@ import '../../../shared/models/location_access.dart';
 import '../../../shared/models/spot.dart';
 import '../../../shared/services/marker_icon_cache.dart';
 import '../../../shared/theme/app_theme_extension.dart';
-import '../../../shared/theme/map_styles.dart';
 import 'spots_map_state.dart';
 
 class SpotsMapCubit extends Cubit<SpotsMapState> {
@@ -21,6 +21,13 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
   /// Opacity of the other spots while the user is picking a point.
   static const double _inactiveMarkerOpacity = 0.45;
+
+  // Marker scales (same values the old MapLibre `iconSize` used).
+  static const double _spotScale = 0.85;
+  static const double _selectedSpotScale = 1.05;
+  static const double _userScale = 0.60;
+
+  static const String _userMarkerId = 'user_location';
 
   SpotsMapCubit({
     required this.spotsCubit,
@@ -73,11 +80,18 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   final Spot? editingSpot;
   final TextEditingController nameController;
 
+  /// Markers to draw. Google Maps is declarative, so the screen listens to this
+  /// and passes the set to `AppMap(markers: ...)`.
+  final ValueNotifier<Set<Marker>> markersNotifier =
+      ValueNotifier<Set<Marker>>(const <Marker>{});
+
   AppThemeExtension themeExtension;
 
   bool _isDarkMode;
   bool get isDarkMode => _isDarkMode;
 
+  /// The map style itself follows the theme through `AppMap` (its `style`
+  /// parameter), so here we only need to re-render the themed marker icons.
   void updateTheme({
     required bool isDarkMode,
     required AppThemeExtension themeExtension,
@@ -88,31 +102,28 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     _isDarkMode = isDarkMode;
     this.themeExtension = themeExtension;
 
-    final style = isDarkMode ? MapStyles.dark : MapStyles.light;
-    final controller = _mapController;
-    if (controller != null && !controller.isDisposed) {
-      controller.setStyle(style);
-      _registerMarkerImages().then((_) {
+    if (_mapController != null) {
+      _loadMarkerIcons().then((_) {
         if (!isClosed) _rebuildMarkers();
       });
     }
   }
 
-  MapLibreMapController? _mapController;
+  GoogleMapController? _mapController;
   StreamSubscription? _spotsSubscription;
   StreamSubscription? _locationSubscription;
   bool _hasCenteredOnUser = false;
-  bool _styleLoaded = false;
-  bool _isRebuildingMarkers = false;
-  bool _needsRebuildMarkers = false;
+  bool _mapReady = false;
   LatLng? _currentCameraTarget;
-  double _currentBearing = 0.0;
-  Symbol? _userLocationSymbol;
   double _topPadding = 0;
   double _bottomPadding = 0;
   double _screenWidth = 0;
   double _screenHeight = 0;
   double _devicePixelRatio = 1.0;
+
+  final Map<String, BitmapDescriptor> _icons = {};
+  Set<Marker> _spotMarkers = const <Marker>{};
+  Marker? _userMarker;
 
   void updatePinScreenMetrics({
     required double topPadding,
@@ -148,23 +159,58 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
   LatLng? get currentCameraTarget => _currentCameraTarget;
 
-  Point<double> _toPlatformScreenPoint(Point<double> logicalPoint) {
+  // ---------------------------------------------------------------------
+  // Screen <-> LatLng helpers.
+  // NOTE: depending on your google_maps_flutter version, Android's
+  // getScreenCoordinate/getLatLng use physical pixels (older versions) or
+  // logical pixels (newer ones). The DPR scaling below matches the old
+  // behaviour; if the pin location is off by a factor of the device pixel
+  // ratio on Android, remove the Android branch in these two helpers.
+  // ---------------------------------------------------------------------
+
+  ScreenCoordinate _toPlatformScreenCoordinate(Point<double> logicalPoint) {
+    var x = logicalPoint.x;
+    var y = logicalPoint.y;
     if (defaultTargetPlatform == TargetPlatform.android) {
       final ratio = _devicePixelRatio > 0 ? _devicePixelRatio : 1.0;
-      return Point<double>(logicalPoint.x * ratio, logicalPoint.y * ratio);
+      x *= ratio;
+      y *= ratio;
     }
-    return logicalPoint;
+    return ScreenCoordinate(x: x.round(), y: y.round());
   }
 
-  Point<double> _fromPlatformScreenPoint(Point<num> platformPoint) {
+  Point<double> _fromPlatformScreenCoordinate(ScreenCoordinate coordinate) {
+    var x = coordinate.x.toDouble();
+    var y = coordinate.y.toDouble();
     if (defaultTargetPlatform == TargetPlatform.android) {
       final ratio = _devicePixelRatio > 0 ? _devicePixelRatio : 1.0;
-      return Point<double>(platformPoint.x / ratio, platformPoint.y / ratio);
+      x /= ratio;
+      y /= ratio;
     }
-    return Point<double>(
-      platformPoint.x.toDouble(),
-      platformPoint.y.toDouble(),
-    );
+    return Point<double>(x, y);
+  }
+
+  /// Coordinate currently under the center pin, or null when unavailable.
+  Future<LatLng?> _latLngUnderPin() async {
+    final controller = _mapController;
+    if (controller == null) return null;
+    try {
+      return await controller.getLatLng(
+        _toPlatformScreenCoordinate(pinScreenPoint),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _animate(CameraUpdate update) async {
+    final controller = _mapController;
+    if (controller == null || isClosed) return;
+    try {
+      await controller.animateCamera(update);
+    } catch (_) {
+      // Map view may have been disposed.
+    }
   }
 
   static SpotsMapState _computeInitialState({
@@ -237,79 +283,45 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       }
     });
 
-    _rebuildMarkers();
-
     _spotsSubscription = spotsCubit.stream.listen((_) {
       if (!isClosed) _rebuildMarkers();
     });
 
     _locationSubscription = locationCubit.stream.listen((locState) {
-      if (!isClosed) {
-        final controller = _mapController;
-        final sym = _userLocationSymbol;
+      if (isClosed) return;
 
-        if (sym != null &&
-            locState.hasLocation &&
-            controller != null &&
-            !controller.isDisposed) {
-          final bearing = _currentBearing;
-          final iconRotate = ((locState.heading - bearing) % 360 + 360) % 360;
-          controller.updateSymbol(
-            sym,
-            SymbolOptions(geometry: locState.latLng!, iconRotate: iconRotate),
-          );
-        } else {
-          _rebuildMarkers();
-        }
+      // Only the user marker depends on the location; flat markers rotate with
+      // the map, so no bearing compensation is needed.
+      _rebuildUserMarker();
 
-        if (state.selectedSpot == null &&
-            !state.isAddingSpot &&
-            !_hasCenteredOnUser &&
-            locState.hasLocation &&
-            controller != null &&
-            !controller.isDisposed) {
-          _hasCenteredOnUser = true;
-          controller.animateCamera(
-            CameraUpdate.newLatLngZoom(locState.latLng!, defaultZoom),
-          );
-        }
+      if (state.selectedSpot == null &&
+          !state.isAddingSpot &&
+          !_hasCenteredOnUser &&
+          locState.hasLocation &&
+          _mapController != null) {
+        _hasCenteredOnUser = true;
+        _animate(CameraUpdate.newLatLngZoom(locState.latLng!, defaultZoom));
       }
     });
   }
 
-  void onMapCreated(MapLibreMapController controller) {
-    if (_mapController != null && !_mapController!.isDisposed) {
-      _mapController!.onSymbolTapped.remove(_handleSymbolTapped);
-    }
+  /// Replaces the old `onMapCreated` + `onStyleLoaded` pair: Google Maps has
+  /// no separate style-loaded callback, so everything runs once the map exists.
+  Future<void> onMapCreated(GoogleMapController controller) async {
     _mapController = controller;
-    if (!controller.isDisposed) {
-      controller.onSymbolTapped.add(_handleSymbolTapped);
-    }
-  }
+    _mapReady = true;
+    _scheduleMapReveal();
 
-  Future<void> onStyleLoaded() async {
-    _styleLoaded = true;
-    if (!isClosed) {
-      emit(state.copyWith(isMapReady: true));
-    }
-    final controller = _mapController;
-    if (controller == null || controller.isDisposed || isClosed) return;
-
-    await controller.setSymbolIconAllowOverlap(true);
-    if (controller.isDisposed || isClosed) return;
-    await controller.setSymbolIconIgnorePlacement(true);
-    if (controller.isDisposed || isClosed) return;
-    await _registerMarkerImages();
-    if (controller.isDisposed || isClosed) return;
-    await _rebuildMarkers();
-    if (controller.isDisposed || isClosed) return;
+    await _loadMarkerIcons();
+    if (isClosed || _mapController != controller) return;
+    _rebuildMarkers();
 
     final targetSpotId =
         initialSelectedSpotId ?? onlyShowSpotId ?? state.onlyShowSpotId;
     if (state.isAddingSpot) {
       _hasCenteredOnUser = true;
       final target = initialTarget ?? locationCubit.state.latLng;
-      if (target != null && !controller.isDisposed) {
+      if (target != null) {
         await _animateTargetToPin(target, zoom: defaultZoom);
       }
     } else if (targetSpotId != null) {
@@ -319,22 +331,17 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
       selectSpotById(targetSpotId, onlyShowSpot: shouldOnlyShow);
     } else {
       final userPos = locationCubit.state.latLng;
-      if (userPos != null && !controller.isDisposed) {
+      if (userPos != null) {
         _hasCenteredOnUser = true;
-        controller.animateCamera(
-          CameraUpdate.newLatLngZoom(userPos, defaultZoom),
-        );
+        _animate(CameraUpdate.newLatLngZoom(userPos, defaultZoom));
       }
     }
   }
 
   /// Other spots are inactive while the user is adding a spot.
-  void _handleSymbolTapped(Symbol symbol) {
+  void _handleSpotTapped(String spotId) {
     if (isClosed || state.isAddingSpot) return;
-    final spotId = symbol.data?['spotId'] as String?;
-    if (spotId != null) {
-      selectSpotById(spotId, onlyShowSpot: state.onlyShowSpotId != null);
-    }
+    selectSpotById(spotId, onlyShowSpot: state.onlyShowSpotId != null);
   }
 
   void onCameraMoveStarted() {
@@ -346,24 +353,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
   void onCameraMove(CameraPosition position) {
     _currentCameraTarget = position.target;
-    final oldBearing = _currentBearing;
-    _currentBearing = position.bearing;
     _hasCenteredOnUser = true;
-
-    // Update user location symbol rotation dynamically to cancel map bearing
-    final sym = _userLocationSymbol;
-    final locState = locationCubit.state;
-    final controller = _mapController;
-    if (sym != null &&
-        locState.hasLocation &&
-        controller != null &&
-        !controller.isDisposed) {
-      if ((position.bearing - oldBearing).abs() >= 0.5) {
-        final iconRotate =
-            ((locState.heading - position.bearing) % 360 + 360) % 360;
-        controller.updateSymbol(sym, SymbolOptions(iconRotate: iconRotate));
-      }
-    }
 
     if (state.isAddingSpot) {
       if (position.zoom != state.currentZoom || !state.isCameraMoving) {
@@ -376,30 +366,44 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     }
   }
 
+  Timer? _revealTimer;
+  bool _revealed = false;
+
+  /// In dark mode the loading mask hides the native map until its style has
+  /// been applied, so the user never sees the default light map first.
+  /// Light mode starts with `isMapReady == true`, so nothing is delayed there.
+  void _scheduleMapReveal() {
+    if (state.isMapReady) {
+      _revealed = true;
+      return;
+    }
+    // Fallback in case no camera-idle event ever arrives.
+    _revealTimer?.cancel();
+    _revealTimer = Timer(const Duration(milliseconds: 1500), _revealMap);
+  }
+
+  void _onFirstCameraIdle() {
+    if (_revealed || !_mapReady) return;
+    _revealTimer?.cancel();
+    // Small grace period so the style and first tiles are on screen.
+    _revealTimer = Timer(const Duration(milliseconds: 250), _revealMap);
+  }
+
+  void _revealMap() {
+    if (_revealed || isClosed) return;
+    _revealed = true;
+    emit(state.copyWith(isMapReady: true));
+  }
+
   Future<void> onCameraIdle() async {
+    _onFirstCameraIdle();
     if (!isClosed && state.isCameraMoving) {
       emit(state.copyWith(isCameraMoving: false));
     }
-    final controller = _mapController;
-    if (controller != null && !controller.isDisposed) {
-      final bearing = controller.cameraPosition?.bearing ?? _currentBearing;
-      _currentBearing = bearing;
-      final sym = _userLocationSymbol;
-      final locState = locationCubit.state;
-      if (sym != null && locState.hasLocation) {
-        final iconRotate = ((locState.heading - bearing) % 360 + 360) % 360;
-        controller.updateSymbol(sym, SymbolOptions(iconRotate: iconRotate));
-      }
-
-      if (state.isAddingSpot) {
-        try {
-          final loc = await controller.toLatLng(
-            _toPlatformScreenPoint(pinScreenPoint),
-          );
-          if (!isClosed && state.isAddingSpot) {
-            emit(state.copyWith(pickedLocation: loc));
-          }
-        } catch (_) {}
+    if (state.isAddingSpot) {
+      final loc = await _latLngUnderPin();
+      if (loc != null && !isClosed && state.isAddingSpot) {
+        emit(state.copyWith(pickedLocation: loc));
       }
     }
   }
@@ -410,34 +414,38 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     double? zoom,
   }) async {
     final controller = _mapController;
-    if (controller == null || controller.isDisposed || isClosed) return;
+    if (controller == null || isClosed) return;
     try {
-      Point<double> touchLogicalPoint;
+      // `screenPoint`, when given, is already in logical pixels
+      // (Google Maps' onLongPress doesn't provide one, so it is usually null).
+      final Point<double> touchLogicalPoint;
       if (screenPoint != null) {
-        touchLogicalPoint = _fromPlatformScreenPoint(screenPoint);
+        touchLogicalPoint = screenPoint;
       } else {
-        final raw = await controller.toScreenLocation(target);
-        touchLogicalPoint = _fromPlatformScreenPoint(raw);
+        final raw = await controller.getScreenCoordinate(target);
+        touchLogicalPoint = _fromPlatformScreenCoordinate(raw);
       }
       final targetLogicalPoint = Point<double>(
         touchLogicalPoint.x,
         touchLogicalPoint.y + pinCenterOffsetDy,
       );
-      final targetCameraCenter = await controller.toLatLng(
-        _toPlatformScreenPoint(targetLogicalPoint),
+      final targetCameraCenter = await controller.getLatLng(
+        _toPlatformScreenCoordinate(targetLogicalPoint),
       );
-      if (!controller.isDisposed && !isClosed) {
-        final update = zoom != null
-            ? CameraUpdate.newLatLngZoom(targetCameraCenter, zoom)
-            : CameraUpdate.newLatLng(targetCameraCenter);
-        await controller.animateCamera(update);
+      if (!isClosed) {
+        await _animate(
+          zoom != null
+              ? CameraUpdate.newLatLngZoom(targetCameraCenter, zoom)
+              : CameraUpdate.newLatLng(targetCameraCenter),
+        );
       }
     } catch (_) {
-      if (!controller.isDisposed && !isClosed) {
-        final update = zoom != null
-            ? CameraUpdate.newLatLngZoom(target, zoom)
-            : CameraUpdate.newLatLng(target);
-        await controller.animateCamera(update);
+      if (!isClosed) {
+        await _animate(
+          zoom != null
+              ? CameraUpdate.newLatLngZoom(target, zoom)
+              : CameraUpdate.newLatLng(target),
+        );
       }
     }
   }
@@ -448,10 +456,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   }) {
     _hasCenteredOnUser = true;
     final target =
-        initialTarget ??
-        _currentCameraTarget ??
-        _mapController?.cameraPosition?.target ??
-        state.pickedLocation;
+        initialTarget ?? _currentCameraTarget ?? state.pickedLocation;
     nameController.clear();
     emit(
       state.copyWith(
@@ -475,22 +480,15 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     // If initialTarget was null (e.g. clicking the "Add spot" button),
     // DO NOT animate camera: keep current camera position and query pin coordinates.
     if (initialTarget != null) {
-      final controller = _mapController;
-      if (controller != null && !controller.isDisposed) {
+      if (_mapController != null) {
         _animateTargetToPin(initialTarget, screenPoint: touchScreenPoint);
       }
     } else {
-      final controller = _mapController;
-      if (controller != null && !controller.isDisposed) {
-        controller
-            .toLatLng(_toPlatformScreenPoint(pinScreenPoint))
-            .then((loc) {
-              if (!isClosed && state.isAddingSpot) {
-                emit(state.copyWith(pickedLocation: loc));
-              }
-            })
-            .catchError((_) {});
-      }
+      _latLngUnderPin().then((loc) {
+        if (loc != null && !isClosed && state.isAddingSpot) {
+          emit(state.copyWith(pickedLocation: loc));
+        }
+      });
     }
   }
 
@@ -513,8 +511,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     );
     // Hide the edited spot (the pin replaces it) and dim the others.
     _rebuildMarkers();
-    final controller = _mapController;
-    if (controller != null && !controller.isDisposed) {
+    if (_mapController != null) {
       _animateTargetToPin(spot.latLng, zoom: defaultZoom);
     }
   }
@@ -553,15 +550,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     // Set the flag first so a second tap is ignored while the coordinate resolves.
     emit(state.copyWith(isDetailsSheetOpen: true));
 
-    var location = state.pickedLocation;
-    final controller = _mapController;
-    if (controller != null && !controller.isDisposed) {
-      try {
-        location = await controller.toLatLng(
-          _toPlatformScreenPoint(pinScreenPoint),
-        );
-      } catch (_) {}
-    }
+    final location = await _latLngUnderPin() ?? state.pickedLocation;
 
     if (isClosed || !state.isAddingSpot) return false;
     emit(state.copyWith(pickedLocation: location));
@@ -589,8 +578,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
 
     if (pos != null) {
       emit(state.copyWith(pickedLocation: pos));
-      final controller = _mapController;
-      if (controller != null && !controller.isDisposed) {
+      if (_mapController != null) {
         await _animateTargetToPin(pos, zoom: defaultZoom);
       }
     }
@@ -599,15 +587,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   Future<Spot?> saveCurrentSpot() async {
     if (!state.canSave) return null;
 
-    final controller = _mapController;
-    LatLng saveLocation = state.pickedLocation;
-    if (controller != null && !controller.isDisposed) {
-      try {
-        saveLocation = await controller.toLatLng(
-          _toPlatformScreenPoint(pinScreenPoint),
-        );
-      } catch (_) {}
-    }
+    final saveLocation = await _latLngUnderPin() ?? state.pickedLocation;
 
     emit(state.copyWith(isSaving: true, pickedLocation: saveLocation));
     try {
@@ -643,9 +623,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
           ),
         );
         _rebuildMarkers();
-        _mapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(spot.latLng, defaultZoom),
-        );
+        _animate(CameraUpdate.newLatLngZoom(spot.latLng, defaultZoom));
       }
       return spot;
     } catch (_) {
@@ -656,168 +634,164 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     }
   }
 
-  Future<void> _registerMarkerImages() async {
-    final controller = _mapController;
-    if (controller == null || controller.isDisposed || isClosed) return;
+  // ---------------------------------------------------------------------
+  // Markers
+  // ---------------------------------------------------------------------
 
+  /// Converts rendered PNG bytes to a [BitmapDescriptor].
+  ///
+  /// `imagePixelRatio` controls the on-screen size: logical size =
+  /// image pixels / imagePixelRatio. The value below assumes the icon cache
+  /// renders at the device pixel ratio; if markers look too big or small,
+  /// tune this one line (e.g. use `1 / scale` instead).
+  BitmapDescriptor _descriptor(Uint8List bytes, double scale) {
+    final dpr = _devicePixelRatio > 0 ? _devicePixelRatio : 1.0;
+    return BitmapDescriptor.bytes(bytes, imagePixelRatio: dpr / scale);
+  }
+
+  Future<void> _loadMarkerIcons() async {
+    if (isClosed) return;
     try {
-      // 1. Car marker
-      final carBytes = await markerIconCache.getCarMarker(isSelected: false);
-      if (controller.isDisposed || isClosed) return;
-      await controller.addImage('car_pin', carBytes);
+      final icons = <String, BitmapDescriptor>{};
 
-      final carSelectedBytes = await markerIconCache.getCarMarker(
-        isSelected: true,
+      // 1. Car marker
+      icons['car_pin'] = _descriptor(
+        await markerIconCache.getCarMarker(isSelected: false),
+        _spotScale,
       );
-      if (controller.isDisposed || isClosed) return;
-      await controller.addImage('car_pin_selected', carSelectedBytes);
+      icons['car_pin_selected'] = _descriptor(
+        await markerIconCache.getCarMarker(isSelected: true),
+        _selectedSpotScale,
+      );
 
       // 2. Categories
       for (final cat in SpotCategory.values) {
         if (cat == SpotCategory.car) continue;
         final color = themeExtension.categoryColor(cat);
-        final unselected = await markerIconCache.getCategoryMarker(
-          category: cat,
-          color: color,
-          isSelected: false,
+        icons['category_${cat.name}'] = _descriptor(
+          await markerIconCache.getCategoryMarker(
+            category: cat,
+            color: color,
+            isSelected: false,
+          ),
+          _spotScale,
         );
-        if (controller.isDisposed || isClosed) return;
-        await controller.addImage('category_${cat.name}', unselected);
-
-        final selected = await markerIconCache.getCategoryMarker(
-          category: cat,
-          color: color,
-          isSelected: true,
+        icons['category_${cat.name}_selected'] = _descriptor(
+          await markerIconCache.getCategoryMarker(
+            category: cat,
+            color: color,
+            isSelected: true,
+          ),
+          _selectedSpotScale,
         );
-        if (controller.isDisposed || isClosed) return;
-        await controller.addImage('category_${cat.name}_selected', selected);
       }
 
       // 3. User location
-      final userBytes = await markerIconCache.getUserLocationMarker(
-        heading: 0.0,
+      icons['user_location'] = _descriptor(
+        await markerIconCache.getUserLocationMarker(heading: 0.0),
+        _userScale,
       );
-      if (controller.isDisposed || isClosed) return;
-      await controller.addImage('user_location', userBytes);
+
+      if (isClosed) return;
+      _icons
+        ..clear()
+        ..addAll(icons);
     } catch (_) {
-      // Ignore if engine is tearing down
+      // Ignore if the engine is tearing down.
     }
   }
 
-  Future<void> _rebuildMarkers() async {
-    final controller = _mapController;
-    if (controller == null ||
-        controller.isDisposed ||
-        !_styleLoaded ||
-        isClosed) {
-      return;
-    }
+  void _publishMarkers() {
+    if (isClosed) return;
+    markersNotifier.value = {
+      if (_userMarker != null) _userMarker!,
+      ..._spotMarkers,
+    };
+  }
 
-    if (_isRebuildingMarkers) {
-      _needsRebuildMarkers = true;
-      return;
-    }
+  Marker? _buildUserMarker() {
+    final locState = locationCubit.state;
+    final icon = _icons['user_location'];
+    if (!locState.hasLocation || icon == null) return null;
+    return Marker(
+      markerId: const MarkerId(_userMarkerId),
+      position: locState.latLng!,
+      icon: icon,
+      anchor: const Offset(0.5, 0.5),
+      // Flat markers rotate with the map, so the cone keeps pointing at the
+      // physical device heading without any bearing compensation.
+      flat: true,
+      rotation: locState.heading,
+      // Lowest zIndex so spots always sit on top and receive taps.
+      zIndex: 1,
+    );
+  }
 
-    _isRebuildingMarkers = true;
-    _needsRebuildMarkers = false;
+  void _rebuildUserMarker() {
+    if (isClosed || !_mapReady || _icons.isEmpty) return;
+    _userMarker = _buildUserMarker();
+    _publishMarkers();
+  }
 
-    try {
-      if (controller.isDisposed || isClosed) return;
-      await controller.setSymbolIconAllowOverlap(true);
-      if (controller.isDisposed || isClosed) return;
-      await controller.setSymbolIconIgnorePlacement(true);
+  void _rebuildMarkers() {
+    if (isClosed || !_mapReady || _icons.isEmpty) return;
 
-      final locState = locationCubit.state;
-      final selected = state.selectedSpot;
-      final isAdding = state.isAddingSpot;
-      final editingId = state.editingSpot?.id;
+    final selected = state.selectedSpot;
+    final isAdding = state.isAddingSpot;
+    final editingId = state.editingSpot?.id;
 
-      final options = <SymbolOptions>[];
-      final data = <Map<String, dynamic>>[];
-
-      // 1. User location marker (lowest zIndex so spots always sit on top and receive taps)
-      // Icon rotation is compensated by map bearing so cone points in physical device heading
-      if (locState.hasLocation) {
-        final bearing = _currentBearing;
-        final iconRotate = ((locState.heading - bearing) % 360 + 360) % 360;
-        options.add(
-          SymbolOptions(
-            geometry: locState.latLng!,
-            iconImage: 'user_location',
-            iconSize: 0.60,
-            iconAnchor: 'center',
-            iconRotate: iconRotate,
-            zIndex: 1,
-          ),
-        );
-        data.add({'type': 'user_location'});
-      }
-
-      // Determine which spots to render (show only isolated spot if onlyShowSpotId is active)
-      final Iterable<Spot> spotsToRender;
-      if (state.onlyShowSpotId != null) {
-        if (selected != null && selected.id == state.onlyShowSpotId) {
-          spotsToRender = [selected];
-        } else {
-          final found = spotsCubit.state.allSpots
-              .followedBy(spotsCubit.state.parkingHistory)
-              .where((s) => s.id == state.onlyShowSpotId);
-          spotsToRender = found.isNotEmpty ? [found.first] : const [];
-        }
+    // Determine which spots to render (show only isolated spot if onlyShowSpotId is active)
+    final Iterable<Spot> spotsToRender;
+    if (state.onlyShowSpotId != null) {
+      if (selected != null && selected.id == state.onlyShowSpotId) {
+        spotsToRender = [selected];
       } else {
-        final all = spotsCubit.state.allSpots.toList();
-        if (selected != null && !all.any((s) => s.id == selected.id)) {
-          all.add(selected);
-        }
-        spotsToRender = all;
+        final found = spotsCubit.state.allSpots
+            .followedBy(spotsCubit.state.parkingHistory)
+            .where((s) => s.id == state.onlyShowSpotId);
+        spotsToRender = found.isNotEmpty ? [found.first] : const [];
       }
-
-      // 2. Spot markers (zIndex higher than user location; selected spot sits topmost)
-      // iconAnchor: 'bottom' places the marker tip directly on the exact coordinates
-      for (final spot in spotsToRender) {
-        // While editing, the center pin replaces the edited spot.
-        if (isAdding && editingId != null && spot.id == editingId) continue;
-
-        final isSelected = selected?.id == spot.id;
-        final imageName = spot.isCar
-            ? (isSelected ? 'car_pin_selected' : 'car_pin')
-            : (isSelected
-                  ? 'category_${spot.category.name}_selected'
-                  : 'category_${spot.category.name}');
-
-        options.add(
-          SymbolOptions(
-            geometry: spot.latLng,
-            iconImage: imageName,
-            iconSize: isSelected ? 1.05 : 0.85,
-            iconAnchor: 'bottom',
-            // Dimmed while picking a point (taps are ignored in _handleSymbolTapped).
-            iconOpacity: isAdding ? _inactiveMarkerOpacity : 1.0,
-            zIndex: isSelected ? 10 : (spot.isCar ? 8 : 4),
-          ),
-        );
-        data.add({'spotId': spot.id});
+    } else {
+      final all = spotsCubit.state.allSpots.toList();
+      if (selected != null && !all.any((s) => s.id == selected.id)) {
+        all.add(selected);
       }
-
-      if (controller.isDisposed || isClosed) return;
-      await controller.clearSymbols();
-      if (controller.isDisposed || isClosed) return;
-      final addedSymbols = await controller.addSymbols(options, data);
-      _userLocationSymbol = null;
-      for (var i = 0; i < data.length; i++) {
-        if (data[i]['type'] == 'user_location' && i < addedSymbols.length) {
-          _userLocationSymbol = addedSymbols[i];
-          break;
-        }
-      }
-    } catch (_) {
-      // Style might be reloading during theme changes
-    } finally {
-      _isRebuildingMarkers = false;
-      if (_needsRebuildMarkers && !isClosed) {
-        _rebuildMarkers();
-      }
+      spotsToRender = all;
     }
+
+    final markers = <Marker>{};
+    for (final spot in spotsToRender) {
+      // While editing, the center pin replaces the edited spot.
+      if (isAdding && editingId != null && spot.id == editingId) continue;
+
+      final isSelected = selected?.id == spot.id;
+      final imageName = spot.isCar
+          ? (isSelected ? 'car_pin_selected' : 'car_pin')
+          : (isSelected
+                ? 'category_${spot.category.name}_selected'
+                : 'category_${spot.category.name}');
+      final icon = _icons[imageName];
+      if (icon == null) continue;
+
+      markers.add(
+        Marker(
+          markerId: MarkerId('spot_${spot.id}'),
+          position: spot.latLng,
+          icon: icon,
+          // Anchor at the bottom so the tip sits exactly on the coordinates.
+          anchor: const Offset(0.5, 1.0),
+          // Dimmed while picking a point (taps are ignored in _handleSpotTapped).
+          alpha: isAdding ? _inactiveMarkerOpacity : 1.0,
+          // Selected spot sits topmost, then the car, then other spots.
+          zIndex: isSelected ? 10 : (spot.isCar ? 8 : 4),
+          onTap: () => _handleSpotTapped(spot.id),
+        ),
+      );
+    }
+
+    _spotMarkers = markers;
+    _userMarker = _buildUserMarker();
+    _publishMarkers();
   }
 
   void selectSpot(Spot? spot, {bool onlyShowSpot = false}) {
@@ -833,12 +807,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
           clearOnlyShowSpot: !onlyShowSpot,
         ),
       );
-      final controller = _mapController;
-      if (controller != null && !controller.isDisposed) {
-        controller.animateCamera(
-          CameraUpdate.newLatLngZoom(spot.latLng, defaultZoom),
-        );
-      }
+      _animate(CameraUpdate.newLatLngZoom(spot.latLng, defaultZoom));
     }
     _rebuildMarkers();
   }
@@ -862,12 +831,7 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
     final userPos = locationCubit.state.latLng;
     if (userPos != null) {
       _hasCenteredOnUser = true;
-      final controller = _mapController;
-      if (controller != null && !controller.isDisposed) {
-        controller.animateCamera(
-          CameraUpdate.newLatLngZoom(userPos, defaultZoom),
-        );
-      }
+      _animate(CameraUpdate.newLatLngZoom(userPos, defaultZoom));
     } else {
       _hasCenteredOnUser = false;
       locationCubit.requestPermission();
@@ -878,11 +842,10 @@ class SpotsMapCubit extends Cubit<SpotsMapState> {
   Future<void> close() {
     _spotsSubscription?.cancel();
     _locationSubscription?.cancel();
+    _revealTimer?.cancel();
     nameController.dispose();
-    final controller = _mapController;
-    if (controller != null && !controller.isDisposed) {
-      controller.onSymbolTapped.remove(_handleSymbolTapped);
-    }
+    markersNotifier.dispose();
+    // The GoogleMap widget disposes its own controller.
     _mapController = null;
     return super.close();
   }

@@ -1,5 +1,5 @@
 import 'package:geolocator/geolocator.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../models/location_access.dart';
 
@@ -47,6 +47,11 @@ class LocationState {
           other.isLoading == isLoading;
 
   @override
-  int get hashCode =>
-      Object.hash(access, position?.latitude, position?.longitude, heading, isLoading);
+  int get hashCode => Object.hash(
+    access,
+    position?.latitude,
+    position?.longitude,
+    heading,
+    isLoading,
+  );
 }

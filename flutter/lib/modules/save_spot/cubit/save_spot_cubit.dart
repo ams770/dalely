@@ -1,7 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../shared/constants/spot_categories.dart';
 import '../../../shared/cubits/location/location_cubit.dart';
@@ -17,14 +18,14 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
     required this.locationCubit,
     required this.placeSearchService,
     SpotCategory initialCategory = SpotCategory.other,
-  })  : nameController = TextEditingController(),
-        searchController = TextEditingController(),
-        super(
-          SaveSpotState(
-            category: initialCategory,
-            target: locationCubit.state.latLng ?? const LatLng(30.0444, 31.2357),
-          ),
-        ) {
+  }) : nameController = TextEditingController(),
+       searchController = TextEditingController(),
+       super(
+         SaveSpotState(
+           category: initialCategory,
+           target: locationCubit.state.latLng ?? const LatLng(30.0444, 31.2357),
+         ),
+       ) {
     _init();
   }
 
@@ -35,7 +36,7 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
   final TextEditingController nameController;
   final TextEditingController searchController;
 
-  MapLibreMapController? _mapController;
+  GoogleMapController? _mapController;
   Timer? _searchDebounce;
 
   void _init() {
@@ -60,13 +61,11 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
     }
   }
 
-  void onMapCreated(MapLibreMapController controller) {
+  void onMapCreated(GoogleMapController controller) {
     _mapController = controller;
     final userPos = locationCubit.state.latLng;
-    if (userPos != null && !controller.isDisposed) {
-      controller.animateCamera(
-        CameraUpdate.newLatLngZoom(userPos, 16.0),
-      );
+    if (userPos != null ) {
+      controller.animateCamera(CameraUpdate.newLatLngZoom(userPos, 16.0));
     }
   }
 
@@ -104,7 +103,9 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
       return;
     }
 
-    emit(state.copyWith(searchQuery: query, isSearching: true, showResults: true));
+    emit(
+      state.copyWith(searchQuery: query, isSearching: true, showResults: true),
+    );
 
     _searchDebounce = Timer(const Duration(milliseconds: 500), () async {
       final results = await placeSearchService.search(query);
@@ -135,10 +136,8 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
     );
 
     final controller = _mapController;
-    if (controller != null && !controller.isDisposed) {
-      controller.animateCamera(
-        CameraUpdate.newLatLngZoom(result.latLng, 16.0),
-      );
+    if (controller != null) {
+      controller.animateCamera(CameraUpdate.newLatLngZoom(result.latLng, 16.0));
     }
   }
 
@@ -170,10 +169,8 @@ class SaveSpotCubit extends Cubit<SaveSpotState> {
     if (pos != null) {
       emit(state.copyWith(target: pos));
       final controller = _mapController;
-      if (controller != null && !controller.isDisposed) {
-        controller.animateCamera(
-          CameraUpdate.newLatLngZoom(pos, 16.5),
-        );
+      if (controller != null ) {
+        controller.animateCamera(CameraUpdate.newLatLngZoom(pos, 16.5));
       }
     }
   }

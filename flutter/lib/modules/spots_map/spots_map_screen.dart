@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../app/app_router.dart';
 import '../../shared/cubits/adaptive_nav/adaptive_nav_cubit.dart';
@@ -212,7 +212,7 @@ Future<void> _openDetailsSheet(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    backgroundColor: Colors.transparent,
+    // backgroundColor: Colors.transparent,
     elevation: 0,
     routeSettings: const RouteSettings(name: _detailsSheetRouteName),
     builder: (sheetContext) {
@@ -224,7 +224,7 @@ Future<void> _openDetailsSheet(
         // Fixed fraction of the screen (shrinks automatically when the keyboard opens),
         // so the category column can scroll while the Save button stays pinned.
         child: SizedBox(
-          height: MediaQuery.sizeOf(sheetContext).height * 0.9,
+          // height: MediaQuery.sizeOf(sheetContext).height * 0.9,
           child: BlocProvider<SpotsMapCubit>.value(
             value: cubit,
             child: SaveSpotBottomPanel(
@@ -260,30 +260,37 @@ class _MapLayer extends StatelessWidget {
       buildWhen: (prev, curr) => prev.isAddingSpot != curr.isAddingSpot,
       builder: (context, state) {
         return RepaintBoundary(
-          child: AppMap(
-            key: ValueKey('app_map_${isDark ? "dark" : "light"}'),
-            initialCameraPosition: CameraPosition(
-              target: state.initialTarget,
-              zoom: state.initialZoom,
-            ),
-            onMapCreated: cubit.onMapCreated,
-            onStyleLoadedCallback: cubit.onStyleLoaded,
-            onMapClick: (point, coords) {
-              FocusScope.of(context).unfocus();
-              if (!state.isAddingSpot) {
-                cubit.selectSpot(null);
-              }
+          // Google Maps is declarative: markers come from the cubit's notifier.
+          child: ValueListenableBuilder<Set<Marker>>(
+            valueListenable: cubit.markersNotifier,
+            builder: (context, markers, _) {
+              return AppMap(
+                // No theme-based key: AppMap updates the map style live, so
+                // the map (and its controller) is no longer recreated.
+                initialCameraPosition: CameraPosition(
+                  target: state.initialTarget,
+                  zoom: state.initialZoom,
+                ),
+                markers: markers,
+                onMapCreated: cubit.onMapCreated,
+                onMapClick: (coords) {
+                  FocusScope.of(context).unfocus();
+                  if (!cubit.state.isAddingSpot) {
+                    cubit.selectSpot(null);
+                  }
+                },
+                onMapLongClick: (coords) {
+                  FocusScope.of(context).unfocus();
+                  cubit.onMapLongClick(coords);
+                },
+                onCameraMove: cubit.onCameraMove,
+                onCameraIdle: cubit.onCameraIdle,
+                zoomGesturesEnabled: true,
+                scrollGesturesEnabled: true,
+                rotateGesturesEnabled: true,
+                tiltGesturesEnabled: true,
+              );
             },
-            onMapLongClick: (point, coords) {
-              FocusScope.of(context).unfocus();
-              cubit.onMapLongClick(coords, screenPoint: point);
-            },
-            onCameraMove: cubit.onCameraMove,
-            onCameraIdle: cubit.onCameraIdle,
-            zoomGesturesEnabled: true,
-            scrollGesturesEnabled: true,
-            rotateGesturesEnabled: true,
-            tiltGesturesEnabled: true,
           ),
         );
       },
