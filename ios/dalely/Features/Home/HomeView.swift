@@ -177,16 +177,16 @@ struct HomeView: View {
             Spacer()
 
             // Export button
-            Button {
-                showingExportSheet = true
-            } label: {
-                Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 16, weight: .medium))
-                    .frame(width: 25, height: 30)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.glass)
-            .accessibilityLabel(Text("Export"))
+//            Button {
+//                showingExportSheet = true
+//            } label: {
+//                Image(systemName: "square.and.arrow.up")
+//                    .font(.system(size: 16, weight: .medium))
+//                    .frame(width: 25, height: 30)
+//                    .contentShape(Rectangle())
+//            }
+//            .buttonStyle(.glass)
+//            .accessibilityLabel(Text("Export"))
 
             // Sort menu button
             Menu {
